@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Willkommen</title>
+<meta name="theme-color" content="#141414">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="first thought">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../assets/img/icon-180.png">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  html,body{height:100%}
+  body{overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+  .app{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .bar{display:flex;align-items:center;gap:20px;padding:22px var(--gutter)}
+  .bar .chapter{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+  .progress{flex:1;height:4px;background:var(--ink-3);border-radius:4px;overflow:hidden}
+  .progress i{display:block;height:100%;background:var(--pink);width:0;transition:width .4s ease}
+  .stage{position:relative;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .screen{max-width:860px;margin:0 auto;padding:clamp(16px,4vh,48px) var(--gutter) 40px;animation:in .35s ease}
+  @keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  .q-kicker{color:var(--pink);font-weight:600;font-size:15px;margin-bottom:10px}
+  .q-title{font-weight:900;font-size:clamp(30px,4.6vw,50px);line-height:1.06;margin:0 0 12px;letter-spacing:-.01em}
+  .q-help{color:var(--mist);font-size:18px;margin:0 0 30px;max-width:640px}
+  .welcome h1{font-family:var(--display);font-weight:400;color:var(--pink);font-size:clamp(64px,12vw,140px);line-height:.9;margin:20px 0 26px}
+  .welcome .logo{width:72px}
+
+  input[type=text],input[type=email],input[type=tel],input[type=number],textarea{width:100%;font:400 22px/1.4 var(--sans);color:var(--paper);background:var(--ink-2);border:1.5px solid var(--line);border-radius:14px;padding:18px 20px;outline:none;-webkit-user-select:text;user-select:text}
+  textarea{min-height:170px;resize:vertical}
+  input:focus,textarea:focus{border-color:var(--pink)}
+  .fields{display:grid;gap:14px}
+  .fields.two{grid-template-columns:1fr 1fr}
+  @media (max-width:640px){.fields.two{grid-template-columns:1fr}}
+  label.f span{display:block;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:10px}
+  .opt{font:600 18px/1.2 var(--sans);padding:16px 22px;border-radius:999px;border:1.5px solid var(--line);background:var(--ink-2);color:var(--paper);cursor:pointer;transition:all .15s}
+  .opt[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:var(--ink)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .cards .opt{border-radius:18px;text-align:left;padding:24px;min-height:110px;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+  .cards .opt small{font-weight:400;font-size:14px;opacity:.75}
+
+  .grid{display:grid;grid-template-columns:110px repeat(7,1fr);gap:6px;font-size:14px}
+  .grid .h{font-weight:600;color:var(--muted);text-align:center;padding:6px 0}
+  .grid .r{font-weight:600;color:var(--mist);display:flex;align-items:center}
+  .cell{height:52px;border-radius:10px;border:1.5px solid var(--line);background:var(--ink-2);cursor:pointer;font:600 12px var(--sans);color:var(--ink)}
+  .cell[data-v="1"]{background:#5a3a43;border-color:#5a3a43;color:var(--paper)}
+  .cell[data-v="2"]{background:var(--pink-soft);border-color:var(--pink-soft)}
+  .cell[data-v="3"]{background:var(--pink);border-color:var(--pink)}
+  .legend{display:flex;gap:18px;margin-top:16px;color:var(--mist);font-size:14px;flex-wrap:wrap}
+  .legend i{display:inline-block;width:14px;height:14px;border-radius:4px;vertical-align:-2px;margin-right:6px}
+
+  .slider{margin:8px 0 26px}
+  .slider .top{display:flex;justify-content:space-between;font-weight:600;font-size:18px;margin-bottom:12px}
+  .slider .top output{color:var(--pink);font-weight:900}
+  input[type=range]{width:100%;accent-color:var(--pink);height:36px}
+
+  .rank{display:grid;gap:10px}
+  .rank .item{display:flex;align-items:center;gap:16px;background:var(--ink-2);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;font-size:19px;font-weight:600}
+  .rank .item .n{font-weight:900;color:var(--pink);width:26px}
+  .rank .item .mv{margin-left:auto;display:flex;gap:6px}
+  .rank .item button{width:44px;height:44px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--paper);font-size:18px;cursor:pointer}
+
+  .swipe{display:grid;gap:12px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .pair .opt{border-radius:18px;padding:22px;text-align:center;font-size:20px}
+
+  .upload{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+  .drop{width:100%;border:2px dashed var(--line);border-radius:18px;padding:40px;text-align:center;color:var(--mist);font-size:18px;cursor:pointer}
+  .thumbs{display:flex;gap:10px;flex-wrap:wrap}
+  .thumbs img{width:110px;height:110px;object-fit:cover;border-radius:12px}
+
+  .sig{width:100%;height:220px;background:var(--mist);border-radius:18px;touch-action:none;cursor:crosshair}
+  .check{display:flex;gap:14px;align-items:flex-start;font-size:17px;color:var(--mist);margin:0 0 14px;cursor:pointer}
+  .check input{width:28px;height:28px;accent-color:var(--pink);flex:none}
+
+  .prefill{background:var(--ink-2);border:1.5px solid var(--line);border-radius:18px;padding:22px;margin:0 0 22px}
+  .prefill .row{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-top:1px solid var(--line);font-size:17px}
+  .prefill .row:first-of-type{border-top:0}
+  .prefill .row span{color:var(--muted)}
+  .prefill .pill{display:inline-block;font-size:12px;font-weight:600;background:var(--blue);color:#fff;border-radius:999px;padding:5px 10px;margin-bottom:12px}
+
+  .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px var(--gutter) 24px;border-top:1px solid var(--line)}
+  .nav .btn{padding:18px 28px;font-size:17px}
+  .nav .ghost{border-color:transparent;color:var(--muted)}
+  .nav .ghost:hover{background:transparent;color:var(--paper)}
+  .skip{font-size:15px;color:var(--muted);background:none;border:0;cursor:pointer;text-decoration:underline}
+  .done h1{font-family:var(--display);font-weight:400;color:var(--pink);font-size:clamp(60px,10vw,120px);line-height:.9;margin:20px 0}
+  .demo-note{font-size:11px;white-space:nowrap;color:var(--muted);background:var(--ink-2);border:1px solid var(--line);padding:6px 10px;border-radius:999px;opacity:.8}
+  .admin{margin-top:30px;background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:16px;font:12px/1.45 ui-monospace,Menlo,monospace;color:var(--mist);max-height:280px;overflow:auto;white-space:pre-wrap;-webkit-user-select:text;user-select:text;display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bar">
+    <img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px">
+    <span class="chapter" id="chapter">Willkommen</span>
+    <div class="progress" aria-hidden="true"><i id="prog"></i></div>
+    <span class="demo-note">Demo · Antworten bleiben nur auf diesem Gerät</span>
+  </div>
+  <div class="stage" id="stage"></div>
+  <div class="nav">
+    <button class="btn ghost" id="back" type="button">← Zurück</button>
+    <button class="skip" id="skip" type="button">Später beantworten</button>
+    <button class="btn btn--pink" id="next" type="button">Weiter →</button>
+  </div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const DAYS=["Mo","Di","Mi","Do","Fr","Sa","So"];
+const SLOTS=["Frühstück","Mittag","Nachmittag","Abend","Late Night"];
+
+// ---------- Fragen ----------
+const S = [
+ {k:"welcome", ch:"Willkommen", type:"welcome"},
+ // 1 Das Lokal
+ {k:"lokal", ch:"1 · Das Lokal", type:"fields", title:"Erzähl uns von deinem Lokal.", help:"Name und Adresse reichen. Den Rest suchen wir im Hintergrund zusammen.", fields:[["name","Name des Lokals","text"],["adresse","Adresse","text"],["kontakt","Dein Name","text"],["tel","Telefon / WhatsApp","tel"]], two:true},
+ {k:"prefill", ch:"1 · Das Lokal", type:"prefill", title:"Haben wir das richtig gefunden?", help:"Aus deinem Google-Profil, deiner Website und Instagram. Stimmt das so?"},
+ {k:"typ", ch:"1 · Das Lokal", type:"cards", title:"Was für ein Betrieb bist du?", help:"Eins auswählen.", single:true, opts:[["Wirtshaus / Beisl","Österreichische Küche"],["Restaurant","International, Italienisch, Asiatisch …"],["Café / Bäckerei","Frühstück, Kuchen, Kaffee"],["Bar / Late Night","Drinks, Nachtleben"],["Imbiss / Fast Casual","Burger, Fries, Döner, Bowls"],["Fine Dining","Menü, Weinbegleitung"],["Heuriger / Weinbar","Wein im Mittelpunkt"],["Event-Location","Konzerte, Dinner-Shows, Feiern"]]},
+ {k:"groesse", ch:"1 · Das Lokal", type:"sliders", title:"Wie groß bist du?", sliders:[["innen","Sitzplätze innen",0,300,60,""],["aussen","Plätze im Schanigarten",0,200,20,""],["bon","Durchschnittsbon pro Gast",5,120,28," €"]]},
+ // 2 Story
+ {k:"story", ch:"2 · Die Story", type:"text", title:"Warum gibt es euch?", help:"In deinen Worten. Kein Werbetext, einfach so, wie du's einem Freund erzählen würdest.", ph:"Wir haben aufgesperrt, weil …"},
+ {k:"fehlen", ch:"2 · Die Story", type:"text", title:"Was würde Wien fehlen, wenn ihr morgen zusperrt?", help:"Das ist oft der Kern jeder guten Kampagne.", ph:"Ohne uns gäbe es kein …"},
+ // 3 Helden
+ {k:"helden", ch:"3 · Helden & Karte", type:"fields", title:"Deine drei Helden auf der Karte.", help:"Was verkauft sich am besten, was liebst du am meisten, was sieht am besten aus?", fields:[["bestseller","Bestseller","text"],["liebling","Dein Lieblingsgericht","text"],["insta","Das Instagram-Gericht","text"],["drink","Signature-Drink","text"]], two:true},
+ {k:"karte", ch:"3 · Helden & Karte", type:"upload", title:"Speisekarte hochladen.", help:"Ein Foto reicht, auch handgeschrieben. Wir lesen sie aus."},
+ // 4 Gäste & Zeiten
+ {k:"heatmap", ch:"4 · Gäste & Zeiten", type:"heatmap", title:"Wann ist bei dir was los?", help:"Tipp auf ein Feld, um zwischen leer, okay und voll zu wechseln."},
+ {k:"gaeste", ch:"4 · Gäste & Zeiten", type:"chips", title:"Wer sind deine Gäste?", help:"Alles auswählen, was passt.", opts:["Stammgäste","Touristen","Büro / Business","Studierende","Familien","Paare","Nachtschwärmer","Nachbarschaft","Event-Gäste","Lieferung / Abholung"]},
+ // 5 Ziel
+ {k:"ziel", ch:"5 · Ziel", type:"rank", title:"Was soll in 90 Tagen anders sein?", help:"Sortier nach Wichtigkeit. Ganz oben ist das, was am meisten zählt.", opts:["Mehr Umsatz insgesamt","Eine schwache Tageszeit füllen","Neue Gäste gewinnen","Stammgäste öfter sehen","Bessere Bewertungen","Personal finden"]},
+ {k:"schwach", ch:"5 · Ziel", type:"text", title:"Was ärgert dich gerade am meisten?", help:"Leere Montage, schlechte Bewertungen, die Konkurrenz gegenüber … raus damit.", ph:"Am meisten ärgert mich …"},
+ // 6 Marketing bisher
+ {k:"kanaele", ch:"6 · Marketing bisher", type:"chips", title:"Wo bist du schon unterwegs?", help:"Alles, was es gibt. Auch wenn's eingeschlafen ist.", opts:["Instagram","TikTok","Facebook","Google-Profil","Website","Newsletter","Wolt","Lieferando","Tripadvisor","WhatsApp-Gruppe"]},
+ {k:"budget", ch:"6 · Marketing bisher", type:"cards", title:"Wie viel Werbebudget pro Monat?", help:"Nur Media und Creator. Unsere Arbeit ist extra.", single:true, opts:[["0 €","Nur organisch"],["bis 300 €",""],["300–700 €",""],["700–1.500 €",""],["über 1.500 €",""],["Weiß ich noch nicht",""]]},
+ {k:"bisher", ch:"6 · Marketing bisher", type:"text", title:"Was hat schon mal richtig gut funktioniert?", help:"Und was nie? Beides hilft uns.", ph:"Gut lief … / Nie funktioniert hat …"},
+ // 7 Nachbarschaft
+ {k:"anker", ch:"7 · Nachbarschaft", type:"chips", title:"Was ist in deiner Nähe?", help:"Daraus entstehen oft die besten Ideen, wie der Nachtdienst-Teller fürs Spital ums Eck.", opts:["Uni / FH","Schule","Spital","Büros","Markt","Bahnhof / U-Bahn","Theater / Konzerthaus","Bars & Clubs","Hotels","Park","Einkaufsstraße","Sportplatz"]},
+ {k:"konkurrenz", ch:"7 · Nachbarschaft", type:"fields", title:"Wen siehst du als Konkurrenz?", help:"Bis zu drei Lokale. Wir schauen uns an, was die machen.", fields:[["k1","Konkurrent 1","text"],["k2","Konkurrent 2","text"],["k3","Konkurrent 3","text"]]},
+ // 8 Marke & Ton
+ {k:"ton", ch:"8 · Marke & Ton", type:"pairs", title:"Wie soll deine Marke klingen?", help:"Pro Zeile eins antippen. Bauchgefühl reicht.", pairs:[["Laut","Leise"],["Frech","Elegant"],["Wienerisch","Hochdeutsch"],["Du","Sie"],["Humor","Handwerk"],["Trendig","Zeitlos"]]},
+ {k:"nogos", ch:"8 · Marke & Ton", type:"chips", title:"Was geht bei dir gar nicht?", help:"Damit wir nie danebengreifen.", opts:["Alkohol bewerben","Rabatte in Prozent","Gewinnspiele","Influencer","Politik","Religion","Schmäh auf Kosten anderer","Gesicht zeigen (ich selbst)"]},
+ // 9 Rahmen
+ {k:"rahmen", ch:"9 · Rahmen", type:"chips", title:"Was ist für Aktionen möglich?", help:"Damit unsere Ideen auch in deinem Alltag funktionieren.", opts:["Aktionspreise","Länger offen haben","Events im Lokal","Neue Gerichte (Limited)","Kooperationen","Gutscheine","Drehs während Betrieb","Mitarbeiter vor der Kamera"]},
+ {k:"zugaenge", ch:"9 · Rahmen", type:"chips", title:"Welche Zugänge kannst du uns geben?", help:"Nur lesend, für die Analyse. Du kannst sie jederzeit entziehen.", opts:["Instagram / Meta Business","TikTok Business","Google-Unternehmensprofil","Website","Fotos & Videos (Ordner)"]},
+ {k:"ok", ch:"9 · Rahmen", type:"consent", title:"Fast fertig.", help:"Kurz bestätigen und unterschreiben."},
+ {k:"done", ch:"Danke", type:"done"}
+];
+
+// ---------- State ----------
+const KEY="tft-fragebogen-demo";
+let st={i:0,a:{}};
+try{const s=JSON.parse(localStorage.getItem(KEY)||"null"); if(s&&typeof s.i==="number")st=s;}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}};
+const A=st.a;
+const $=(h)=>{const d=document.createElement("div");d.innerHTML=h.trim();return d.firstElementChild;};
+const esc=(s)=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+const stage=document.getElementById("stage"), prog=document.getElementById("prog"), chap=document.getElementById("chapter");
+const back=document.getElementById("back"), next=document.getElementById("next"), skip=document.getElementById("skip");
+
+function head(q){return `<div class="q-kicker">${esc(q.ch)}</div><h2 class="q-title">${esc(q.title)}</h2>${q.help?`<p class="q-help">${esc(q.help)}</p>`:""}`;}
+
+function render(){
+  const q=S[st.i];
+  chap.textContent=q.ch;
+  prog.style.width=Math.round(st.i/(S.length-1)*100)+"%";
+  back.style.visibility=(st.i===0||q.type==="done")?"hidden":"visible";
+  skip.style.visibility=(["welcome","done","consent"].includes(q.type))?"hidden":"visible";
+  next.textContent=q.type==="welcome"?"Los geht's →":q.type==="consent"?"Absenden ✓":q.type==="done"?"Neu starten":"Weiter →";
+  const sc=document.createElement("div"); sc.className="screen";
+  stage.innerHTML=""; stage.appendChild(sc); stage.scrollTop=0;
+
+  if(q.type==="welcome"){
+    sc.className+=" welcome";
+    sc.innerHTML=`<img class="logo" src="../assets/img/logo-pink.svg" alt=""><h1>LET'S COOK<br>SOMETHING!</h1><p class="q-help">Schön, dass wir uns kennenlernen. In den nächsten ~20 Minuten erzählst du uns, was dein Lokal ausmacht. Fast alles ist Antippen, kaum Tippen. Danach machen wir uns Gedanken und melden uns mit ersten Ideen.</p>`;
+  }
+  if(q.type==="fields"){
+    sc.innerHTML=head(q);
+    const f=$(`<div class="fields ${q.two?"two":""}"></div>`);
+    q.fields.forEach(([id,l,t])=>{
+      const w=$(`<label class="f"><span>${esc(l)}</span><input type="${t}" autocomplete="off"></label>`);
+      const inp=w.querySelector("input"); inp.value=(A[q.k]||{})[id]||"";
+      inp.addEventListener("input",()=>{A[q.k]=A[q.k]||{};A[q.k][id]=inp.value;save();});
+      f.appendChild(w);
+    });
+    sc.appendChild(f);
+  }
+  if(q.type==="prefill"){
+    const n=(A.lokal&&A.lokal.name)||"Dein Lokal";
+    sc.innerHTML=head(q)+`<div class="prefill"><span class="pill">Automatisch gefunden · Demo-Werte</span>
+      <div class="row"><span>Name</span><b>${esc(n)}</b></div>
+      <div class="row"><span>Google</span><b>4,6 ★ · 812 Bewertungen</b></div>
+      <div class="row"><span>Kategorie</span><b>Restaurant</b></div>
+      <div class="row"><span>Öffnungszeiten</span><b>Di–Sa 11:30–23:00</b></div>
+      <div class="row"><span>Instagram</span><b>3.420 Follower · 2 Posts/Woche</b></div>
+      <div class="row"><span>TikTok</span><b>nicht gefunden</b></div></div>`;
+    const c=$(`<div class="chips"></div>`);
+    ["Passt so","Fast — ich korrigiere was"].forEach(o=>{const b=opt(o,A.prefill===o);b.onclick=()=>{A.prefill=o;save();render();};c.appendChild(b);});
+    sc.appendChild(c);
+  }
+  if(q.type==="cards"||q.type==="chips"){
+    sc.innerHTML=head(q);
+    const wrap=$(`<div class="${q.type==="cards"?"cards":"chips"}"></div>`);
+    const sel=A[q.k]||(q.single?null:[]);
+    q.opts.forEach(o=>{
+      const label=Array.isArray(o)?o[0]:o, sub=Array.isArray(o)?o[1]:"";
+      const on=q.single?sel===label:sel.includes(label);
+      const b=opt(label,on,sub);
+      b.onclick=()=>{
+        if(q.single){A[q.k]=label;}else{const arr=A[q.k]||[];A[q.k]=arr.includes(label)?arr.filter(x=>x!==label):[...arr,label];}
+        save();render();
+      };
+      wrap.appendChild(b);
+    });
+    sc.appendChild(wrap);
+  }
+  if(q.type==="sliders"){
+    sc.innerHTML=head(q);
+    A[q.k]=A[q.k]||{};
+    q.sliders.forEach(([id,l,min,max,def,unit])=>{
+      const v=A[q.k][id]??def;
+      const w=$(`<div class="slider"><div class="top"><span>${esc(l)}</span><output>${v}${unit}</output></div><input type="range" min="${min}" max="${max}" value="${v}"></div>`);
+      const r=w.querySelector("input"),o=w.querySelector("output");
+      r.oninput=()=>{o.textContent=r.value+unit;A[q.k][id]=+r.value;save();};
+      sc.appendChild(w);
+    });
+  }
+  if(q.type==="text"){
+    sc.innerHTML=head(q);
+    const t=$(`<textarea placeholder="${esc(q.ph||"")}"></textarea>`);
+    t.value=A[q.k]||""; t.oninput=()=>{A[q.k]=t.value;save();};
+    sc.appendChild(t);
+    sc.appendChild($(`<p class="q-help" style="margin-top:14px;font-size:15px">Lieber reden als tippen? In der fertigen Version gibt's hier einen Mikrofon-Button, der mitschreibt.</p>`));
+  }
+  if(q.type==="upload"){
+    sc.innerHTML=head(q);
+    const w=$(`<div class="upload"><label class="drop">📷 Foto aufnehmen oder auswählen<input type="file" accept="image/*,application/pdf" multiple hidden></label><div class="thumbs"></div></div>`);
+    const inp=w.querySelector("input"), th=w.querySelector(".thumbs");
+    inp.onchange=()=>{[...inp.files].forEach(f=>{if(f.type.startsWith("image/")){const im=document.createElement("img");im.src=URL.createObjectURL(f);th.appendChild(im);}else{th.appendChild($(`<span class="opt">${esc(f.name)}</span>`));}});A[q.k]=(A[q.k]||0)+inp.files.length;save();};
+    sc.appendChild(w);
+  }
+  if(q.type==="heatmap"){
+    sc.innerHTML=head(q);
+    A[q.k]=A[q.k]||{};
+    const g=$(`<div class="grid"></div>`);
+    g.appendChild($(`<div></div>`)); DAYS.forEach(d=>g.appendChild($(`<div class="h">${d}</div>`)));
+    SLOTS.forEach(s=>{
+      g.appendChild($(`<div class="r">${s}</div>`));
+      DAYS.forEach(d=>{
+        const id=d+"-"+s, v=A[q.k][id]||0;
+        const c=$(`<button type="button" class="cell" data-v="${v}" aria-label="${d} ${s}"></button>`);
+        c.textContent=["","leer","okay","voll"][v];
+        c.onclick=()=>{const nv=((A[q.k][id]||0)+1)%4;A[q.k][id]=nv;c.dataset.v=nv;c.textContent=["","leer","okay","voll"][nv];save();};
+        g.appendChild(c);
+      });
+    });
+    sc.appendChild(g);
+    sc.appendChild($(`<div class="legend"><span><i style="background:#5a3a43"></i>leer</span><span><i style="background:var(--pink-soft)"></i>okay</span><span><i style="background:var(--pink)"></i>voll</span><span>Nicht getippt = geschlossen</span></div>`));
+  }
+  if(q.type==="rank"){
+    sc.innerHTML=head(q);
+    A[q.k]=A[q.k]||q.opts.slice();
+    const list=$(`<div class="rank"></div>`);
+    A[q.k].forEach((o,ix)=>{
+      const it=$(`<div class="item"><span class="n">${ix+1}</span><span>${esc(o)}</span><span class="mv"><button type="button" aria-label="nach oben">↑</button><button type="button" aria-label="nach unten">↓</button></span></div>`);
+      const [up,dn]=it.querySelectorAll("button");
+      up.onclick=()=>{if(ix>0){const a=A[q.k];[a[ix-1],a[ix]]=[a[ix],a[ix-1]];save();render();}};
+      dn.onclick=()=>{const a=A[q.k];if(ix<a.length-1){[a[ix+1],a[ix]]=[a[ix],a[ix+1]];save();render();}};
+      list.appendChild(it);
+    });
+    sc.appendChild(list);
+  }
+  if(q.type==="pairs"){
+    sc.innerHTML=head(q);
+    A[q.k]=A[q.k]||{};
+    const w=$(`<div class="swipe"></div>`);
+    q.pairs.forEach(([l,r],ix)=>{
+      const p=$(`<div class="pair"></div>`);
+      [l,r].forEach(v=>{const b=opt(v,A[q.k][ix]===v);b.onclick=()=>{A[q.k][ix]=v;save();render();};p.appendChild(b);});
+      w.appendChild(p);
+    });
+    sc.appendChild(w);
+  }
+  if(q.type==="consent"){
+    sc.innerHTML=head(q);
+    A[q.k]=A[q.k]||{};
+    [["dsgvo","Ich bin einverstanden, dass the first thought meine Angaben speichert und für die Ausarbeitung von Ideen verarbeitet (Datenschutzerklärung)."],["kontakt","the first thought darf mich mit Vorschlägen kontaktieren."]].forEach(([id,t])=>{
+      const l=$(`<label class="check"><input type="checkbox"><span>${esc(t)}</span></label>`);
+      const cb=l.querySelector("input"); cb.checked=!!A[q.k][id]; cb.onchange=()=>{A[q.k][id]=cb.checked;save();};
+      sc.appendChild(l);
+    });
+    const cv=$(`<canvas class="sig" aria-label="Unterschrift"></canvas>`);
+    sc.appendChild($(`<label class="f" style="margin-top:12px"><span>Unterschrift</span></label>`));
+    sc.appendChild(cv);
+    requestAnimationFrame(()=>sigpad(cv,q.k));
+  }
+  if(q.type==="done"){
+    sc.className+=" done";
+    const n=(A.lokal&&A.lokal.name)?A.lokal.name:"dein Lokal";
+    sc.innerHTML=`<img class="logo" src="../assets/img/logo-pink.svg" alt="" style="width:72px"><h1>THANK<br>YOU!</h1><p class="q-help">Danke! Wir machen uns jetzt Gedanken über ${esc(n)} und melden uns in den nächsten Tagen mit ersten Ideen.</p><p class="q-help" style="font-size:15px">Demo-Hinweis: In der fertigen Version landen die Antworten jetzt in der Kundenakte im Cockpit, und Claude beginnt mit der Recherche. Der Kunde sieht hier nichts davon.</p><button class="skip" id="peek" type="button">Für Minashe: Antworten als Daten ansehen</button><pre class="admin" id="dump"></pre>`;
+    sc.querySelector("#peek").onclick=()=>{const d=sc.querySelector("#dump");d.style.display="block";d.textContent=JSON.stringify(A,null,2);};
+  }
+}
+
+function opt(label,on,sub){
+  const b=document.createElement("button"); b.type="button"; b.className="opt"; b.setAttribute("aria-pressed",String(!!on));
+  b.innerHTML=esc(label)+(sub?`<small>${esc(sub)}</small>`:"");
+  return b;
+}
+
+function sigpad(cv,k){
+  const r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr; cv.height=r.height*dpr;
+  const c=cv.getContext("2d"); c.scale(dpr,dpr); c.lineWidth=2.6; c.lineCap="round"; c.strokeStyle="#141414";
+  let draw=false;
+  const pt=e=>{const b=cv.getBoundingClientRect();return [e.clientX-b.left,e.clientY-b.top];};
+  cv.onpointerdown=e=>{draw=true;cv.setPointerCapture(e.pointerId);c.beginPath();c.moveTo(...pt(e));};
+  cv.onpointermove=e=>{if(!draw)return;c.lineTo(...pt(e));c.stroke();};
+  cv.onpointerup=()=>{draw=false;A[k].signed=true;save();};
+}
+
+back.onclick=()=>{if(st.i>0){st.i--;save();render();}};
+skip.onclick=()=>{if(st.i<S.length-1){st.i++;save();render();}};
+next.onclick=()=>{
+  const q=S[st.i];
+  if(q.type==="done"){st={i:0,a:{}};try{localStorage.removeItem(KEY);}catch(e){} location.reload();return;}
+  if(st.i<S.length-1){st.i++;save();render();}
+};
+render();
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+})();
+</script>
+</body>
+</html>

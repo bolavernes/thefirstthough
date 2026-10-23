@@ -1,0 +1,40 @@
+/* the first thought — Design-Tokens (abgeleitet von thefirstthought.at) */
+@font-face{font-family:"Franie";src:url("../fonts/Franie-Light.woff2") format("woff2");font-weight:300;font-display:swap}
+@font-face{font-family:"Franie";src:url("../fonts/Franie-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"Franie";src:url("../fonts/Franie-Italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Franie";src:url("../fonts/Franie-SemiBold.woff2") format("woff2");font-weight:600;font-display:swap}
+@font-face{font-family:"Franie";src:url("../fonts/Franie-Bold.woff2") format("woff2");font-weight:700;font-display:swap}
+@font-face{font-family:"Franie";src:url("../fonts/Franie-Black.woff2") format("woff2");font-weight:900;font-display:swap}
+@font-face{font-family:"Thefirstfont";src:url("../fonts/Thefirstfont-Regular.woff2") format("woff2");font-weight:400;font-display:swap}
+
+:root{
+  --ink:#141414;
+  --ink-2:#1d1f22;
+  --ink-3:#2a2d33;
+  --line:#33373d;
+  --muted:#8b93a0;
+  --paper:#ffffff;
+  --mist:#d8e5ea;
+  --pink:#e82b56;
+  --pink-soft:#e0687f;
+  --blue:#4169e1;
+  --yellow:#feff5d;
+  --radius:18px;
+  --gutter:clamp(16px,4vw,48px);
+  --max:1180px;
+  --display:"Thefirstfont","Franie",system-ui,sans-serif;
+  --sans:"Franie",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--sans);font-weight:400;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+img,svg{display:block;max-width:100%}
+::selection{background:var(--pink);color:var(--ink)}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 var(--gutter)}
+.logo{width:40px;height:auto;color:var(--paper)}
+.btn{display:inline-flex;align-items:center;gap:.6em;font:600 15px/1 var(--sans);padding:16px 22px;border-radius:999px;border:1.5px solid var(--paper);color:var(--paper);background:transparent;text-decoration:none;cursor:pointer;transition:background .2s,color .2s,border-color .2s}
+.btn:hover{background:var(--paper);color:var(--ink)}
+.btn--pink{background:var(--pink);border-color:var(--pink);color:var(--ink)}
+.btn--pink:hover{background:var(--paper);border-color:var(--paper)}
+.tag{display:inline-block;font:600 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--pink)}

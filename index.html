@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Kampagnen-Tool</title>
+<meta name="description" content="Konzept-Entwurf: Onboarding- und Kampagnen-Tool für the first thought.">
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/img/icon-180.png">
+<link rel="preload" href="assets/fonts/Franie-Black.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/css/base.css">
+<style>
+  header.top{position:sticky;top:0;z-index:20;background:rgba(20,20,20,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+  header.top nav{display:flex;gap:22px;font-size:14px;font-weight:600}
+  header.top nav a{text-decoration:none;color:var(--mist);opacity:.8}
+  header.top nav a:hover{opacity:1;color:var(--pink)}
+  .draft{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+
+  .hero{padding:clamp(56px,10vw,120px) 0 clamp(48px,8vw,96px);position:relative;overflow:hidden}
+  .hero h1{font-family:var(--display);font-weight:400;color:var(--pink);font-size:clamp(64px,13vw,170px);line-height:.88;margin:18px 0 28px;letter-spacing:.01em}
+  .hero p.lead{font-size:clamp(18px,2.2vw,24px);max-width:720px;color:var(--mist);margin:0 0 34px}
+  .hero .ctas{display:flex;flex-wrap:wrap;gap:12px}
+  .hero .mark{position:absolute;right:-60px;top:40px;width:clamp(220px,34vw,460px);color:#1f2124;z-index:-1}
+
+  section{padding:clamp(56px,9vw,110px) 0;border-top:1px solid var(--line)}
+  h2{font-weight:900;font-size:clamp(32px,5vw,58px);line-height:1.02;margin:12px 0 18px;letter-spacing:-.01em}
+  h3{font-weight:700;font-size:20px;margin:0 0 8px}
+  .sub{color:var(--mist);max-width:760px;font-size:18px;margin:0 0 40px}
+
+  .quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .quote{background:var(--ink-2);border-radius:var(--radius);padding:26px;border:1px solid var(--line)}
+  .quote q{display:block;font-weight:700;font-size:20px;line-height:1.3;quotes:"„" "“"}
+  .quote span{display:block;margin-top:14px;color:var(--muted);font-size:14px}
+
+  .stations{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;counter-reset:st}
+  .station{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:28px;position:relative}
+  .station::before{counter-increment:st;content:"0" counter(st);font-weight:900;font-size:56px;color:var(--pink);line-height:1;display:block;margin-bottom:18px}
+  .station .who{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  .station ul{margin:14px 0 0;padding-left:18px;color:var(--mist);font-size:15px}
+  .station li{margin:4px 0}
+
+  .typchips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 28px}
+  .chip{font:600 14px/1 var(--sans);padding:11px 16px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--mist);cursor:pointer}
+  .chip[aria-pressed="true"]{background:var(--pink);border-color:var(--pink);color:var(--ink)}
+  .year{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+  .month{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:16px;min-height:150px}
+  .month h4{margin:0 0 10px;font-weight:900;font-size:22px}
+  .ev{font-size:13.5px;line-height:1.35;padding:7px 0;border-top:1px solid var(--line);color:var(--muted);transition:color .2s,opacity .2s}
+  .ev b{display:block;font-weight:600;color:var(--mist)}
+  .ev.hit{color:var(--paper)}
+  .ev.hit b{color:var(--pink)}
+  .ev.off{opacity:.28}
+  .counter{margin:24px 0 0;color:var(--mist);font-size:16px}
+  .counter strong{color:var(--pink)}
+
+  .concept{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
+  @media (max-width:860px){.concept{grid-template-columns:1fr}}
+  .card{background:var(--mist);color:var(--ink);border-radius:var(--radius);padding:30px}
+  .card .tag{color:var(--pink)}
+  .card h3{font-size:30px;font-weight:900;margin:10px 0 6px}
+  .card .meta{font-size:14px;color:#4a4d5c;margin-bottom:18px}
+  .card dl{display:grid;grid-template-columns:130px 1fr;gap:10px 16px;margin:0;font-size:15px}
+  .card dt{font-weight:700}
+  .card dd{margin:0}
+  .refs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}
+  .ref{aspect-ratio:9/16;border-radius:12px;background:var(--ink);color:var(--paper);padding:12px;display:flex;flex-direction:column;justify-content:flex-end;font-size:12px;position:relative;overflow:hidden}
+  .ref::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg,var(--pink) 0%,transparent 60%);opacity:.55}
+  .ref span{position:relative}
+  .ref b{position:relative;font-size:15px}
+  .side{display:flex;flex-direction:column;gap:12px}
+  .side .box{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .side .box p{margin:6px 0 0;color:var(--mist);font-size:15px}
+
+  .agents{display:grid;gap:10px}
+  .agent{display:grid;grid-template-columns:200px 1fr auto;gap:20px;align-items:baseline;padding:18px 0;border-top:1px solid var(--line)}
+  .agent b{font-size:18px}
+  .agent p{margin:0;color:var(--mist)}
+  .agent em{font-style:normal;color:var(--muted);font-size:13px;white-space:nowrap}
+  @media (max-width:700px){.agent{grid-template-columns:1fr}}
+
+  .phases{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .phase{border-left:3px solid var(--pink);padding:6px 0 6px 16px}
+  .phase b{display:block;font-size:17px}
+  .phase span{font-size:13px;color:var(--muted);font-weight:600}
+  .phase p{margin:6px 0 0;color:var(--mist);font-size:14.5px}
+
+  .costs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .cost{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:24px}
+  .cost .n{font-weight:900;font-size:36px;color:var(--pink);line-height:1}
+  .cost p{margin:10px 0 0;color:var(--mist);font-size:14.5px}
+
+  .questions{columns:2 320px;column-gap:40px;padding:0;margin:0;list-style:none;counter-reset:q}
+  .questions li{break-inside:avoid;padding:14px 0 14px 44px;border-top:1px solid var(--line);position:relative;color:var(--mist)}
+  .questions li::before{counter-increment:q;content:counter(q);position:absolute;left:0;top:12px;font-weight:900;color:var(--pink);font-size:20px}
+  .questions b{color:var(--paper)}
+
+  footer{padding:48px 0 64px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
+  @media (max-width:640px){header.top nav{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a href="./" aria-label="Start"><img class="logo" src="assets/img/logo-white.svg" alt="the first thought"></a>
+    <nav>
+      <a href="#wie">So funktioniert's</a>
+      <a href="#anlaesse">Anlass-Planer</a>
+      <a href="#konzept">Konzept-Beispiel</a>
+      <a href="#fragen">Offene Fragen</a>
+      <a href="fragebogen/">iPad-Demo</a>
+    </nav>
+    <span class="draft">Entwurf · 23.10.2026</span>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <img class="mark" src="assets/img/logo-dark.svg" alt="" aria-hidden="true">
+      <span class="tag">Onboarding- &amp; Kampagnen-Tool</span>
+      <h1>LET'S COOK<br>CAMPAIGNS!</h1>
+      <p class="lead">Der Kunde füllt am iPad aus, was sein Lokal ausmacht. Über Nacht entstehen daraus Kampagnen-Konzepte, ein vorgeplanter Jahreskalender mit den Anlässen, die zu genau diesem Lokal passen, und eine Präsentation im the-first-thought-Look. Ideen, die Minashe verkaufen kann, bevor der Kunde fragt.</p>
+      <div class="ctas">
+        <a class="btn btn--pink" href="fragebogen/">iPad-Fragebogen ansehen →</a>
+        <a class="btn" href="konzept/">Ganzes Konzept lesen</a>
+      </div>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <span class="tag">Warum</span>
+      <h2>66 Kunden. Eine Frage.</h2>
+      <p class="sub">Neueröffnung, laufender Betrieb oder kurz vorm Zusperren: Jeder Gastronom will wissen, was er tun kann, damit Gäste kommen. Das Tool macht die Hintergrundarbeit, damit das Team die Antwort nicht jedes Mal von null erfinden muss.</p>
+      <div class="quotes">
+        <div class="quote"><q>Jeder braucht Kunden und jeder hat dieselbe Fragestellung an uns.</q><span>Minashe, 21.10.2026</span></div>
+        <div class="quote"><q>Gratis ist keine Kampagne. 1+1 gratis Matcha ist auch nichts Besonderes.</q><span>Minashe, 21.10.2026</span></div>
+        <div class="quote"><q>Weihnachten muss für jeden Gastronomen gestartet werden. Eine Kampagne braucht immer einen Anlass, eine Dauer und KPIs.</q><span>Minashe, 21.10.2026</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="wie">
+    <div class="wrap">
+      <span class="tag">So funktioniert's</span>
+      <h2>Eine Küche, vier Stationen.</h2>
+      <p class="sub">Ein Tool, ein Login, drei Oberflächen: Fragebogen für den Kunden, Cockpit fürs Büro, Crew-App fürs Set. Claude arbeitet im Hintergrund.</p>
+      <div class="stations">
+        <div class="station"><span class="who">Kunde · iPad</span><h3>Mise en Place</h3><p>Der Fragebogen, ca. 25 Minuten.</p><ul><li>Eine Frage pro Screen, Antippen statt Tippen</li><li>Google-Profil, Website und Instagram werden vorbefüllt</li><li>Läuft am Home-Screen ohne Browserleiste, auch offline</li><li>Kein Ergebnis am iPad: „Wir melden uns.“</li></ul></div>
+        <div class="station"><span class="who">Claude · über Nacht</span><h3>Küche</h3><p>Die Agenten.</p><ul><li>Research: Lokal, Konkurrenz, Benchmarks</li><li>3–7 Kampagnen-Konzepte</li><li>Referenz-Reels pro Kampagne</li><li>Präsentation im the-first-thought-Look</li></ul></div>
+        <div class="station"><span class="who">Minashe · Büro</span><h3>Cockpit</h3><p>Admin &amp; CRM.</p><ul><li>Kundenakte mit Brand-Kit</li><li>Pipeline: Idee → angeboten → verkauft</li><li>Anlass-Planer für alle 66</li><li>Chat mit Claude pro Kunde</li></ul></div>
+        <div class="station"><span class="who">Crew · Handy</span><h3>Pass</h3><p>Die Crew-App.</p><ul><li>Drehplan der Woche</li><li>Shotlist pro Dreh mit Referenz-Reels</li><li>Brand-Cheat-Sheet pro Kunde</li><li>„Dreh erledigt“ + Upload-Link</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="anlaesse">
+    <div class="wrap">
+      <span class="tag">Herzstück</span>
+      <h2>Der Anlass-Planer.</h2>
+      <p class="sub">Feiertage, Saison und die Anlässe, die zu genau diesem Lokal passen, sind schon vorgeplant. 6–8 Wochen vor jedem Anlass liegt pro Kunde ein fertiges Konzept bereit. Probier's aus: Wähl einen Kundentyp.</p>
+      <div class="typchips" id="typchips" role="group" aria-label="Kundentyp wählen"></div>
+      <div class="year" id="year"></div>
+      <p class="counter" id="counter"></p>
+    </div>
+  </section>
+
+  <section id="konzept">
+    <div class="wrap">
+      <span class="tag">Output</span>
+      <h2>So sieht ein Konzept aus.</h2>
+      <p class="sub">Jedes Konzept hat Anlass, Dauer, Ziel und eine Idee, und es sagt dem Wirt, woran er den Erfolg erkennt. Beispiel für ein fiktives Wirtshaus:</p>
+      <div class="concept">
+        <article class="card">
+          <span class="tag">Martini · Gasthaus Beispiel, 1070</span>
+          <h3>„Gansl to go, Sonntags-Ritual“</h3>
+          <div class="meta">Dauer: 4 Wochen, 8.11.–6.12. · Ziel: Umsatz an Sonntagen</div>
+          <dl>
+            <dt>Idee</dt><dd>Das ganze Gansl für 4 Personen sonntags zum Abholen, vorbestellbar bis Freitag. Content zeigt das Gansl vom Hof bis auf den Tisch.</dd>
+            <dt>Angebot</dt><dd>Fixpreis-Paket inkl. Rotkraut, Knödel, Maroni. Kein Prozent-Rabatt.</dd>
+            <dt>Ziel / KPI</dt><dd>40 vorbestellte Gansl in 4 Wochen</dd>
+            <dt>Messen</dt><dd>Eigene Kassa-Taste „GANSL TO GO“ + Vorbestell-Liste, die der Wirt führt</dd>
+            <dt>Foto / Video</dt><dd>Hero-Shot Tranchieren · Reel „Ein Gansl, 4 Stunden, 40 Sekunden“ · Story-Countdown bis Freitag</dd>
+            <dt>Referenzen</dt><dd><div class="refs"><div class="ref"><b>Reel</b><span>Tranchier-Moment<br>412K Views</span></div><div class="ref"><b>TikTok</b><span>Behind the Kitchen<br>186K Views</span></div><div class="ref"><b>Reel</b><span>Family-Table POV<br>94K Views</span></div></div></dd>
+          </dl>
+        </article>
+        <div class="side">
+          <div class="box"><h3>Messbar, ohne Software beim Wirt</h3><p>Das Tool misst nicht selbst. Jedes Konzept enthält die Mess-Empfehlung, also Kassa-Taste, Code-Wort oder Vorbestell-Liste. Damit sieht der Gastronom, was die Agentur gebracht hat.</p></div>
+          <div class="box"><h3>Echte Reel-Links</h3><p>Claude bekommt echte Treffer (Link, Cover, Views) aus Instagram/TikTok-Daten und wählt die passenden aus. Es erfindet keine Links. Die Werte im Beispiel sind Platzhalter.</p></div>
+          <div class="box"><h3>Spielregeln eingebaut</h3><p>Fixpreise statt Prozent-Claims, keine Anreize für Google-Reviews, Alkohol nie im Rabatt, Gewinnspiele nur mit Teilnahmebedingungen.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="tag">Unter der Haube</span>
+      <h2>Was Claude im Hintergrund macht.</h2>
+      <div class="agents">
+        <div class="agent"><b>Research</b><p>Lokal, Speisekarte, Google-Profil, Social-Kanäle, Konkurrenz im Umkreis, Benchmarks aus Europa, alles mit Quellen.</p><em>10–20 Min.</em></div>
+        <div class="agent"><b>Strategie</b><p>3–7 Kampagnen mit Anlass, Dauer, Ziel, Angebot, Mechanik, Mess-Empfehlung, Foto-/Video-Konzept, Budget und Recht.</p><em>5–10 Min.</em></div>
+        <div class="agent"><b>Referenzen</b><p>3–6 echte Reels/TikToks pro Kampagne: warum sie passen und was wir anders machen.</p><em>2–5 Min.</em></div>
+        <div class="agent"><b>Präsentation</b><p>PDF + Web-Version im the-first-thought-Look, mit klickbaren Links.</p><em>1–2 Min.</em></div>
+        <div class="agent"><b>Anlass-Planer</b><p>Jahresplan pro Kunde, fertige Konzepte vor jedem Anlass, Rollout für alle Kunden über Nacht.</p><em>über Nacht</em></div>
+        <div class="agent"><b>Kalender</b><p>Aus verkauften Konzepten: Content-Kalender, Drehtage und Shotlists für die Crew.</p><em>1–2 Min.</em></div>
+        <div class="agent"><b>Projekt-Chat</b><p>„Schreib 10 Hooks für die Gansl-Serie.“ „Verschieb den Dreh auf KW 47.“ Mit der ganzen Kundenakte als Kontext.</p><em>live</em></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="tag">Fahrplan</span>
+      <h2>In ~6 Wochen zum ersten echten Kunden.</h2>
+      <div class="phases">
+        <div class="phase"><span>Woche 1</span><b>Fundament</b><p>Fragebogen mit Minashe final, Datenmodell, Design, Repo, Hosting.</p></div>
+        <div class="phase"><span>Woche 2–3</span><b>Fragebogen + Cockpit</b><p>iPad-Fragebogen live, Kundenakte, Pipeline, Präsentation aus Vorlage.</p></div>
+        <div class="phase"><span>Woche 4–6</span><b>Küche</b><p>Research-, Strategie- und Präsentations-Agent, Rezeptbuch, Projekt-Chat.</p></div>
+        <div class="phase"><span>danach</span><b>Kalender &amp; Crew</b><p>Content-Kalender, Shotlists, Crew-App, Telegram-Push.</p></div>
+        <div class="phase"><span>danach</span><b>Anlass-Planer</b><p>Jahrespläne, Anlass-Regeln, Rollout für alle.</p></div>
+        <div class="phase"><span>danach</span><b>Referenzen</b><p>Reel-Daten, Referenz-Bibliothek.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <span class="tag">Laufende Kosten</span>
+      <h2>Weniger als ein Mitarbeiter-Tag im Monat.</h2>
+      <div class="costs">
+        <div class="cost"><div class="n">~50 $</div><p>Hosting &amp; Datenbank (Netlify + Supabase in Frankfurt)</p></div>
+        <div class="cost"><div class="n">90–160 $</div><p>Claude API bei ~60 Kunden im Vollbetrieb</p></div>
+        <div class="cost"><div class="n">0–200 $</div><p>Reel-/Trend-Daten, je nach Tiefe</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="fragen">
+    <div class="wrap">
+      <span class="tag">Zu klären</span>
+      <h2>Die wichtigsten offenen Fragen.</h2>
+      <ol class="questions">
+        <li><b>Besitz:</b> Wem gehört das Tool, the first thought, la'ver studio oder beiden?</li>
+        <li><b>Abrechnung:</b> Pauschale für den Kern + projektbasiert danach?</li>
+        <li><b>Kundentypen:</b> Welche Typen gibt es unter den 66 und wie viele je Typ?</li>
+        <li><b>Vorlauf:</b> Wie viele Wochen vor einem Anlass braucht Minashe das Konzept, um es zu verkaufen?</li>
+        <li><b>Pilot:</b> Welche drei Kunden testen zuerst?</li>
+        <li><b>Fragebogen:</b> Füllt der Kunde allein aus oder sitzt Minashe daneben?</li>
+        <li><b>Team:</b> Wer bekommt Zugang zum Cockpit, wer zur Crew-App?</li>
+        <li><b>Claude-Konto:</b> Läuft die API über the first thought oder über la'ver?</li>
+        <li><b>Reels:</b> Nur offizielle Daten oder auch Drittanbieter (kostenpflichtig, Grauzone)?</li>
+        <li><b>Präsentation:</b> Format 16:9 oder 320×180, nur PDF oder auch als Link?</li>
+      </ol>
+      <p style="margin-top:32px"><a class="btn" href="konzept/">Alle 28 Fragen im Konzept →</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>the first thought GmbH · Konzept-Entwurf, nicht öffentlich</span>
+    <span>Konzept &amp; Umsetzung: la'ver studio · <a href="research/">Research-Report</a></span>
+  </div>
+</footer>
+
+<script src="assets/js/anlaesse.js"></script>
+<script>
+(() => {
+  const typen = window.TFT_TYPEN, anl = window.TFT_ANLAESSE;
+  const months = ["Nov","Dez","Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt"];
+  const year = document.getElementById("year"), chips = document.getElementById("typchips"), counter = document.getElementById("counter");
+  let active = "wirt";
+  typen.forEach(t => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = t.label; b.dataset.id = t.id;
+    b.addEventListener("click", () => { active = t.id; render(); });
+    chips.appendChild(b);
+  });
+  function render(){
+    chips.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c.dataset.id === active)));
+    year.innerHTML = "";
+    let n = 0;
+    months.forEach(m => {
+      const box = document.createElement("div"); box.className = "month";
+      box.innerHTML = `<h4>${m}</h4>`;
+      anl.filter(a => a.m === m).forEach(a => {
+        const hit = a.typ.includes(active); if (hit) n++;
+        const el = document.createElement("div");
+        el.className = "ev " + (hit ? "hit" : "off");
+        el.innerHTML = `<b>${a.t}</b>${a.d}`;
+        box.appendChild(el);
+      });
+      year.appendChild(box);
+    });
+    const label = typen.find(t => t.id === active).label;
+    counter.innerHTML = `<strong>${n} Anlässe</strong> passen zu „${label}“. Für jeden liegt rechtzeitig ein fertiges Konzept im Cockpit, individualisiert aus der Kundenakte.`;
+  }
+  render();
+})();
+</script>
+</body>
+</html>
