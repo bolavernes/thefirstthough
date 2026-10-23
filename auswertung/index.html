@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Beispiel-Auswertung</title>
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  header.top{position:sticky;top:0;z-index:20;background:rgba(20,20,20,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px}
+  header.top a.back{font-weight:600;font-size:14px;text-decoration:none;color:var(--mist)}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--paper)}
+  .banner{background:var(--yellow);color:var(--ink);font-size:13.5px;font-weight:600;text-align:center;padding:8px var(--gutter)}
+
+  .client{padding:36px 0 28px;border-bottom:1px solid var(--line)}
+  .client .row{display:flex;flex-wrap:wrap;justify-content:space-between;gap:20px;align-items:flex-end}
+  .client h1{font-weight:900;font-size:clamp(34px,5vw,56px);line-height:1;margin:10px 0 10px}
+  .client .meta{color:var(--mist);font-size:15px}
+  .status{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--ink);background:#7be0a4;border-radius:999px;padding:7px 12px}
+  .actions{display:flex;flex-wrap:wrap;gap:10px}
+  .actions .btn{padding:13px 18px;font-size:14px}
+
+  .tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:14px 0;position:sticky;top:64px;background:var(--ink);z-index:10;border-bottom:1px solid var(--line)}
+  .tabs::-webkit-scrollbar{display:none}
+  .tabs a{flex:none;font-size:14px;font-weight:600;text-decoration:none;color:var(--mist);padding:9px 14px;border-radius:999px;border:1.5px solid var(--line)}
+  .tabs a:hover{border-color:var(--pink);color:var(--pink)}
+
+  section{padding:48px 0;border-bottom:1px solid var(--line);scroll-margin-top:130px}
+  h2{font-weight:900;font-size:clamp(26px,3.4vw,38px);line-height:1.05;margin:8px 0 8px}
+  .lead{color:var(--mist);max-width:760px;margin:0 0 28px}
+  .src{font-size:12px;color:var(--muted)}
+
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .kpi{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .kpi .n{font-weight:900;font-size:26px;line-height:1.1}
+  .kpi .l{font-size:13px;color:var(--muted);margin-top:4px}
+  .kpi.bad .n{color:var(--pink)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+  @media (max-width:820px){.two{grid-template-columns:1fr}}
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+  .panel h3{margin:0 0 12px;font-size:17px}
+  .heat{display:grid;grid-template-columns:52px repeat(7,1fr);gap:4px;font-size:11.5px}
+  .heat span{color:var(--muted);text-align:center}
+  .heat span.r{text-align:left;color:var(--mist)}
+  .heat i{height:26px;border-radius:6px;background:var(--ink-3)}
+  .heat i.l1{background:#5a3a43}.heat i.l2{background:var(--pink-soft)}.heat i.l3{background:var(--pink)}
+  ol.rank{margin:0;padding-left:20px;color:var(--mist)}
+  ol.rank li{padding:4px 0}
+  ol.rank li:first-child{color:var(--paper);font-weight:700}
+  .tone{display:flex;flex-wrap:wrap;gap:8px}
+  .tone span{font-size:13px;font-weight:600;border-radius:999px;padding:7px 12px;background:var(--ink-3)}
+  blockquote{margin:0;padding:14px 16px;border-left:3px solid var(--pink);background:var(--ink-3);border-radius:0 12px 12px 0;color:var(--mist);font-size:15px}
+  blockquote + blockquote{margin-top:10px}
+
+  .theses{display:grid;gap:12px;counter-reset:t}
+  .thesis{display:grid;grid-template-columns:48px 1fr;gap:14px;background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+  .thesis::before{counter-increment:t;content:counter(t);font-weight:900;font-size:34px;color:var(--pink);line-height:1}
+  .thesis b{display:block;font-size:18px;margin-bottom:4px}
+  .thesis p{margin:0;color:var(--mist);font-size:15px}
+
+  table.comp{width:100%;border-collapse:collapse;font-size:14px}
+  .tw{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-top:16px}
+  table.comp th,table.comp td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+  table.comp th{background:var(--ink-2);color:var(--muted);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+  table.comp tr:last-child td{border-bottom:0}
+  table.comp tr.me td{color:var(--pink);font-weight:700}
+
+  .camps{display:grid;gap:18px}
+  .camp{background:var(--mist);color:var(--ink);border-radius:var(--radius);overflow:hidden}
+  .camp .hd{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:flex-start;padding:24px 26px 0}
+  .camp .no{font-weight:900;color:var(--pink);font-size:14px;letter-spacing:.1em}
+  .camp h3{font-weight:900;font-size:clamp(24px,3vw,32px);line-height:1.05;margin:6px 0 4px}
+  .camp .when{font-size:14px;color:#4a4d5c}
+  .pill{display:inline-block;font-size:12px;font-weight:700;border-radius:999px;padding:6px 11px;background:var(--ink);color:var(--paper)}
+  .pill.pink{background:var(--pink);color:var(--ink)}
+  .camp .facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#c3d2d8;margin:20px 0 0;border-top:1px solid #c3d2d8;border-bottom:1px solid #c3d2d8}
+  @media (max-width:720px){.camp .facts{grid-template-columns:1fr 1fr}}
+  .camp .facts div{background:var(--mist);padding:14px 26px}
+  .camp .facts small{display:block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7280}
+  .camp .facts b{font-size:15px}
+  .camp .body{padding:20px 26px 26px;display:grid;grid-template-columns:1.2fr .8fr;gap:24px}
+  @media (max-width:820px){.camp .body{grid-template-columns:1fr}}
+  .camp dl{margin:0;display:grid;grid-template-columns:120px 1fr;gap:10px 14px;font-size:15px}
+  @media (max-width:560px){.camp dl{grid-template-columns:1fr;gap:2px}.camp dd{margin-bottom:10px}}
+  .camp dt{font-weight:700}
+  .camp dd{margin:0}
+  .camp .shots{margin:0;padding-left:18px;font-size:14.5px}
+  .camp .shots li{margin:3px 0}
+  .refs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+  .ref{aspect-ratio:9/16;border-radius:10px;background:var(--ink);color:var(--paper);padding:10px;display:flex;flex-direction:column;justify-content:flex-end;font-size:11.5px;position:relative;overflow:hidden;text-decoration:none}
+  .ref::before{content:"";position:absolute;inset:0;background:linear-gradient(160deg,var(--pink) 0%,transparent 62%);opacity:.5}
+  .ref *{position:relative}
+  .ref b{font-size:13px}
+  .why{font-size:13px;color:#4a4d5c;margin-top:8px}
+  .camp .ft{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;padding:16px 26px;background:#cbdbe1;font-size:14px}
+  .camp .ft .btn{padding:11px 16px;font-size:13.5px;border-color:var(--ink);color:var(--ink)}
+  .camp .ft .btn:hover{background:var(--ink);color:var(--paper)}
+
+  .plan{display:grid;gap:0}
+  .pl{display:grid;grid-template-columns:110px 1fr auto;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--line)}
+  .pl .d{font-weight:700;color:var(--mist);font-size:14px}
+  .pl .t b{display:block}
+  .pl .t span{font-size:13.5px;color:var(--muted)}
+  .st{font-size:12px;font-weight:700;border-radius:999px;padding:6px 10px;white-space:nowrap;background:var(--ink-3);color:var(--mist)}
+  .st.ready{background:var(--pink);color:var(--ink)}
+  .st.sold{background:#7be0a4;color:var(--ink)}
+  @media (max-width:560px){.pl{grid-template-columns:1fr auto}.pl .d{grid-column:1 / -1}}
+
+  .weeks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  @media (max-width:820px){.weeks{grid-template-columns:1fr 1fr}}
+  @media (max-width:480px){.weeks{grid-template-columns:1fr}}
+  .wk{background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .wk h4{margin:0 0 10px;font-size:14px;color:var(--pink)}
+  .wk div{font-size:13.5px;padding:7px 0;border-top:1px solid var(--line);color:var(--mist)}
+  .wk div b{color:var(--paper)}
+
+  .open{margin:0;padding:0;list-style:none}
+  .open li{padding:12px 0 12px 30px;border-top:1px solid var(--line);position:relative;color:var(--mist)}
+  .open li::before{content:"?";position:absolute;left:0;top:10px;width:20px;height:20px;border-radius:50%;background:var(--pink);color:var(--ink);font-weight:900;font-size:13px;display:grid;place-items:center}
+
+  .chat{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:grid;gap:12px;max-width:760px}
+  .msg{padding:12px 16px;border-radius:16px;font-size:15px;max-width:85%}
+  .msg.me{background:var(--pink);color:var(--ink);justify-self:end;border-bottom-right-radius:4px}
+  .msg.ai{background:var(--ink-3);color:var(--paper);border-bottom-left-radius:4px}
+  .chatin{display:flex;gap:8px;margin-top:4px}
+  .chatin input{flex:1;font:15px var(--sans);background:var(--ink);border:1.5px solid var(--line);border-radius:999px;color:var(--paper);padding:12px 16px}
+  footer{padding:40px 0 60px;color:var(--muted);font-size:13.5px}
+  @media (max-width:560px){.crumbs{display:none}.client .actions .btn{flex:1 1 100%;justify-content:center}}
+</style>
+</head>
+<body>
+<div class="banner">Beispiel mit erfundenem Lokal und erfundenen Zahlen. So sieht Minashe die Auswertung im Cockpit, nicht der Kunde.</div>
+<header class="top"><div class="wrap">
+  <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
+  <span class="crumbs">Cockpit / Kunden / <b>Beisl Fuchsbau</b></span>
+  <a class="back" href="../">← Übersicht</a>
+</div></header>
+
+<main class="wrap">
+  <div class="client">
+    <span class="status">● Auswertung fertig · Sa 24.10., 06:12</span>
+    <div class="row">
+      <div>
+        <h1>Beisl Fuchsbau</h1>
+        <div class="meta">Wirtshaus / Beisl · 1070 Neubau · 70 Plätze + 30 Schanigarten · Fragebogen am 23.10. mit Minashe ausgefüllt</div>
+      </div>
+      <div class="actions">
+        <a class="btn btn--pink" href="#kampagnen">3 Kampagnen ansehen</a>
+        <a class="btn" href="#chat">Mit Claude besprechen</a>
+        <span class="btn" aria-disabled="true" title="Demo">Präsentation erzeugen (PDF)</span>
+      </div>
+    </div>
+  </div>
+
+  <nav class="tabs" aria-label="Abschnitte">
+    <a href="#profil">Profil</a><a href="#analyse">Analyse</a><a href="#kampagnen">Kampagnen</a><a href="#jahresplan">Jahresplan</a><a href="#content">Content 4 Wochen</a><a href="#offen">Offene Punkte</a><a href="#chat">Chat</a>
+  </nav>
+
+  <section id="profil">
+    <span class="tag">1 · Aus dem Fragebogen</span>
+    <h2>Das Lokal in 30 Sekunden.</h2>
+    <p class="lead">Zusammengefasst aus 23 Antworten, ergänzt um Google-Profil, Website und Instagram.</p>
+    <div class="kpis">
+      <div class="kpi"><div class="n">4,5 ★</div><div class="l">Google · 640 Bewertungen</div></div>
+      <div class="kpi"><div class="n">32 €</div><div class="l">Durchschnittsbon</div></div>
+      <div class="kpi"><div class="n">2.100</div><div class="l">Instagram-Follower</div></div>
+      <div class="kpi bad"><div class="n">1,2 / Wo.</div><div class="l">Posts, zuletzt vor 19 Tagen</div></div>
+      <div class="kpi bad"><div class="n">kein</div><div class="l">TikTok</div></div>
+      <div class="kpi"><div class="n">300–700 €</div><div class="l">Werbebudget / Monat</div></div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>Wann ist was los?</h3>
+        <div class="heat" aria-label="Auslastung nach Wochentag und Tageszeit">
+          <span></span><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span>
+          <span class="r">Mittag</span><i class="l2"></i><i class="l2"></i><i class="l2"></i><i class="l2"></i><i class="l3"></i><i></i><i class="l3"></i>
+          <span class="r">Nachm.</span><i class="l1"></i><i class="l1"></i><i class="l1"></i><i class="l1"></i><i class="l1"></i><i></i><i class="l2"></i>
+          <span class="r">Abend</span><i class="l1"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l3"></i><i class="l3"></i><i class="l2"></i>
+        </div>
+        <p class="src" style="margin-top:10px">Sa Mittag/Nachmittag geschlossen. Mo/Di Abend: „leer“.</p>
+      </div>
+      <div class="panel">
+        <h3>Was in 90 Tagen anders sein soll</h3>
+        <ol class="rank"><li>Eine schwache Tageszeit füllen</li><li>Neue Gäste gewinnen (jünger)</li><li>Mehr Umsatz insgesamt</li><li>Stammgäste öfter sehen</li></ol>
+        <h3 style="margin-top:18px">Ton der Marke</h3>
+        <div class="tone"><span>Laut</span><span>Frech</span><span>Wienerisch</span><span>Du</span><span>Handwerk</span><span>Zeitlos</span></div>
+      </div>
+    </div>
+    <div class="two">
+      <div class="panel">
+        <h3>In seinen Worten</h3>
+        <blockquote>„Bei uns gibt's das Schnitzel noch so, wie's die Oma gemacht hat. In Butterschmalz, nicht in der Fritteuse.“</blockquote>
+        <blockquote>„Am meisten ärgert mich, dass Montag und Dienstag die Küche fast leer läuft.“</blockquote>
+      </div>
+      <div class="panel">
+        <h3>Helden & Rahmen</h3>
+        <p style="margin:0;color:var(--mist);font-size:15px"><b style="color:var(--paper)">Bestseller:</b> Wiener Schnitzel · <b style="color:var(--paper)">Liebling:</b> Beuschel · <b style="color:var(--paper)">Instagram-Gericht:</b> Kaiserschmarrn in der Pfanne · <b style="color:var(--paper)">Möglich:</b> Aktionspreise, Limited-Gerichte, Drehs im Betrieb, Gutscheine · <b style="color:var(--paper)">No-Go:</b> Prozent-Rabatte, Influencer</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="analyse">
+    <span class="tag">2 · Was Claude herausgefunden hat</span>
+    <h2>Drei Thesen.</h2>
+    <p class="lead">Aus Google-Bewertungen, Social-Kanälen, Konkurrenz im Umkreis von 800 m und Benchmarks aus Wien. Alle Quellen sind im vollständigen Research-Dokument verlinkt.</p>
+    <div class="theses">
+      <div class="thesis"><div><b>Das Butterschmalz-Schnitzel ist die Story, und niemand erzählt sie.</b><p>„Butterschmalz“ kommt in 38 Google-Bewertungen vor, auf Instagram kein einziges Mal. Die Konkurrenz ums Eck wirbt mit „knusprig“, ihr habt den Beweis.</p></div></div>
+      <div class="thesis"><div><b>Montag und Dienstag sind ein lösbares Problem.</b><p>Im Umkreis hat abends nur eines von sieben Wirtshäusern am Montag offen. Wer Montag zum Ritual macht, hat den Tag für sich.</p></div></div>
+      <div class="thesis"><div><b>Die junge Neubau-Crowd kennt euch nicht.</b><p>83 % der Bewertungen stammen von Gästen mit Profilen älter als 5 Jahre. Kein TikTok, kaum Reels. Im Bezirk wohnen überdurchschnittlich viele 25- bis 35-Jährige.</p></div></div>
+    </div>
+    <div class="tw">
+      <table class="comp">
+        <thead><tr><th>Lokal (Umkreis)</th><th>Google</th><th>Instagram</th><th>TikTok</th><th>Mo Abend offen</th><th>Aktionen</th></tr></thead>
+        <tbody>
+          <tr class="me"><td>Beisl Fuchsbau</td><td>4,5 (640)</td><td>2.100</td><td>–</td><td>ja</td><td>keine</td></tr>
+          <tr><td>Wirtshaus A</td><td>4,4 (1.920)</td><td>8.700</td><td>3.100</td><td>nein</td><td>Mittagsmenü</td></tr>
+          <tr><td>Beisl B</td><td>4,6 (410)</td><td>1.300</td><td>–</td><td>nein</td><td>keine</td></tr>
+          <tr><td>Gasthaus C</td><td>4,2 (2.300)</td><td>5.400</td><td>900</td><td>ja</td><td>Gansl-Wochen</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="src" style="margin-top:8px">Konkurrenz anonymisiert, weil Beispiel. In der echten Auswertung stehen Namen und Links.</p>
+  </section>
+
+  <section id="kampagnen">
+    <span class="tag">3 · Vorschläge zum Verkaufen</span>
+    <h2>Drei Kampagnen.</h2>
+    <p class="lead">Jede mit Anlass, Dauer, Ziel, Idee und einer Mess-Empfehlung, damit der Wirt sieht, was es gebracht hat. Minashe markiert, was er anbietet; daraus entsteht die Präsentation.</p>
+    <div class="camps">
+
+      <article class="camp">
+        <div class="hd"><div><span class="no">K1 · DAUERBRENNER</span><h3>„Montag ist Schnitzeltag“</h3><div class="when">9.11.2026 – 1.2.2027 · 12 Montage</div></div><span class="pill pink">Empfehlung #1</span></div>
+        <div class="facts"><div><small>Anlass</small><b>Schwacher Wochentag</b></div><div><small>Ziel</small><b>Montag füllen</b></div><div><small>KPI</small><b>60 Schnitzel / Mo</b></div><div><small>Messen</small><b>Kassa-Taste</b></div></div>
+        <div class="body">
+          <dl>
+            <dt>Idee</dt><dd>Montags gibt's das Butterschmalz-Schnitzel zum Fixpreis von 14,90 € statt 19,50 €. Dazu ein „Stammtisch für alle“: ein langer Tisch, an den sich jeder dazusetzen darf. Der Montag wird zum Ritual, nicht zum Rabatt.</dd>
+            <dt>Mechanik</dt><dd>Nur Montag ab 17 Uhr, nur im Lokal, Fixpreis statt Prozent-Rabatt. Kein Alkohol im Angebot.</dd>
+            <dt>Mess-Empfehlung</dt><dd>Eigene Kassa-Taste „MO-SCHNITZEL“. Vergleich: Umsatz Montagabend mit den vier Montagen davor.</dd>
+            <dt>Zielgruppe</dt><dd>Neubau, 25–40, Nachbarschaft, Büros in der Umgebung</dd>
+            <dt>Budget</dt><dd>~150 € Meta-Ads pro Monat, Umkreis 2 km, So 18 Uhr bis Mo 18 Uhr</dd>
+          </dl>
+          <div>
+            <b style="font-size:14px">Foto & Video</b>
+            <ul class="shots"><li>Reel „Butterschmalz-ASMR“: Klopfen, Panieren, Soufflieren, 25 s</li><li>Story-Countdown jeden Montag 11 Uhr</li><li>Foto: der lange Stammtisch, voll besetzt</li><li>TikTok: „Wien, wo kriegst du montags noch ein echtes Schnitzel?“</li></ul>
+            <b style="font-size:14px;display:block;margin-top:14px">Referenzen</b>
+            <div class="refs"><div class="ref"><b>Reel</b><span>Schnitzel-ASMR<br>1,2 Mio. Views</span></div><div class="ref"><b>TikTok</b><span>„Wiens bestes Schnitzel?“<br>480K Views</span></div><div class="ref"><b>Reel</b><span>Stammtisch-POV<br>96K Views</span></div></div>
+            <p class="why">Warum: Alle drei leben vom Geräusch und vom Prozess, genau das hat Fuchsbau mit dem Butterschmalz.</p>
+          </div>
+        </div>
+        <div class="ft"><span>Aufwand: 1 Drehtag + 2 Handy-Drehs · Content: 6 Reels, 12 Stories</span><span class="btn">Als „angeboten“ markieren</span></div>
+      </article>
+
+      <article class="camp">
+        <div class="hd"><div><span class="no">K2 · ANLASS</span><h3>„Ganz Gansl — halb für zwei“</h3><div class="when">2.11. – 29.11.2026 · Martini 11.11.</div></div><span class="pill">Saison</span></div>
+        <div class="facts"><div><small>Anlass</small><b>Martini</b></div><div><small>Ziel</small><b>Reservierungen</b></div><div><small>KPI</small><b>120 Gansl-Portionen</b></div><div><small>Messen</small><b>Kennwort + Taste</b></div></div>
+        <div class="body">
+          <dl>
+            <dt>Idee</dt><dd>Das halbe Gansl für zwei, am Tisch tranchiert. Wer mit dem Kennwort „FUCHSBAU“ reserviert, bekommt den Maroni-Schmarrn als Nachspeise dazu.</dd>
+            <dt>Mechanik</dt><dd>Nur mit Reservierung. Das Kennwort zeigt, dass der Gast über Social kommt.</dd>
+            <dt>Mess-Empfehlung</dt><dd>Reservierungen mit Kennwort zählen, Kassa-Taste „GANSL-2“</dd>
+            <dt>Zielgruppe</dt><dd>Paare, Freundesgruppen, Firmenfeiern im kleinen Kreis</dd>
+            <dt>Budget</dt><dd>~200 € Meta-Ads, 2.–15.11.</dd>
+          </dl>
+          <div>
+            <b style="font-size:14px">Foto & Video</b>
+            <ul class="shots"><li>Hero-Shot: Tranchieren am Tisch, von oben</li><li>Reel „Ein Gansl, 4 Stunden, 40 Sekunden“</li><li>Story: „Noch 12 Tische frei“ (echter Zählstand)</li></ul>
+            <b style="font-size:14px;display:block;margin-top:14px">Referenzen</b>
+            <div class="refs"><div class="ref"><b>Reel</b><span>Tranchier-Moment<br>412K Views</span></div><div class="ref"><b>TikTok</b><span>Behind the Kitchen<br>186K Views</span></div><div class="ref"><b>Reel</b><span>Family-Table POV<br>94K Views</span></div></div>
+            <p class="why">Warum: Tranchieren am Tisch ist Theater. Das teilen Gäste selbst.</p>
+          </div>
+        </div>
+        <div class="ft"><span>Aufwand: 1 Drehtag · Achtung: in 9 Tagen ist Start</span><span class="btn">Als „angeboten“ markieren</span></div>
+      </article>
+
+      <article class="camp">
+        <div class="hd"><div><span class="no">K3 · ANLASS → JÄNNER</span><h3>„Die Rechnung kommt zurück“</h3><div class="when">Ausgabe 1.–23.12. · Einlösung 7.–31.1.2027</div></div><span class="pill">Mutig</span></div>
+        <div class="facts"><div><small>Anlass</small><b>Advent → Jänner-Loch</b></div><div><small>Ziel</small><b>Wiederkommen</b></div><div><small>KPI</small><b>30 % Einlösung</b></div><div><small>Messen</small><b>Nummerierte Gutscheine</b></div></div>
+        <div class="body">
+          <dl>
+            <dt>Idee</dt><dd>Wer im Dezember an einem Montag bis Donnerstag isst, bekommt die Hälfte der Rechnung (bis 25 €) als Gutschein für Jänner zurück. Der Dezember zahlt so den Jänner.</dd>
+            <dt>Mechanik</dt><dd>Ein Gutschein pro Tisch, nummeriert, einlösbar 7.–31.1. ab 40 € Rechnung, nicht mit anderen Aktionen kombinierbar</dd>
+            <dt>Mess-Empfehlung</dt><dd>Gutschein-Nummern bei Ausgabe und Einlösung in eine Liste. Jänner-Umsatz mit dem Vorjahr vergleichen.</dd>
+            <dt>Zielgruppe</dt><dd>Weihnachtsfeiern, Advent-Gäste, die sonst erst im Frühling wiederkommen</dd>
+            <dt>Recht</dt><dd>Fixe Bedingungen auf dem Gutschein, kein Gewinnspiel, keine Abgabe</dd>
+          </dl>
+          <div>
+            <b style="font-size:14px">Foto & Video</b>
+            <ul class="shots"><li>Reel: Kellner überreicht Rechnung + Gutschein, Gast schaut zweimal hin</li><li>Story-Serie „Wie viel kommt zurück?“ mit echten Beträgen</li><li>Jänner: „Eingelöst!“-Fotos (mit Einverständnis)</li></ul>
+            <b style="font-size:14px;display:block;margin-top:14px">Referenzen</b>
+            <div class="refs"><div class="ref"><b>Reel</b><span>Bill-Reveal Reaction<br>2,3 Mio. Views</span></div><div class="ref"><b>TikTok</b><span>„Restaurant gibt Geld zurück“<br>610K Views</span></div><div class="ref"><b>Reel</b><span>Voucher-Surprise<br>140K Views</span></div></div>
+            <p class="why">Warum: Die Überraschung an der Rechnung ist der Moment, den Leute filmen.</p>
+          </div>
+        </div>
+        <div class="ft"><span>Aufwand: Gutschein-Design + 1 Drehtag · Kosten für den Wirt: rechnet sich nur bei Jänner-Mehrumsatz, Rechnung im Detail-PDF</span><span class="btn">Als „angeboten“ markieren</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="jahresplan">
+    <span class="tag">4 · Vorgeplant</span>
+    <h2>Jahresplan Beisl Fuchsbau.</h2>
+    <p class="lead">Die Anlässe, die zu einem Wirtshaus im 7. passen. 6–8 Wochen vorher liegt jeweils ein fertiges Konzept bereit.</p>
+    <div class="plan">
+      <div class="pl"><span class="d">2.–29.11.</span><div class="t"><b>Martini / Gansl</b><span>K2 „Ganz Gansl — halb für zwei“</span></div><span class="st ready">Konzept fertig</span></div>
+      <div class="pl"><span class="d">ab 9.11.</span><div class="t"><b>Montags-Ritual</b><span>K1 „Montag ist Schnitzeltag“</span></div><span class="st ready">Konzept fertig</span></div>
+      <div class="pl"><span class="d">Dezember</span><div class="t"><b>Advent & Weihnachtsfeiern</b><span>K3 „Die Rechnung kommt zurück“</span></div><span class="st ready">Konzept fertig</span></div>
+      <div class="pl"><span class="d">1.1.</span><div class="t"><b>Neujahr — Katerfrühstück</b><span>Beuschel & Gulasch ab 11 Uhr</span></div><span class="st">ab 7.11.</span></div>
+      <div class="pl"><span class="d">10.2.</span><div class="t"><b>Heringsschmaus</b><span>Aschermittwoch</span></div><span class="st">ab 16.12.</span></div>
+      <div class="pl"><span class="d">28.3.</span><div class="t"><b>Osterbrunch</b><span>Ostersonntag</span></div><span class="st">ab 31.1.</span></div>
+      <div class="pl"><span class="d">1.5.</span><div class="t"><b>Schanigarten-Start</b><span>Staatsfeiertag</span></div><span class="st">ab 6.3.</span></div>
+      <div class="pl"><span class="d">9.5.</span><div class="t"><b>Muttertag</b><span>Reservierungs-Kampagne</span></div><span class="st">ab 14.3.</span></div>
+      <div class="pl"><span class="d">13.6.</span><div class="t"><b>Vatertag</b><span>Schnitzel & Bier, Bier nicht im Rabatt</span></div><span class="st">ab 18.4.</span></div>
+      <div class="pl"><span class="d">Sep–Okt</span><div class="t"><b>Sturm-Saison</b><span>Sturm + Maroni</span></div><span class="st">ab Juli</span></div>
+    </div>
+  </section>
+
+  <section id="content">
+    <span class="tag">5 · Wenn K1 + K2 verkauft sind</span>
+    <h2>Die ersten vier Wochen.</h2>
+    <p class="lead">Daraus macht das Tool Drehtage und Shotlists für die Crew.</p>
+    <div class="weeks">
+      <div class="wk"><h4>KW 45 · 2.–8.11.</h4><div><b>Mo</b> Drehtag 1: Gansl + Schnitzel</div><div><b>Di</b> Reel „Ein Gansl, 40 Sekunden“</div><div><b>Do</b> Story: Gansl-Reservierung</div><div><b>Sa</b> Carousel: Wer ist der Fuchsbau?</div></div>
+      <div class="wk"><h4>KW 46 · 9.–15.11.</h4><div><b>Mo</b> Start Schnitzeltag, Reel ASMR</div><div><b>Mi</b> Martini-Countdown</div><div><b>Do</b> Story „Noch 12 Tische“</div><div><b>So</b> Ad: Schnitzeltag</div></div>
+      <div class="wk"><h4>KW 47 · 16.–22.11.</h4><div><b>Mo</b> Handy-Dreh: voller Stammtisch</div><div><b>Di</b> TikTok „Wo gibt's montags …“</div><div><b>Fr</b> Reel Tranchieren am Tisch</div></div>
+      <div class="wk"><h4>KW 48 · 23.–29.11.</h4><div><b>Mo</b> Schnitzeltag #3, Gast-Interviews</div><div><b>Mi</b> Reel: Beuschel-Geschichte</div><div><b>Fr</b> Teaser K3 „Rechnung kommt zurück“</div></div>
+    </div>
+  </section>
+
+  <section id="offen">
+    <span class="tag">6 · Was Claude noch wissen will</span>
+    <h2>Offene Punkte.</h2>
+    <ul class="open">
+      <li>Was ist der Wareneinsatz des Schnitzels? Trägt sich der 14,90-€-Preis bei 60 Stück?</li>
+      <li>Wie viele Gansl-Portionen schafft die Küche pro Abend?</li>
+      <li>Darf der Koch vor die Kamera? Die Butterschmalz-Story lebt von ihm.</li>
+      <li>Gibt es Vorjahreszahlen für Jänner (für K3)?</li>
+    </ul>
+  </section>
+
+  <section id="chat" style="border-bottom:0">
+    <span class="tag">7 · Projekt-Chat</span>
+    <h2>Mit Claude weiterarbeiten.</h2>
+    <p class="lead">Der Chat kennt die ganze Kundenakte und darf Kampagnen, Kalender und Shotlists ändern.</p>
+    <div class="chat">
+      <div class="msg me">Der Wirt findet 14,90 zu billig. Mach K1 mit 16,90 und gib ein Gurkerl-Salat dazu.</div>
+      <div class="msg ai">Erledigt: K1 jetzt 16,90 € inkl. Gurkensalat (statt 19,50 € + 4,20 € Salat). KPI auf 50 Schnitzel pro Montag gesenkt, weil der Preisabstand kleiner ist. Die Story-Texte sind angepasst. Soll ich die Präsentation neu erzeugen?</div>
+      <div class="msg me">Ja, und schreib mir 10 Hooks für das ASMR-Reel.</div>
+      <div class="msg ai">Präsentation v2 liegt in der Kundenakte. Hooks, z. B.: „Hör zu. Das ist Butterschmalz.“ · „Montag, 17:03. Das erste Schnitzel der Woche.“ · „Fritteuse? Bei uns nicht.“ … (alle 10 im Dokument)</div>
+      <div class="chatin"><input type="text" placeholder="Nachricht an Claude (Demo)" disabled></div>
+    </div>
+  </section>
+</main>
+<footer><div class="wrap">Beispiel-Auswertung · alle Namen, Zahlen und Referenzen erfunden · the first thought × la'ver studio</div></footer>
+</body>
+</html>

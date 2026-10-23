@@ -6,6 +6,7 @@ Konzept-Entwurf und klickbarer Prototyp für das interne Tool von **the first th
 |---|---|
 | `/` | Konzept-Übersicht mit interaktivem Anlass-Planer |
 | `/fragebogen/` | iPad-Fragebogen (Demo, PWA, „Zum Home-Bildschirm“ → läuft ohne Browserleiste) |
+| `/auswertung/` | Beispiel einer Kunden-Auswertung im Cockpit (erfundenes Lokal) |
 | `/konzept/` | Vollständiges Konzept inkl. offener Fragen (`docs/konzept.md`) |
 | `/research/` | Research-Report mit Quellen (`docs/research.md`) |
 
