@@ -25,7 +25,7 @@
   .hero .ctas{display:flex;flex-wrap:wrap;gap:12px}
   .hero .mark{position:absolute;right:-60px;top:40px;width:clamp(220px,34vw,460px);color:#1f2124;z-index:-1}
 
-  section{padding:clamp(56px,9vw,110px) 0;border-top:1px solid var(--line)}
+  section{padding:clamp(56px,9vw,110px) 0;border-top:1px solid var(--line);scroll-margin-top:68px}
   h2{font-weight:900;font-size:clamp(32px,5vw,58px);line-height:1.02;margin:12px 0 18px;letter-spacing:-.01em}
   h3{font-weight:700;font-size:20px;margin:0 0 8px}
   .sub{color:var(--mist);max-width:760px;font-size:18px;margin:0 0 40px}
@@ -99,14 +99,41 @@
 
   footer{padding:48px 0 64px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
   footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px}
-  @media (max-width:640px){header.top nav{display:none}}
+  .menu-btn{display:none;font:600 14px/1 var(--sans);color:var(--paper);background:transparent;border:1.5px solid var(--line);border-radius:999px;padding:10px 16px;cursor:pointer}
+  @media (max-width:760px){
+    .draft{display:none}
+    .menu-btn{display:inline-flex}
+    header.top nav{display:none;position:fixed;top:68px;left:0;right:0;flex-direction:column;gap:0;background:var(--ink);padding:8px var(--gutter) 24px;border-bottom:1px solid var(--line)}
+    header.top.open nav{display:flex}
+    header.top nav a{font-size:22px;font-weight:700;padding:12px 0;opacity:1;color:var(--paper);border-bottom:1px solid var(--line)}
+    section{padding:56px 0}
+    .sub{font-size:16.5px;margin-bottom:28px}
+    .hero .mark{opacity:.55;right:-90px;top:20px}
+    .typchips{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 calc(var(--gutter) * -1) 18px;padding:0 var(--gutter) 6px;scrollbar-width:none}
+    .typchips::-webkit-scrollbar{display:none}
+    .chip{flex:none}
+    .year{grid-template-columns:1fr;gap:8px}
+    .month{min-height:0;padding:12px 16px;display:grid;grid-template-columns:52px 1fr;column-gap:12px;align-items:start}
+    .month h4{font-size:17px;margin:7px 0 0;grid-column:1;grid-row:1 / span 12}
+    .month .ev{grid-column:2;border-top:0;padding:6px 0}
+    .month .ev + .ev{border-top:1px solid var(--line)}
+    .month.empty,.ev.off{display:none}
+    .card{padding:22px}
+    .card h3{font-size:26px}
+    .card dl{grid-template-columns:1fr;gap:2px}
+    .card dd{margin-bottom:12px}
+    .quote q{font-size:18px}
+    .station{padding:22px}
+    .station::before{font-size:44px;margin-bottom:12px}
+    .cost .n{font-size:30px}
+  }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="wrap">
     <a href="./" aria-label="Start"><img class="logo" src="assets/img/logo-white.svg" alt="the first thought"></a>
-    <nav>
+    <nav id="mainnav">
       <a href="#wie">So funktioniert's</a>
       <a href="#anlaesse">Anlass-Planer</a>
       <a href="#konzept">Konzept-Beispiel</a>
@@ -114,6 +141,7 @@
       <a href="fragebogen/">iPad-Demo</a>
     </nav>
     <span class="draft">Entwurf · 23.10.2026</span>
+    <button class="menu-btn" id="menu" type="button" aria-expanded="false" aria-controls="mainnav">Menü</button>
   </div>
 </header>
 
@@ -287,6 +315,8 @@
     let n = 0;
     months.forEach(m => {
       const box = document.createElement("div"); box.className = "month";
+      const hits = anl.filter(a => a.m === m && a.typ.includes(active)).length;
+      if (!hits) box.classList.add("empty");
       box.innerHTML = `<h4>${m}</h4>`;
       anl.filter(a => a.m === m).forEach(a => {
         const hit = a.typ.includes(active); if (hit) n++;
@@ -301,6 +331,9 @@
     counter.innerHTML = `<strong>${n} Anlässe</strong> passen zu „${label}“. Für jeden liegt rechtzeitig ein fertiges Konzept im Cockpit, individualisiert aus der Kundenakte.`;
   }
   render();
+  const hdr = document.querySelector("header.top"), mb = document.getElementById("menu");
+  mb.addEventListener("click", () => { const o = hdr.classList.toggle("open"); mb.setAttribute("aria-expanded", String(o)); mb.textContent = o ? "Schließen" : "Menü"; });
+  document.querySelectorAll("#mainnav a").forEach(a => a.addEventListener("click", () => { hdr.classList.remove("open"); mb.setAttribute("aria-expanded","false"); mb.textContent = "Menü"; }));
 })();
 </script>
 </body>

@@ -17,7 +17,7 @@
 <style>
   html,body{height:100%}
   body{overflow:hidden;touch-action:manipulation;user-select:none;-webkit-user-select:none}
-  .app{height:100%;display:grid;grid-template-rows:auto 1fr auto;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .app{height:100%;height:100dvh;grid-template-columns:minmax(0,1fr);display:grid;grid-template-rows:auto 1fr auto;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
   .bar{display:flex;align-items:center;gap:20px;padding:22px var(--gutter)}
   .bar .chapter{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
   .progress{flex:1;height:4px;background:var(--ink-3);border-radius:4px;overflow:hidden}
@@ -87,12 +87,43 @@
   .prefill .pill{display:inline-block;font-size:12px;font-weight:600;background:var(--blue);color:#fff;border-radius:999px;padding:5px 10px;margin-bottom:12px}
 
   .nav{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px var(--gutter) 24px;border-top:1px solid var(--line)}
-  .nav .btn{padding:18px 28px;font-size:17px}
+  .nav .btn{padding:18px 28px;font-size:17px;white-space:nowrap}
   .nav .ghost{border-color:transparent;color:var(--muted)}
   .nav .ghost:hover{background:transparent;color:var(--paper)}
   .skip{font-size:15px;color:var(--muted);background:none;border:0;cursor:pointer;text-decoration:underline}
   .done h1{font-family:var(--display);font-weight:400;color:var(--pink);font-size:clamp(60px,10vw,120px);line-height:.9;margin:20px 0}
   .demo-note{font-size:11px;white-space:nowrap;color:var(--muted);background:var(--ink-2);border:1px solid var(--line);padding:6px 10px;border-radius:999px;opacity:.8}
+  @media (max-width:700px){
+    .demo-note{display:none}
+    .bar{padding:14px var(--gutter);gap:12px}
+    .bar .chapter{font-size:11px}
+    .screen{padding-top:20px}
+    .q-kicker{font-size:13px;margin-bottom:6px}
+    .q-help{font-size:16px;margin-bottom:22px}
+    .welcome h1,.done h1{font-size:62px}
+    .welcome .logo{width:56px}
+    input[type=text],input[type=email],input[type=tel],input[type=number],textarea{font-size:17px;padding:14px 16px}
+    textarea{min-height:150px}
+    .opt{font-size:16px;padding:13px 18px}
+    .cards{grid-template-columns:1fr 1fr;gap:8px}
+    .cards .opt{padding:16px;min-height:92px;font-size:16px}
+    .cards .opt small{font-size:12.5px}
+    .grid{grid-template-columns:54px repeat(7,1fr);gap:4px}
+    .grid .h{font-size:12px}
+    .grid .r{font-size:11px;line-height:1.15}
+    .cell{height:42px;border-radius:8px;font-size:0}
+    .rank .item{font-size:16px;padding:12px 14px;gap:10px}
+    .rank .item button{width:40px;height:40px}
+    .pair .opt{font-size:17px;padding:16px}
+    .prefill .row{font-size:15px}
+    .drop{padding:28px;font-size:16px}
+    .sig{height:180px}
+    .nav{padding:12px var(--gutter)}
+    .nav .btn{padding:15px 22px;font-size:16px}
+    .nav .ghost{padding:15px 6px}
+    .skip{font-size:13px}
+    .slider .top{font-size:16px}
+  }
   .admin{margin-top:30px;background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:16px;font:12px/1.45 ui-monospace,Menlo,monospace;color:var(--mist);max-height:280px;overflow:auto;white-space:pre-wrap;-webkit-user-select:text;user-select:text;display:none}
 </style>
 </head>
@@ -117,6 +148,8 @@
 "use strict";
 const DAYS=["Mo","Di","Mi","Do","Fr","Sa","So"];
 const SLOTS=["Frühstück","Mittag","Nachmittag","Abend","Late Night"];
+const SMALL=window.matchMedia("(max-width:700px)");
+const SLOTS_S=["Früh","Mittag","Nachm.","Abend","Late"];
 
 // ---------- Fragen ----------
 const S = [
@@ -175,6 +208,7 @@ function render(){
   prog.style.width=Math.round(st.i/(S.length-1)*100)+"%";
   back.style.visibility=(st.i===0||q.type==="done")?"hidden":"visible";
   skip.style.visibility=(["welcome","done","consent"].includes(q.type))?"hidden":"visible";
+  skip.textContent=SMALL.matches?"Später":"Später beantworten";
   next.textContent=q.type==="welcome"?"Los geht's →":q.type==="consent"?"Absenden ✓":q.type==="done"?"Neu starten":"Weiter →";
   const sc=document.createElement("div"); sc.className="screen";
   stage.innerHTML=""; stage.appendChild(sc); stage.scrollTop=0;
@@ -253,8 +287,8 @@ function render(){
     A[q.k]=A[q.k]||{};
     const g=$(`<div class="grid"></div>`);
     g.appendChild($(`<div></div>`)); DAYS.forEach(d=>g.appendChild($(`<div class="h">${d}</div>`)));
-    SLOTS.forEach(s=>{
-      g.appendChild($(`<div class="r">${s}</div>`));
+    SLOTS.forEach((s,si)=>{
+      g.appendChild($(`<div class="r">${SMALL.matches?SLOTS_S[si]:s}</div>`));
       DAYS.forEach(d=>{
         const id=d+"-"+s, v=A[q.k][id]||0;
         const c=$(`<button type="button" class="cell" data-v="${v}" aria-label="${d} ${s}"></button>`);

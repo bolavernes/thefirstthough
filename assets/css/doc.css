@@ -3,12 +3,13 @@ header.top .wrap{display:flex;align-items:center;justify-content:space-between;h
 header.top a.back{font-weight:600;font-size:14px;text-decoration:none;color:var(--mist)}
 header.top a.back:hover{color:var(--pink)}
 .layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:48px;max-width:var(--max);margin:0 auto;padding:40px var(--gutter) 96px}
-@media (max-width:960px){.layout{grid-template-columns:1fr}.toc{display:none}}
+@media (max-width:960px){.layout{grid-template-columns:minmax(0,1fr)}.toc{display:none}}
 .toc{position:sticky;top:96px;align-self:start;max-height:calc(100vh - 120px);overflow:auto;font-size:13.5px}
 .toc a{display:block;padding:6px 0;color:var(--muted);text-decoration:none;line-height:1.3}
 .toc a:hover,.toc a.on{color:var(--pink)}
 .toc a.l3{padding-left:14px;font-size:12.5px}
-article.md{min-width:0;font-size:16.5px;color:#e9eef0}
+article.md{min-width:0;font-size:16.5px;color:#e9eef0;overflow-wrap:break-word}
+article.md :not(pre) > code{overflow-wrap:anywhere}
 article.md h1{font-weight:900;font-size:clamp(32px,4.4vw,52px);line-height:1.05;margin:0 0 24px;color:var(--paper)}
 article.md h2{font-weight:900;font-size:clamp(24px,3vw,34px);line-height:1.1;margin:64px 0 16px;padding-top:24px;border-top:1px solid var(--line);color:var(--paper)}
 article.md h3{font-weight:700;font-size:20px;margin:36px 0 10px;color:var(--pink)}
@@ -29,3 +30,21 @@ article.md th,article.md td{padding:10px 12px;border-bottom:1px solid var(--line
 article.md th{background:var(--ink-2);font-weight:700;color:var(--paper);white-space:nowrap}
 article.md tr:last-child td{border-bottom:0}
 .loading{color:var(--muted)}
+
+.mtoc{display:none;margin:0 0 28px;background:var(--ink-2);border:1px solid var(--line);border-radius:14px}
+.mtoc summary{cursor:pointer;padding:14px 18px;font-weight:700;list-style:none}
+.mtoc summary::-webkit-details-marker{display:none}
+.mtoc summary::after{content:" ↓";color:var(--pink)}
+.mtoc[open] summary::after{content:" ↑"}
+.mtoc nav{padding:0 18px 14px;max-height:55vh;overflow:auto}
+.mtoc a{display:block;padding:8px 0;color:var(--mist);text-decoration:none;border-top:1px solid var(--line);font-size:14.5px}
+.mtoc a.l3{padding-left:14px;font-size:13.5px;color:var(--muted)}
+@media (max-width:960px){.mtoc{display:block}.layout{padding-top:24px}}
+@media (max-width:640px){
+  article.md{font-size:15.5px}
+  article.md h2{margin:44px 0 12px;padding-top:18px}
+  article.md h3{font-size:18px}
+  article.md table{font-size:13px}
+  article.md th,article.md td{padding:8px 10px}
+  header.top .tag{display:none}
+}

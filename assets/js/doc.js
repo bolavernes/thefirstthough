@@ -15,4 +15,8 @@ async function renderDoc(url){
     if(h.tagName==="H3" && el.querySelectorAll("h2").length>14) return;
     const a=document.createElement("a"); a.href="#"+id; a.textContent=h.textContent; a.className=h.tagName==="H3"?"l3":""; toc.appendChild(a);
   });
+  const det=document.createElement("details"); det.className="mtoc";
+  det.innerHTML='<summary>Inhalt</summary><nav></nav>';
+  toc.querySelectorAll("a").forEach(a=>{const c=a.cloneNode(true); c.addEventListener("click",()=>det.open=false); det.querySelector("nav").appendChild(c);});
+  const h1=el.querySelector("h1"); (h1&&h1.nextElementSibling?h1.nextElementSibling:el.firstChild).after(det);
 }
