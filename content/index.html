@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Content-Planung</title>
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  .banner{background:var(--yellow);color:var(--ink);font-size:13.5px;font-weight:600;text-align:center;padding:8px var(--gutter)}
+  header.top{position:sticky;top:0;z-index:30;background:rgba(20,20,20,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--paper)}
+  .role{display:flex;background:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:3px}
+  .role button{font:600 13px var(--sans);border:0;background:transparent;color:var(--mist);padding:8px 14px;border-radius:999px;cursor:pointer}
+  .role button[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+
+  .layout{display:grid;grid-template-columns:minmax(0,400px) minmax(0,1fr);gap:28px;padding:28px 0 120px}
+  @media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
+  h2{font-weight:900;font-size:24px;margin:0 0 4px}
+  .hint{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+
+  /* Feed */
+  .phone{background:#fff;color:#111;border-radius:28px;padding:16px 0 0;overflow:hidden;border:8px solid #2a2d33;max-width:400px}
+  .ig-head{display:flex;align-items:center;gap:14px;padding:0 14px 12px}
+  .ig-av{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;letter-spacing:.1em;flex:none}
+  .ig-stats{display:flex;gap:16px;font-size:12.5px;text-align:center}
+  .ig-stats b{display:block;font-size:15px}
+  .ig-name{padding:0 14px 10px;font-size:13px}
+  .ig-name b{display:block}
+  .ig-tabs{display:flex;justify-content:center;border-top:1px solid #ddd;font-size:11px;font-weight:700;letter-spacing:.1em;padding:9px 0;color:#333}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+  .tile{position:relative;aspect-ratio:3/4;overflow:hidden;cursor:pointer;background:#eee}
+  .tile .inner{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%)}
+  .tile.old{filter:grayscale(.2) brightness(.92)}
+  .tile.sel{outline:3px solid var(--pink);outline-offset:-3px}
+  .badge{position:absolute;left:6px;top:6px;font:700 10px/1 var(--sans);padding:5px 7px;border-radius:999px;background:#111;color:#fff;z-index:2}
+  .badge.review{background:var(--yellow);color:#111}
+  .badge.ok{background:#3ccf7a;color:#111}
+  .badge.change{background:var(--pink);color:#111}
+
+  /* Liste */
+  .list{margin-top:22px;display:grid;gap:8px}
+  .item{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;background:var(--ink-2);border:1px solid var(--line);border-radius:14px;padding:10px 12px;cursor:pointer}
+  .item.sel{border-color:var(--pink)}
+  .item .th{width:54px;border-radius:8px;overflow:hidden}
+  .item b{display:block;font-size:14.5px}
+  .item span{font-size:12.5px;color:var(--muted)}
+  .st{font-size:11.5px;font-weight:700;border-radius:999px;padding:5px 9px;white-space:nowrap;background:var(--ink-3);color:var(--mist)}
+  .st.review{background:var(--yellow);color:var(--ink)}
+  .st.ok{background:#3ccf7a;color:var(--ink)}
+  .st.change{background:var(--pink);color:var(--ink)}
+  .add{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .add button{font:600 13px var(--sans);border:1.5px dashed var(--line);background:transparent;color:var(--mist);border-radius:12px;padding:10px 12px;cursor:pointer}
+  .add button:hover{border-color:var(--pink);color:var(--pink)}
+
+  /* Editor */
+  .editor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:22px;align-items:start}
+  @media (max-width:760px){.editor{grid-template-columns:minmax(0,1fr)}}
+  .stagebox{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:18px;display:grid;place-items:center}
+  @media (min-width:761px){.stagebox{position:sticky;top:84px}}
+  #preview{width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+  #preview.story{max-width:300px}
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+  .panel + .panel{margin-top:12px}
+  .panel h3{margin:0 0 12px;font-size:15px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .lock{font-size:11.5px;font-weight:600;color:var(--muted);background:var(--ink-3);border-radius:999px;padding:4px 9px}
+  label.fld{display:block;margin-bottom:12px}
+  label.fld span{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  label.fld input,label.fld textarea,label.fld select{width:100%;font:16px var(--sans);color:var(--paper);background:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+  label.fld textarea{min-height:76px;resize:vertical}
+  label.fld input:focus,label.fld textarea:focus{outline:none;border-color:var(--pink)}
+  .sw{display:flex;gap:8px}
+  .sw button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);cursor:pointer;position:relative}
+  .sw button[aria-pressed="true"]{border-color:var(--paper);box-shadow:0 0 0 2px var(--pink)}
+  .tplsel{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .tplsel button{font:600 13px var(--sans);text-align:left;border:1.5px solid var(--line);background:var(--ink);color:var(--mist);border-radius:10px;padding:10px;cursor:pointer}
+  .tplsel button small{display:block;font-weight:400;color:var(--muted);font-size:11.5px}
+  .tplsel button[aria-pressed="true"]{border-color:var(--pink);color:var(--paper)}
+  .row{display:flex;gap:8px;flex-wrap:wrap}
+  .row .btn{padding:12px 16px;font-size:14px}
+  .colors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .colors label{font-size:12px;color:var(--muted)}
+  .colors input{width:100%;height:40px;border:1.5px solid var(--line);border-radius:10px;background:var(--ink);padding:2px}
+  .agency-only{display:none}
+  body.agency .agency-only{display:block}
+  body.client .client-hide{display:none !important}
+  .comment{background:var(--ink-3);border-left:3px solid var(--pink);border-radius:0 10px 10px 0;padding:10px 12px;font-size:14px;color:var(--mist);margin-top:12px}
+
+  /* Freigabe-Leiste */
+  .sendbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(20,20,20,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+  .sendbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .sendbar span{font-size:14px;color:var(--mist)}
+  .sendbar .btn{padding:14px 20px;font-size:15px;white-space:nowrap}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.7);display:none;place-items:center;padding:16px}
+  .modal.open{display:grid}
+  .modal .box{background:var(--ink-2);border:1px solid var(--line);border-radius:22px;padding:26px;max-width:520px;width:100%}
+  .modal h3{margin:0 0 6px;font-size:24px;font-weight:900}
+  .pin{font:900 46px/1 var(--sans);letter-spacing:.3em;color:var(--pink);margin:14px 0}
+  .linkbox{display:flex;gap:8px;margin:10px 0 16px}
+  .linkbox input{flex:1;min-width:0;font:13px ui-monospace,Menlo,monospace;background:var(--ink);color:var(--mist);border:1.5px solid var(--line);border-radius:10px;padding:10px}
+  .checks label{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--mist);margin:8px 0}
+  .checks input{width:20px;height:20px;accent-color:var(--pink);flex:none}
+  #exportStage{position:fixed;left:-20000px;top:0}
+  @media (max-width:560px){.crumbs{display:none}}
+</style>
+</head>
+<body class="agency">
+<div class="banner">Prototyp · erfundener Kunde · nur the first thought bearbeitet hier. Der Kunde kommentiert und gibt frei, über den PIN-Link.</div>
+<header class="top"><div class="wrap">
+  <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
+  <span class="crumbs">Cockpit / Beisl Fuchsbau / <b>Content</b></span>
+  <a class="btn" href="../bot/" style="padding:10px 14px;font-size:13px">Kunden-Bot ansehen →</a>
+</div></header>
+
+<main class="wrap">
+  <div class="layout">
+    <section>
+      <h2>Feed-Vorschau</h2>
+      <p class="hint">So sieht das Profil aus, wenn alles gepostet ist. Geplante Posts haben einen Status.</p>
+      <div class="phone">
+        <div class="ig-head">
+          <div class="ig-av" id="igav">FB</div>
+          <div class="ig-stats"><div><b>148</b>Beiträge</div><div><b>2.100</b>Follower</div><div><b>312</b>Gefolgt</div></div>
+        </div>
+        <div class="ig-name"><b id="igname">Beisl Fuchsbau</b>Wiener Küche in Butterschmalz · 1070 Wien</div>
+        <div class="ig-tabs">BEITRÄGE</div>
+        <div class="grid" id="grid"></div>
+      </div>
+      <h2 style="margin-top:28px">Geplant</h2>
+      <div class="list" id="list"></div>
+      <div class="add client-hide" id="add"></div>
+    </section>
+
+    <section>
+      <h2>Editor</h2>
+      <p class="hint" id="edhint">Nur für das Team. Schrift, Farben und Logo kommen aus dem Brand-Kit, damit jeder Post nach dem Kunden aussieht.</p>
+      <div class="editor">
+        <div class="stagebox"><div id="preview"></div></div>
+        <div>
+          <div class="panel">
+            <h3>Datum & Status <span class="st" id="stlabel"></span></h3>
+            <label class="fld"><span>Geplant für</span><input type="date" id="date"></label>
+            <div id="comment"></div>
+          </div>
+          <div class="panel client-hide">
+            <h3>Vorlage</h3>
+            <div class="tplsel" id="tpls"></div>
+          </div>
+          <div class="panel">
+            <h3>Inhalt</h3>
+            <div id="fields"></div>
+            <label class="fld"><span>Foto</span><input type="file" id="photo" accept="image/*"></label>
+            <p class="hint" id="vidhint" style="display:none;margin:-4px 0 12px">Das Video bleibt dort, wo es liegt (Dropbox, Bunny, R2, eigener Server). Das Tool speichert nur den Link. Wichtig: ein direkter Datei-Link auf eine .mp4, keine Ordner-Seite.</p>
+            <label class="fld"><span>Caption</span><textarea id="caption"></textarea></label>
+          </div>
+          <div class="panel">
+            <h3>Farbvariante <span class="lock">🔒 aus Brand-Kit</span></h3>
+            <div class="sw" id="sw"></div>
+          </div>
+          <div class="panel agency-only">
+            <h3>Brand-Kit <span class="lock">nur Agentur</span></h3>
+            <div class="colors">
+              <label>Dunkel<input type="color" id="cDark"></label>
+              <label>Hell<input type="color" id="cLight"></label>
+              <label>Akzent<input type="color" id="cAccent"></label>
+            </div>
+            <label class="fld" style="margin-top:12px"><span>Headline-Schrift</span><select id="fHead"></select></label>
+            <label class="fld"><span>Text-Schrift</span><select id="fBody"></select></label>
+            <label class="fld"><span>Logo-Text</span><input type="text" id="logo"></label>
+          </div>
+          <div class="panel">
+            <div class="row">
+              <button class="btn" type="button" id="png">PNG laden</button>
+              <button class="btn client-hide" type="button" id="dup">Duplizieren</button>
+              <button class="btn client-hide" type="button" id="del">Löschen</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="sendbar"><div class="wrap">
+  <span id="sendinfo"></span>
+  <button class="btn btn--pink" type="button" id="send">Zur Freigabe senden →</button>
+</div></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mt">
+  <div class="box">
+    <h3 id="mt">Freigabe-Link für den Kunden</h3>
+    <p class="hint" style="margin:0">Der Kunde öffnet den Link am Handy, gibt die PIN ein und gibt jeden Post frei oder schreibt dazu, was er anders will. Ohne Login.</p>
+    <div class="pin" id="pin">0000</div>
+    <div class="linkbox"><input id="link" readonly><button class="btn" type="button" id="copy" style="padding:10px 14px;font-size:13px">Kopieren</button></div>
+    <div class="checks">
+      <label><input type="checkbox" checked disabled> PIN separat schicken (z. B. SMS), nicht mit dem Link</label>
+      <label><input type="checkbox" checked disabled> Link läuft nach 7 Tagen ab</label>
+      <label><input type="checkbox" checked disabled> Keine Antwort nach 48 h = freigegeben (Kunde wird informiert)</label>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <a class="btn btn--pink" id="wa" target="_blank" rel="noopener">Per WhatsApp schicken</a>
+      <a class="btn" id="open" target="_blank" rel="noopener">Als Kunde öffnen</a>
+      <button class="btn" type="button" id="close">Schließen</button>
+    </div>
+    <p class="hint" style="margin:14px 0 0;font-size:12px">Demo: Fotos reisen nicht im Link mit, der Kunde sieht Platzhalter. In der echten Version liegt alles auf dem Server, und die PIN wird dort geprüft.</p>
+  </div>
+</div>
+
+<div id="exportStage" aria-hidden="true"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="../assets/js/templates.js"></script>
+<script>
+(() => {
+"use strict";
+const KEY = "tft-content-demo-v2";
+const STATUS = { draft: "Entwurf", review: "Zur Freigabe", ok: "Freigegeben", change: "Änderung" };
+const today = new Date();
+const d = n => { const x = new Date(today); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+const seed = () => ({
+  brand: JSON.parse(JSON.stringify(TFT_BRAND_DEFAULT)),
+  posts: [
+    { id: "p1", tpl: "event", v: "dark", date: d(2), status: "draft", f: {}, caption: "Martini kommt. Das halbe Gansl für zwei, am Tisch tranchiert. Reservieren mit Kennwort FUCHSBAU 🦊" },
+    { id: "p2", tpl: "offer", v: "light", date: d(4), status: "draft", f: {}, caption: "Montag ist Schnitzeltag. In Butterschmalz, wie's die Oma gemacht hat. Ab 17 Uhr." },
+    { id: "p3", tpl: "story", v: "accent", date: d(6), status: "draft", f: {}, caption: "" },
+    { id: "p6", tpl: "reel", v: "dark", date: d(5), status: "draft", f: { url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4", hook: "Montag, 17:03.\nDas erste Schnitzel." }, caption: "Hör zu. Das ist Butterschmalz. 🎧 (Demo-Video: CC0, MDN)" },
+    { id: "p4", tpl: "quote", v: "dark", date: d(8), status: "draft", f: {}, caption: "Danke für die Worte! ❤️" },
+    { id: "p5", tpl: "offer", v: "dark", date: d(11), status: "draft", f: { kicker: "Nur im November", title: "Maroni-\nSchmarrn", price: "8,90 €", sub: "Die süße Seite vom Martini." }, caption: "Kaiserschmarrn, aber mit Maroni. Nur im November." }
+  ]
+});
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
+if (!S || !S.posts) S = seed();
+// Feedback vom Kunden übernehmen (#fb=...)
+function applyFb() {
+  try {
+    const m = location.hash.match(/fb=([^&]+)/);
+    if (!m) return false;
+    const fb = TFT_unpack(m[1]);
+    (fb.r || []).forEach(r => { const p = S.posts.find(x => x.id === r.id); if (p) { p.status = r.s; p.comment = r.c || ""; } });
+    history.replaceState(null, "", location.pathname);
+    return true;
+  } catch (e) { return false; }
+}
+applyFb();
+window.addEventListener("hashchange", () => { if (applyFb()) { save(); renderAll(); } });
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+let sel = S.posts[0]?.id;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const cur = () => S.posts.find(p => p.id === sel);
+const fmt = iso => new Date(iso + "T12:00").toLocaleDateString("de-AT", { weekday: "short", day: "numeric", month: "numeric" });
+
+const OLD = [ // bestehende Posts (Platzhalter)
+  { tpl: "quote", v: "light", f: { quote: "Beuschel wie früher.", name: "" } },
+  { tpl: "offer", v: "accent", f: { kicker: "Sommer", title: "Schanigarten offen", price: "ab 11 Uhr", sub: "" } },
+  { tpl: "event", v: "light", f: { date: "31.10.", title: "Halloween im Beisl", sub: "" } }
+];
+
+function renderFeed() {
+  const b = S.brand;
+  $("igav").style.background = b.colors.dark; $("igav").style.color = b.colors.light; $("igav").textContent = b.logo.slice(0, 2);
+  $("igname").textContent = b.name;
+  const grid = $("grid"); grid.innerHTML = "";
+  const planned = S.posts.filter(p => !TFT_TEMPLATES[p.tpl].format.startsWith("Story")).slice().sort((a, b2) => b2.date.localeCompare(a.date));
+  [...planned.map(p => ({ p, old: false })), ...OLD.map(p => ({ p, old: true }))].forEach(({ p, old }) => {
+    const t = document.createElement("div"); t.className = "tile" + (old ? " old" : "") + (p.id === sel ? " sel" : "");
+    const inner = document.createElement("div"); inner.className = "inner"; t.appendChild(inner);
+    if (!old) { const bd = document.createElement("span"); bd.className = "badge " + p.status; bd.textContent = STATUS[p.status]; t.appendChild(bd); t.onclick = () => { sel = p.id; renderAll(); }; }
+    grid.appendChild(t);
+    requestAnimationFrame(() => TFT_mount(inner, p, b));
+  });
+}
+
+function renderList() {
+  const l = $("list"); l.innerHTML = "";
+  S.posts.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(p => {
+    const t = TFT_TEMPLATES[p.tpl];
+    const it = document.createElement("div"); it.className = "item" + (p.id === sel ? " sel" : "");
+    it.innerHTML = `<div class="th"></div><div><b>${esc(fmt(p.date))} · ${esc(t.label)}</b><span>${esc(t.format)}${p.comment ? " · 💬 Kommentar" : ""}</span></div><span class="st ${p.status}">${STATUS[p.status]}</span>`;
+    it.onclick = () => { sel = p.id; renderAll(); };
+    l.appendChild(it);
+    requestAnimationFrame(() => TFT_mount(it.querySelector(".th"), p, S.brand));
+  });
+  const add = $("add"); add.innerHTML = "";
+  Object.entries(TFT_TEMPLATES).forEach(([k, t]) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = "+ " + t.label;
+    b.onclick = () => { const id = "p" + Date.now(); S.posts.push({ id, tpl: k, v: "dark", date: d(14), status: "draft", f: {}, caption: "" }); sel = id; save(); renderAll(); };
+    add.appendChild(b);
+  });
+}
+
+function renderEditor() {
+  const p = cur(); if (!p) return;
+  const t = TFT_TEMPLATES[p.tpl];
+  const pv = $("preview"); pv.className = t.h > t.w * 1.5 ? "story" : "";
+  requestAnimationFrame(() => TFT_mount(pv, p, S.brand));
+  $("date").value = p.date;
+  $("stlabel").className = "st " + p.status; $("stlabel").textContent = STATUS[p.status];
+  $("comment").innerHTML = p.comment ? `<div class="comment"><b>Kunde:</b> ${esc(p.comment)}</div>` : "";
+  // Vorlagen
+  const tp = $("tpls"); tp.innerHTML = "";
+  Object.entries(TFT_TEMPLATES).forEach(([k, tt]) => {
+    const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(k === p.tpl));
+    b.innerHTML = `${esc(tt.label)}<small>${esc(tt.format)}</small>`;
+    b.onclick = () => { p.tpl = k; p.f = {}; touch(p); };
+    tp.appendChild(b);
+  });
+  // Felder
+  const fl = $("fields"); fl.innerHTML = "";
+  t.fields.forEach(f => {
+    const long = ["quote", "title", "hook", "sub"].includes(f.k) && f.k !== "sub" || (p.tpl === "today" && f.k === "sub");
+    const w = document.createElement("label"); w.className = "fld";
+    w.innerHTML = `<span>${esc(f.label)}</span>` + (long ? `<textarea></textarea>` : `<input type="${f.k === "url" ? "url" : "text"}" ${f.k === "url" ? 'placeholder="https://…/reel.mp4"' : ""}>`);
+    const inp = w.querySelector("input,textarea");
+    inp.value = (p.f && p.f[f.k] != null) ? p.f[f.k] : f.def;
+    inp.oninput = () => { p.f = p.f || {}; p.f[f.k] = inp.value; if (p.status === "ok") p.status = "draft"; save(); TFT_mount($("preview"), p, S.brand); renderFeedList(); };
+    fl.appendChild(w);
+  });
+  $("caption").value = p.caption || "";
+  const isVid = !!t.video;
+  $("png").style.display = isVid ? "none" : ""; $("photo").closest("label").style.display = isVid ? "none" : "";
+  $("vidhint").style.display = isVid ? "block" : "none";
+  // Farbvarianten
+  const sw = $("sw"); sw.innerHTML = "";
+  [["dark", S.brand.colors.dark], ["light", S.brand.colors.light], ["accent", S.brand.colors.accent]].forEach(([v, c]) => {
+    const b = document.createElement("button"); b.type = "button"; b.style.background = c; b.setAttribute("aria-pressed", String(p.v === v)); b.setAttribute("aria-label", v);
+    b.onclick = () => { p.v = v; touch(p); };
+    sw.appendChild(b);
+  });
+  // Brand-Kit
+  $("cDark").value = S.brand.colors.dark; $("cLight").value = S.brand.colors.light; $("cAccent").value = S.brand.colors.accent;
+  ["fHead", "fBody"].forEach(id => { const s = $(id); if (!s.options.length) TFT_FONTS.forEach(f => s.add(new Option(f, f))); });
+  $("fHead").value = S.brand.head; $("fBody").value = S.brand.body; $("logo").value = S.brand.logo;
+  $("sendinfo").textContent = `${S.posts.filter(x => x.status === "draft" || x.status === "change").length} Posts bereit zur Freigabe · ${S.posts.filter(x => x.status === "ok").length} freigegeben`;
+}
+
+let tm;
+function renderFeedList() { clearTimeout(tm); tm = setTimeout(() => { renderFeed(); renderList(); }, 250); }
+function touch(p) { if (p && p.status === "ok") p.status = "draft"; save(); renderAll(); }
+function renderAll() { TFT_loadFonts(S.brand); renderFeed(); renderList(); renderEditor(); }
+
+$("date").onchange = e => { cur().date = e.target.value; touch(cur()); };
+$("caption").oninput = e => { cur().caption = e.target.value; save(); };
+$("photo").onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const img = new Image(); const url = URL.createObjectURL(file);
+  img.onload = () => { const c = document.createElement("canvas"); const s = Math.min(1, 1400 / Math.max(img.width, img.height)); c.width = img.width * s; c.height = img.height * s; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); cur().img = c.toDataURL("image/jpeg", .82); URL.revokeObjectURL(url); touch(cur()); };
+  img.src = url;
+};
+["cDark", "cLight", "cAccent"].forEach(id => $(id).oninput = e => { S.brand.colors[{ cDark: "dark", cLight: "light", cAccent: "accent" }[id]] = e.target.value; save(); renderAll(); });
+$("fHead").onchange = e => { S.brand.head = e.target.value; save(); renderAll(); };
+$("fBody").onchange = e => { S.brand.body = e.target.value; save(); renderAll(); };
+$("logo").oninput = e => { S.brand.logo = e.target.value || "LOGO"; save(); renderFeedList(); TFT_mount($("preview"), cur(), S.brand); };
+$("dup").onclick = () => { const p = cur(); const id = "p" + Date.now(); S.posts.push(Object.assign(JSON.parse(JSON.stringify(p)), { id, status: "draft", comment: "" })); sel = id; save(); renderAll(); };
+$("del").onclick = () => { if (S.posts.length < 2) return; S.posts = S.posts.filter(p => p.id !== sel); sel = S.posts[0].id; save(); renderAll(); };
+
+$("png").onclick = async () => {
+  const p = cur(); const st = $("exportStage");
+  st.innerHTML = TFT_renderPost(p, S.brand);
+  await document.fonts.ready;
+  const canvas = await html2canvas(st.firstElementChild, { scale: 1, backgroundColor: null, logging: false });
+  const a = document.createElement("a"); a.download = `${S.brand.handle}_${p.date}_${p.tpl}.png`; a.href = canvas.toDataURL("image/png"); a.click();
+  st.innerHTML = "";
+};
+
+
+// Freigabe
+$("send").onclick = async () => {
+  const items = S.posts.filter(p => p.status !== "ok");
+  if (!items.length) return;
+  const pin = String(Math.floor(1000 + Math.random() * 9000));
+  const salt = Math.random().toString(36).slice(2, 10);
+  const payload = { b: S.brand, s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption })) };
+  items.forEach(p => { p.status = "review"; p.comment = ""; });
+  save(); renderAll();
+  const url = new URL("../freigabe/", location.href).href + "#d=" + TFT_pack(payload);
+  $("pin").textContent = pin; $("link").value = url; $("open").href = url;
+  $("wa").href = "https://wa.me/?text=" + encodeURIComponent(`Hallo! Hier sind die nächsten ${items.length} Posts für ${S.brand.name} zur Freigabe: ${url} (PIN kommt separat)`);
+  $("modal").classList.add("open");
+};
+$("copy").onclick = () => { $("link").select(); try { navigator.clipboard.writeText($("link").value); $("copy").textContent = "Kopiert ✓"; } catch (e) {} };
+$("close").onclick = () => $("modal").classList.remove("open");
+$("modal").onclick = e => { if (e.target.id === "modal") $("modal").classList.remove("open"); };
+
+renderAll();
+})();
+</script>
+</body>
+</html>

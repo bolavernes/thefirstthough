@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Kunden-Bot</title>
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  .banner{background:var(--yellow);color:var(--ink);font-size:13.5px;font-weight:600;text-align:center;padding:8px var(--gutter)}
+  .page{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:48px;align-items:start;padding:40px 0 60px}
+  @media (max-width:900px){.page{grid-template-columns:minmax(0,1fr);gap:24px;padding-top:20px}}
+  .intro h1{font-weight:900;font-size:clamp(32px,4.4vw,52px);line-height:1.02;margin:10px 0 14px}
+  .intro p{color:var(--mist);font-size:17px;max-width:560px}
+  .steps{list-style:none;padding:0;margin:24px 0;counter-reset:s}
+  .steps li{position:relative;padding:12px 0 12px 44px;border-top:1px solid var(--line);color:var(--mist)}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:10px;font-weight:900;font-size:22px;color:var(--pink)}
+  .steps b{color:var(--paper)}
+  .note{font-size:13px;color:var(--muted)}
+  .media{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .media span{font-size:12px;background:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:5px 9px;color:var(--mist)}
+
+  .phone{background:#0b141a;border:10px solid #2a2d33;border-radius:40px;height:min(780px,calc(100dvh - 140px));min-height:560px;display:flex;flex-direction:column;overflow:hidden;position:sticky;top:20px}
+  @media (max-width:900px){.phone{border:0;border-radius:0;margin:0 calc(var(--gutter) * -1);height:calc(100dvh - 40px);position:relative;top:0}}
+  .ph-head{display:flex;align-items:center;gap:12px;padding:14px 16px;background:#1f2c33;color:#e9edef}
+  .ph-av{width:40px;height:40px;border-radius:50%;background:var(--ink);display:grid;place-items:center;flex:none}
+  .ph-av img{width:24px}
+  .ph-head b{display:block;font-size:15px}
+  .ph-head span{font-size:12px;color:#8696a0}
+  .chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:8px;background:#0b141a}
+  .m{max-width:86%;padding:9px 12px 7px;border-radius:12px;font-size:15px;line-height:1.4;color:#e9edef;white-space:pre-wrap}
+  .m.bot{background:#202c33;align-self:flex-start;border-top-left-radius:4px}
+  .m.me{background:#005c4b;align-self:flex-end;border-top-right-radius:4px}
+  .m small{display:block;text-align:right;font-size:10.5px;color:#8696a0;margin-top:2px}
+  .typing{align-self:flex-start;background:#202c33;border-radius:12px;padding:10px 14px;color:#8696a0;font-size:13px}
+  .vars{align-self:stretch;display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
+  .vars::-webkit-scrollbar{display:none}
+  .var{flex:none;width:150px;background:#202c33;border-radius:12px;padding:6px;display:flex;flex-direction:column;gap:6px}
+  .var .pv{border-radius:8px;overflow:hidden}
+  .var button,.chips button{font:600 13px var(--sans);border:0;border-radius:8px;padding:9px;background:#00a884;color:#0b141a;cursor:pointer}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start;max-width:92%}
+  .chips button{background:#202c33;color:#53bdeb;border:1px solid #2a3942}
+  .inbar{display:flex;gap:8px;padding:10px;background:#1f2c33}
+  .inbar input{flex:1;min-width:0;font:16px var(--sans);background:#2a3942;border:0;border-radius:999px;color:#e9edef;padding:11px 16px}
+  .inbar button{width:46px;height:46px;border-radius:50%;border:0;background:#00a884;color:#0b141a;font-size:20px;cursor:pointer;flex:none}
+  .back{font-size:14px;font-weight:600;color:var(--mist);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="banner">Simulation · in echt versteht Claude die Nachricht. Hier reichen einfache Regeln, um den Ablauf zu zeigen.</div>
+<main class="wrap">
+  <div class="page">
+    <div class="intro">
+      <a class="back" href="../content/">← Content-Planung</a>
+      <span class="tag" style="display:block;margin-top:18px">Kunden-Bot</span>
+      <h1>„Wir haben heute Seebarsch.“</h1>
+      <p>Jeder Kunde bekommt einen eigenen Bot auf WhatsApp oder Telegram. Er schreibt, was heute los ist, und bekommt in Sekunden fertige Stories in seinem Branding zurück, mit Fotos aus seiner eigenen Mediathek.</p>
+      <ol class="steps">
+        <li><b>Wirt schreibt</b> „Heute Seebarsch vom Grill 24,90“ oder „Heute zu wegen Unwetter“.</li>
+        <li><b>Claude versteht</b> Gericht, Preis oder Grund und wählt die passende Vorlage.</li>
+        <li><b>Foto aus der Mediathek:</b> Bilder aus euren Shootings sind verschlagwortet. Claude nimmt das passende.</li>
+        <li><b>3 Varianten zurück</b> im Brand-Kit des Kunden. Er tippt „Nimm 2“.</li>
+        <li><b>Online oder zur Kontrolle:</b> je nach Kunde direkt als Story, oder erst zu the first thought.</li>
+      </ol>
+      <p class="note">Mediathek „Beisl Fuchsbau“ (Demo):</p>
+      <div class="media" id="media"></div>
+      <p class="note" style="margin-top:18px">Probier's: Tipp einen Vorschlag an oder schreib selbst, z. B. „Neu: Kürbiscremesuppe 6,50“ oder „Heute erst ab 17 Uhr offen“.</p>
+    </div>
+
+    <div class="phone">
+      <div class="ph-head"><div class="ph-av"><img src="../assets/img/logo-white.svg" alt=""></div><div><b>Fuchsbau × the first thought</b><span>Bot · antwortet sofort</span></div></div>
+      <div class="chat" id="chat"></div>
+      <form class="inbar" id="form"><input id="in" placeholder="Was gibt's heute?" autocomplete="off"><button type="submit" aria-label="Senden">➤</button></form>
+    </div>
+  </div>
+</main>
+
+<script src="../assets/js/templates.js"></script>
+<script>
+(() => {
+"use strict";
+let brand = JSON.parse(JSON.stringify(TFT_BRAND_DEFAULT));
+try { const st = JSON.parse(localStorage.getItem("tft-content-demo-v2") || "null"); if (st && st.brand) brand = st.brand; } catch (e) {}
+TFT_loadFonts(brand);
+
+const MEDIA = [
+  { f: "seebarsch_grill_02.jpg", t: ["seebarsch", "wolfsbarsch", "branzino", "fisch", "grill"] },
+  { f: "forelle_mandeln_01.jpg", t: ["forelle", "fisch"] },
+  { f: "schnitzel_pfanne_05.jpg", t: ["schnitzel", "wiener", "butterschmalz"] },
+  { f: "gansl_tranchiert_03.jpg", t: ["gansl", "gans", "martini"] },
+  { f: "kuerbissuppe_01.jpg", t: ["kürbis", "kuerbis", "suppe", "kürbiscremesuppe"] },
+  { f: "kaiserschmarrn_02.jpg", t: ["schmarrn", "kaiserschmarrn", "dessert", "nachspeise"] },
+  { f: "schanigarten_regen_01.jpg", t: ["unwetter", "regen", "schlechtwetter", "schanigarten", "sturm"] },
+  { f: "lokal_aussen_abend.jpg", t: ["offen", "geschlossen", "zu", "ruhetag", "urlaub"] }
+];
+document.getElementById("media").innerHTML = MEDIA.map(m => `<span>📷 ${m.f}</span>`).join("");
+
+const chat = document.getElementById("chat");
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const time = () => new Date().toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" });
+const scroll = () => requestAnimationFrame(() => chat.scrollTop = chat.scrollHeight);
+function msg(text, who) { const d = document.createElement("div"); d.className = "m " + who; d.innerHTML = esc(text) + `<small>${time()}</small>`; chat.appendChild(d); scroll(); return d; }
+function chips(list, onPick) { const c = document.createElement("div"); c.className = "chips"; list.forEach(t => { const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.onclick = () => { c.remove(); onPick(t); }; c.appendChild(b); }); chat.appendChild(c); scroll(); }
+function typing(ms) { const t = document.createElement("div"); t.className = "typing"; t.textContent = "Bot baut Vorschläge …"; chat.appendChild(t); scroll(); return new Promise(r => setTimeout(() => { t.remove(); r(); }, ms)); }
+
+function pickMedia(text) {
+  const low = text.toLowerCase();
+  const hit = MEDIA.find(m => m.t.some(t => low.includes(t)));
+  return hit ? hit.f : "lokal_innen_01.jpg";
+}
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+
+function parse(text) {
+  const low = " " + text.toLowerCase() + " ";
+  const reason = (text.match(/wegen\s+(.+)$/i) || [])[1];
+  const ab = low.match(/ab\s+(\d{1,2})(?:[:.](\d{2}))?\s*(?:uhr)?/);
+  if (/geschlossen| zu |ruhetag|urlaub/.test(low)) {
+    return { kind: "info", media: pickMedia(text), base: { kicker: "Heute", big: "geschlossen", sub: reason ? `Wegen ${reason.replace(/[.!]+$/, "")}. Morgen sind wir wieder für euch da!` : "Morgen sind wir wieder für euch da!" },
+      caps: [`Heute bleibt der Fuchsbau zu${reason ? " wegen " + reason : ""}. Morgen wieder wie gewohnt!`, `Kurze Pause heute. Wir sehen uns morgen 🦊`, `Heute geschlossen. Danke fürs Verständnis!`] };
+  }
+  if (ab) {
+    const t = ab[1] + (ab[2] ? ":" + ab[2] : "") + " Uhr";
+    return { kind: "info", media: pickMedia(text), base: { kicker: "Heute", big: "erst ab\n" + t, sub: "Dann aber mit allem. Wir freuen uns auf euch!" },
+      caps: [`Heute erst ab ${t} offen.`, `Heute starten wir um ${t}. Tisch reservieren?`, `Ab ${t} ist die Küche heiß 🔥`] };
+  }
+  if (/ offen | geöffnet /.test(low)) {
+    return { kind: "info", media: pickMedia("offen"), base: { kicker: "Heute", big: "offen", sub: reason ? `Trotz ${reason}! Kommt vorbei.` : "Kommt vorbei, wir freuen uns!" },
+      caps: ["Heute ganz normal offen!", "Wir sind da. Ihr auch?", "Offen. Hungrig?"] };
+  }
+  const price = (text.match(/(\d{1,3}[,.]\d{2})\s*(?:€|eur|euro)?/i) || [])[1];
+  const isNew = /^\s*neu\b/i.test(text);
+  let dish = text.replace(/(\d{1,3}[,.]\d{2})\s*(?:€|eur|euro)?/i, "").replace(/^\s*(heute|neu)\s*:?\s*/i, "").replace(/\b(wir haben|gibt'?s|gibt es)\b/gi, "").replace(/[,.:–-]+\s*$/, "").replace(/\s{2,}/g, " ").trim();
+  dish = cap(dish || "Tagesgericht");
+  const pr = price ? price.replace(".", ",") + " €" : "";
+  return { kind: "special", media: pickMedia(text), base: { kicker: isNew ? "Neu auf der Karte" : "Heute frisch", title: dish, price: pr || "Heute", sub: isNew ? "Ab sofort bei uns" : "Solange der Vorrat reicht" },
+    caps: [`${isNew ? "Neu" : "Heute"}: ${dish}${pr ? " um " + pr : ""}. Solange er reicht!`, `Frisch auf den Tisch: ${dish}. Wer zuerst kommt …`, `${dish}. Mehr muss man nicht sagen.${pr ? " " + pr : ""}`] };
+}
+
+function variants(r) {
+  if (r.kind === "info") return [
+    { tpl: "today", v: "dark", f: r.base, media: r.media },
+    { tpl: "today", v: "accent", f: r.base, media: r.media },
+    { tpl: "today", v: "light", f: r.base, media: r.media }
+  ];
+  return [
+    { tpl: "special", v: "dark", f: r.base, media: r.media },
+    { tpl: "special", v: "light", f: r.base, media: r.media },
+    { tpl: "offer", v: "accent", f: { kicker: r.base.kicker, title: r.base.title, price: r.base.price, sub: r.base.sub }, media: r.media }
+  ];
+}
+
+async function handle(text) {
+  msg(text, "me");
+  await typing(1100);
+  const r = parse(text);
+  const vs = variants(r);
+  msg(`Hab dir 3 Vorschläge im Fuchsbau-Look gebaut.${r.kind === "special" ? `\nFoto aus eurer Mediathek: ${r.media}` : ""}`, "bot");
+  const row = document.createElement("div"); row.className = "vars";
+  vs.forEach((v, i) => {
+    const c = document.createElement("div"); c.className = "var";
+    c.innerHTML = `<div class="pv"></div><button type="button">Nimm ${i + 1}</button>`;
+    c.querySelector("button").onclick = () => pick(i, v, r);
+    row.appendChild(c);
+    requestAnimationFrame(() => TFT_mount(c.querySelector(".pv"), v, brand));
+  });
+  chat.appendChild(row); scroll();
+  chips(["Anderen Text", "Abbrechen"], t => {
+    if (t === "Abbrechen") { msg("Abbrechen", "me"); msg("Alles klar, nichts passiert. Schreib einfach, wenn was ist.", "bot"); return; }
+    msg("Anderen Text", "me");
+    msg("Captions zur Auswahl:\n\n1) " + r.caps[0] + "\n2) " + r.caps[1] + "\n3) " + r.caps[2], "bot");
+  });
+}
+
+async function pick(i, v, r) {
+  document.querySelectorAll(".vars button").forEach(b => b.disabled = true);
+  msg(`Nimm ${i + 1}`, "me");
+  await typing(700);
+  msg(`Passt! Story ${i + 1} geht an the first thought zur kurzen Kontrolle und um ${new Date(Date.now() + 30 * 60000).toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" })} online.\n\nCaption: „${r.caps[0]}“`, "bot");
+  chips(["Sofort posten", "Auch als Post", "Danke!"], t => {
+    msg(t, "me");
+    if (t === "Sofort posten") msg("Geht klar, ist online. (Bei Kunden mit Freigabe „direkt“ ohne Kontrolle.)", "bot");
+    else if (t === "Auch als Post") msg("Mach ich. Der Post landet in der Content-Planung zur Freigabe.", "bot");
+    else msg("Gern! Schreib einfach, wenn's morgen was gibt. 🦊", "bot");
+  });
+}
+
+document.getElementById("form").onsubmit = e => { e.preventDefault(); const i = document.getElementById("in"); const t = i.value.trim(); if (!t) return; i.value = ""; document.querySelectorAll(".chips").forEach(c => c.remove()); handle(t); };
+msg("Servus! Ich bin euer Content-Bot von the first thought. Schreib mir einfach, was heute los ist, und ich bau euch die Story dazu.", "bot");
+chips(["Heute Seebarsch vom Grill 24,90", "Heute geschlossen wegen Unwetter", "Heute erst ab 17 Uhr offen", "Neu: Kürbiscremesuppe 6,50"], t => handle(t));
+})();
+</script>
+</body>
+</html>

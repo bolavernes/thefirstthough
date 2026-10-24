@@ -170,6 +170,18 @@ Damit beantwortet sich Minashes Frage „Wie wissen Mitarbeiter, welcher Content
 
 ---
 
+## 6b. Content-Studio, Freigabe & Kunden-Bot
+
+**Content-Studio (nur Team):** Posts, Stories und Reel-Vorschauen entstehen aus Vorlagen pro Kunde: Angebot, Event, Countdown, Gäste-Stimme, Tagesangebot, Heute-Info (offen, geschlossen, Schlechtwetter) und Reel. Schrift, Farben und Logo kommen aus dem Brand-Kit und sind gesperrt. Die Feed-Vorschau zeigt das Profil, wie es nach dem Posten aussieht. Export als PNG plus Caption an Metricool oder die Meta Business Suite. Kein freier Canva-Ersatz, nur Vorlagen.
+
+**Reels:** Die Video-Dateien bleiben extern (Dropbox, Bunny, Cloudflare R2, eigener Server). Das Tool speichert nur den direkten Datei-Link (.mp4) und spielt das Video in Vorschau und Freigabe ab.
+
+**Freigabe (Kunde):** Der Kunde bearbeitet nichts. Er bekommt einen Link per WhatsApp und die PIN separat. Pro Post tippt er „Passt“ oder „Ändern“ mit Kommentar. Kein Login. Der Link läuft nach 7 Tagen ab, nach 3 falschen PINs ist er 60 Sekunden gesperrt. Ohne Antwort nach 48 h gilt der Post als freigegeben, der Kunde wird vorher erinnert. In der echten Version prüft der Server die PIN und speichert die Antworten direkt in der Kundenakte.
+
+**Kunden-Bot (WhatsApp oder Telegram):** Der Wirt schreibt „Heute Seebarsch vom Grill 24,90“ oder „Heute zu wegen Unwetter“. Claude erkennt Gericht, Preis oder Grund, wählt die Vorlage, nimmt ein passendes Foto aus der verschlagworteten Mediathek des Kunden (Fotos aus euren Shootings, Schlagworte vergibt Claude beim Hochladen) und schickt 3 Varianten zurück. „Nimm 2“ → je nach Kunde direkt als Story online oder erst zur Kontrolle an the first thought. Telegram ist gratis; WhatsApp braucht ein Meta-Business-Konto und kostet pro Nachricht ein paar Cent.
+
+---
+
 ## 7. Der Anlass-Planer — fertige Konzepte, bevor der Kunde fragt
 
 Das ist der Teil, mit dem Minashe Geld verdient: Das Tool weiß das ganze Jahr im Voraus, welcher Anlass zu welchem Kunden passt, und legt rechtzeitig ein fertiges Konzept auf den Tisch.
@@ -222,6 +234,7 @@ Die KI ergänzt das pro Kunde aus der Kundenakte (Küche, Lage, Zielgruppe, Ton)
 | **3 · Pass + Kalender** | 2 | Content-Kalender, Shotlists, Crew-App, Telegram-Push | Crew von Minashe |
 | **4 · Anlass-Planer & Rollout** | 2 | Anlasskalender, Anlass × Kundentyp-Regeln, Jahresplan pro Kunde, Batch-Rollout | alle |
 | **5 · Referenzen** | 2 | Trend-Datenlayer, Referenz-Bibliothek, Reel-Karten in Konzepten | alle |
+| **5b · Content-Studio, Freigabe & Bot** | 3–4 | Vorlagen-Editor mit Brand-Kit, Feed-Vorschau, Reel-Links, PIN-Freigabe, Telegram-Bot mit Mediathek | 3 Pilotkunden |
 | **6 · Extras** | laufend | Tagesangebot-Bot, Speisekarten-Generator, Review-Antworten, Kundenportal | nach Bedarf |
 
 Phase 1–2 sind in ~6 Wochen erreichbar, wenn Minashe im Fundament eine Woche lang täglich 30 Minuten für Fragebogen-Feedback hat.
