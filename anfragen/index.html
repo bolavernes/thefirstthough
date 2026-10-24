@@ -102,6 +102,7 @@
 <script src="../assets/js/anlaesse.js"></script>
 <script src="../assets/js/templates.js"></script>
 <script src="../assets/js/clients.js"></script>
+<script src="../assets/js/kampagnen.js"></script>
 <script src="../assets/js/nav.js"></script>
 <script src="../assets/js/assist.js"></script>
 <script>
@@ -164,7 +165,7 @@ function renderClients(all) {
     const tr = document.createElement("tr");
     tr.innerHTML = `<td><div class="cn">${av}<span>${esc(c.name)}${c.fictional ? "<em>Demo</em>" : ""}</span></div></td><td>${esc(c.typ)}</td><td>${esc(c.plan)}</td>
       <td><span class="num ${open ? "hot" : ""}">${open}</span></td><td>${planned}</td><td><span class="num ${review ? "hot" : ""}">${review}</span></td><td>${esc(nextAnlass(c.t))}</td>
-      <td><div class="ln">${c.id ? `<a href="../content/?k=${c.id}">Content</a><a href="../brandkit/?k=${c.id}">Brand-Kit</a><a href="../vorlagen/?k=${c.id}">Layouts</a><a href="../bot/?k=${c.id}">Bot</a>` : `<a href="#" data-f="${esc(c.name)}">Anfragen</a>`}</div></td>`;
+      <td><div class="ln">${c.id ? `<a href="../content/?k=${c.id}">Content</a><a href="../brandkit/?k=${c.id}">Brand-Kit</a><a href="../vorlagen/?k=${c.id}">Layouts</a><a href="../kampagnen/?k=${c.id}">Kampagnen</a><a href="../bot/?k=${c.id}">Bot</a>` : `<a href="#" data-f="${esc(c.name)}">Anfragen</a>`}</div></td>`;
     const f = tr.querySelector("[data-f]"); if (f) f.onclick = e => { e.preventDefault(); filter = c.name; render(); document.getElementById("board").scrollIntoView({ behavior: "smooth" }); };
     tb.appendChild(tr);
   });
@@ -174,6 +175,7 @@ function renderUrgent(all) {
   all.filter(t => t.due === "Heute" && (t.status === "neu" || t.status === "arbeit")).forEach(t => items.push({ ic: "💬", b: `${t.client}: ${TFT_KIND[t.kind] || "Anfrage"}`, s: `„${t.text}“`, a: "Ansehen", h: "#board" }));
   const tmr = new Date(); tmr.setDate(tmr.getDate() + 1); const tIso = new Date().toISOString().slice(0, 10), mIso = tmr.toISOString().slice(0, 10);
   ["adriano", "fuchsbau"].forEach(id => (contentOf(id) || []).filter(p => (p.date === tIso || p.date === mIso) && p.status !== "ok").forEach(p => items.push({ ic: "📅", b: `${TFT_CLIENTS[id].name}: Post ${p.date === tIso ? "heute" : "morgen"} geplant, noch nicht freigegeben`, s: `${TFT_tpl(p).label} · ${TFT_tpl(p).format}`, a: "Zur Freigabe", h: `../content/?k=${id}` })));
+  ["adriano", "fuchsbau"].forEach(id => TFT_kamp.missing(id).forEach(k => items.push({ ic: "📈", b: `${TFT_CLIENTS[id].name}: Kampagne „${k.title}“ ist vorbei, Ergebnis fehlt`, s: "20 Sekunden, fließt ins Rezeptbuch und in die nächsten Vorschläge", a: "Ergebnis eintragen", h: `../kampagnen/?k=${id}#ergebnis` })));
   items.push({ ic: "⏱", b: "Burger Beispiel: 4 Posts warten seit 47 Std. auf Freigabe", s: "Gilt in 1 Std. automatisch als freigegeben, Kunde wurde erinnert", a: "Nachfassen", h: "#" });
   const u = document.getElementById("urgent");
   u.innerHTML = `<h2>Heute dringend <span>${items.length}</span></h2>` + items.map(i => `<div class="ur"><div class="ic">${i.ic}</div><div><b>${esc(i.b)}</b><span>${esc(i.s)}</span></div><a href="${i.h}">${esc(i.a)}</a></div>`).join("");

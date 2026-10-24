@@ -123,6 +123,7 @@
   #exportStage{position:fixed;left:-20000px;top:0}
   @media (max-width:760px){.crumbs{display:none}}
   @media (max-width:420px){.csel{max-width:130px}}
+  @media (max-width:600px){#kpLink{display:none}}
 </style>
 </head>
 <body class="agency">
@@ -130,7 +131,7 @@
 <header class="top"><div class="wrap">
   <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
   <span class="crumbs">Cockpit / <span id="crumbName">Kunde</span> / <b>Content</b></span>
-  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="bkLink" href="../brandkit/" style="padding:10px 14px;font-size:13px">Brand-Kit</a></div>
+  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="kpLink" href="../kampagnen/" style="padding:10px 14px;font-size:13px">Kampagnen</a><a class="btn" id="bkLink" href="../brandkit/" style="padding:10px 14px;font-size:13px">Brand-Kit</a></div>
 </div></header>
 
 <main class="wrap">
@@ -269,6 +270,8 @@ function applyFb() {
 applyFb();
 window.addEventListener("hashchange", () => { if (applyFb()) { save(); renderAll(); } });
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ posts: S.posts })); } catch (e) {} };
+// Posts aus gestarteten Kampagnen übernehmen
+try { const ik = "tft-inject-" + CID, inj = JSON.parse(localStorage.getItem(ik) || "[]"); if (inj.length) { inj.forEach(p => { if (!S.posts.some(x => x.id === p.id)) S.posts.push(p); }); localStorage.removeItem(ik); save(); } } catch (e) {}
 let sel = S.posts[0]?.id;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -316,7 +319,7 @@ function renderList() {
   S.posts.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(p => {
     const t = TFT_tpl(p);
     const it = document.createElement("div"); it.className = "item" + (p.id === sel ? " sel" : "");
-    it.innerHTML = `<div class="th"></div><div><b>${esc(fmt(p.date))} · ${esc(t.label)}</b><span>${esc(t.format)}${p.comment ? " · 💬 Kommentar" : ""}</span></div><span class="st ${p.status}">${STATUS[p.status]}</span>`;
+    it.innerHTML = `<div class="th"></div><div><b>${esc(fmt(p.date))} · ${esc(t.label)}</b><span>${esc(t.format)}${p.camp ? " · Kampagne" : ""}${p.comment ? " · 💬 Kommentar" : ""}</span></div><span class="st ${p.status}">${STATUS[p.status]}</span>`;
     it.onclick = () => { sel = p.id; renderAll(); };
     l.appendChild(it);
     requestAnimationFrame(() => TFT_mount(it.querySelector(".th"), p, S.brand));
@@ -401,7 +404,7 @@ $("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.valu
 TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../brandkit/?k=" + CID }, { label: "Content" }], back: "../anfragen/" });
 window.addEventListener("storage", e => { if (e.key === "tft-brand-" + CID) { S.brand = TFT_getBrand(CID); renderAll(); } if (e.key === "tft-layouts-" + CID) { TFT_loadLayouts(CID); renderAll(); } });
 $("lyLink").href = "../vorlagen/?k=" + CID;
-["bkLink", "bkLink2"].forEach(id => $(id).href = "../brandkit/?k=" + CID);
+["bkLink", "bkLink2"].forEach(id => $(id).href = "../brandkit/?k=" + CID); $("kpLink").href = "../kampagnen/?k=" + CID;
 document.addEventListener("tft-fonts", () => renderAll());
 $("dup").onclick = () => { const p = cur(); const id = "p" + Date.now(); S.posts.push(Object.assign(JSON.parse(JSON.stringify(p)), { id, status: "draft", comment: "" })); sel = id; save(); renderAll(); };
 $("del").onclick = () => { if (S.posts.length < 2) return; S.posts = S.posts.filter(p => p.id !== sel); sel = S.posts[0].id; save(); renderAll(); };

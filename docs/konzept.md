@@ -230,7 +230,7 @@ Die KI ergänzt das pro Kunde aus der Kundenakte (Küche, Lage, Zielgruppe, Ton)
 
 **5 · Rollout für alle:** Für große Anlässe (Weihnachten, Silvester, Valentinstag) läuft ein Batch über alle passenden Kunden — 66 individualisierte Konzepte über Nacht, nicht 66 Mal dieselbe Vorlage.
 
-**6 · Lernen:** Wird ein Konzept verkauft und umgesetzt, trägt Minashe kurz ein, wie es gelaufen ist (gut / mittel / schlecht + ein Satz). Das fließt ins Rezeptbuch zurück — nächstes Jahr schlägt das Tool bevorzugt vor, was funktioniert hat.
+**6 · Lernen (Ergebnis eintragen → Rezeptbuch):** Ist eine Kampagne vorbei, erscheint sie im Dashboard unter „Heute dringend“, und der Telegram-Bot fragt den Wirt nach der Zahl („Wie viele FORNO-Bestellungen hattet ihr?“). Das Team bestätigt in 20 Sekunden: gut / mittel / schlecht, erreichte Zahl gegen das Ziel, ein Satz, nochmal machen ja / anders / nein. Daraus wird eine Zeile im **Rezeptbuch** mit einer Lehre in einem Satz. Wenn Claude den nächsten Vorschlag baut, sucht das Tool die passenden Zeilen heraus (gleiche Mechanik, gleiche Sparte, gleicher Kunde) und gibt sie als Kontext mit: Gutes wird stärker gewichtet, Schlechtes vermieden, Sätze wie „Service vorher briefen“ kommen als Warnung mit. Claude selbst wird dabei nicht trainiert; das Wissen liegt lesbar in der eigenen Datenbank von the first thought und kann korrigiert oder gelöscht werden. Im Prototyp: Seite „Kampagnen“ pro Kunde mit Pipeline (Idee → angeboten → verkauft → läuft → fertig), „Starten“ legt die Posts direkt im Content-Studio an.
 
 ---
 

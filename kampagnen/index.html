@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Kampagnen</title>
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  .banner{background:var(--yellow);color:var(--ink);font-size:13.5px;font-weight:600;text-align:center;padding:8px var(--gutter)}
+  header.top{position:sticky;top:0;z-index:30;background:rgba(20,20,20,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px;max-width:1400px}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--paper)}
+  .hdr-r{display:flex;gap:8px;align-items:center}
+  .hdr-r .btn{white-space:nowrap;padding:10px 14px;font-size:13px}
+  .csel{font:600 14px var(--sans);background:var(--ink-2);color:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;max-width:190px}
+  main.wrap{max-width:1400px;padding-bottom:80px}
+  h1{font-weight:900;font-size:clamp(28px,3.6vw,44px);margin:24px 0 6px;line-height:1.05}
+  .lead{color:var(--mist);margin:0 0 20px;max-width:820px}
+  .toprow{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .urgent{border:1.5px solid var(--pink);background:linear-gradient(180deg,rgba(232,43,86,.12),rgba(232,43,86,.02));border-radius:18px;padding:14px 18px;margin:0 0 18px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .urgent b{font-size:16px}
+  .urgent p{margin:2px 0 0;color:var(--mist);font-size:14px}
+  .board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  @media (max-width:1200px){.board{grid-template-columns:repeat(3,minmax(0,1fr))}}
+  @media (max-width:760px){.board{grid-template-columns:minmax(0,1fr)}}
+  .col{background:var(--ink-2);border:1px solid var(--line);border-radius:18px;padding:12px;min-height:140px}
+  .col h2{font-size:14px;font-weight:700;margin:4px 6px 12px;display:flex;justify-content:space-between;color:var(--mist)}
+  .col h2 span{color:var(--muted)}
+  .kc{background:var(--ink);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:8px}
+  .kc.miss{border-color:var(--pink);box-shadow:0 0 0 3px rgba(232,43,86,.18)}
+  .kc .t{font-weight:800;font-size:15px;line-height:1.25}
+  .kc .m{font-size:12.5px;color:var(--muted);margin-top:4px}
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+  .tg{font-size:11.5px;font-weight:700;border-radius:999px;padding:4px 9px;background:var(--ink-3);color:var(--mist)}
+  .tg.src{background:var(--blue);color:#fff}
+  .res{margin-top:10px;border-radius:10px;padding:9px 10px;font-size:13px;line-height:1.35}
+  .res.gut{background:rgba(60,207,122,.12);border:1px solid rgba(60,207,122,.4)}
+  .res.mittel{background:rgba(254,255,93,.08);border:1px solid rgba(254,255,93,.35)}
+  .res.schlecht{background:rgba(232,43,86,.10);border:1px solid rgba(232,43,86,.4)}
+  .res b{display:block;margin-bottom:2px}
+  details{margin-top:8px}
+  details summary{font-size:12.5px;color:var(--mist);cursor:pointer;font-weight:600}
+  details p{font-size:13px;color:var(--mist);margin:6px 0}
+  details p span{color:var(--muted)}
+  .act{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .act button,.act a{font:600 12.5px var(--sans);padding:8px 10px;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:var(--paper);cursor:pointer;text-decoration:none}
+  .act button:hover,.act a:hover{border-color:var(--pink);color:var(--pink)}
+  .act .pri{background:var(--pink);border-color:var(--pink);color:var(--ink)}
+  .act .pri:hover{background:var(--paper);border-color:var(--paper);color:var(--ink)}
+  .empty{font-size:13px;color:var(--muted);padding:6px}
+
+  .rz{margin-top:34px}
+  .rz h2{font-size:24px;font-weight:900;margin:0 0 4px}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
+  .chips button{font:600 13px var(--sans);padding:8px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--mist);cursor:pointer}
+  .chips button[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .rtable{width:100%;border-collapse:collapse;font-size:14px}
+  .rtable th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--line)}
+  .rtable td{padding:12px 10px;border-bottom:1px solid rgba(255,255,255,.06);vertical-align:top}
+  .rtable td small{display:block;color:var(--muted);font-size:12px}
+  .rtable tr.fresh td{background:rgba(232,43,86,.08)}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+  .dot.gut{background:#3ccf7a}.dot.mittel{background:var(--yellow)}.dot.schlecht{background:var(--pink)}
+  .scroll{overflow-x:auto}
+  @media (max-width:760px){.rtable .hide-m{display:none}.crumbs{display:none}.hdr-r .btn{display:none}}
+
+  .modal{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.72);display:none;place-items:center;padding:16px;overflow-y:auto}
+  .modal.open{display:grid}
+  .modal .box{background:var(--ink-2);border:1px solid var(--line);border-radius:22px;padding:24px;max-width:560px;width:100%;margin:auto}
+  .modal h3{margin:0 0 4px;font-size:22px;font-weight:900}
+  .modal .hint{font-size:13.5px;color:var(--muted);margin:0 0 16px}
+  .rate{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+  .rate button{font:700 15px var(--sans);padding:16px 8px;border-radius:14px;border:1.5px solid var(--line);background:var(--ink);color:var(--paper);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .rate button i{font-style:normal;font-size:26px}
+  .rate button[aria-pressed="true"].gut{border-color:#3ccf7a;background:rgba(60,207,122,.14)}
+  .rate button[aria-pressed="true"].mittel{border-color:var(--yellow);background:rgba(254,255,93,.10)}
+  .rate button[aria-pressed="true"].schlecht{border-color:var(--pink);background:rgba(232,43,86,.14)}
+  label.fld{display:block;margin-bottom:14px}
+  label.fld > span{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  label.fld input,label.fld textarea,label.fld select{width:100%;font:16px var(--sans);color:var(--paper);background:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:11px 12px}
+  label.fld textarea{min-height:70px;resize:vertical}
+  .numrow{display:flex;gap:10px;align-items:center}
+  .numrow input{max-width:120px}
+  .numrow span{color:var(--mist);font-size:14px}
+  .mb{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  .mb .btn{padding:13px 18px;font-size:15px}
+  .learn{border:1.5px solid #3ccf7a;border-radius:14px;padding:14px;background:rgba(60,207,122,.08);margin:6px 0 14px}
+  .learn b{display:block;margin-bottom:4px}
+  .learn p{margin:4px 0;font-size:14px;color:var(--mist)}
+  .why{border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:12px 0;background:var(--ink)}
+  .why b{font-size:13px}
+  .why ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;color:var(--mist)}
+  .why li{margin:4px 0}
+  .plus{color:#3ccf7a;font-weight:700}.minus{color:var(--pink);font-weight:700}
+  .think{font-size:14px;color:var(--mist);margin:10px 0}
+  .think div{opacity:.35;transition:opacity .3s}
+  .think div.on{opacity:1}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:520px){.grid2{grid-template-columns:1fr}}
+  .warn{font-size:13px;color:var(--yellow);margin:8px 0}
+</style>
+</head>
+<body>
+<div class="banner">Prototyp · Kampagnen und Rezeptbuch mit Beispielen · Einträge bleiben in diesem Browser (echt: Datenbank, für das ganze Team)</div>
+<header class="top"><div class="wrap">
+  <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
+  <span class="crumbs"></span>
+  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="ctLink" href="../content/">Content</a></div>
+</div></header>
+
+<main class="wrap">
+  <div class="toprow">
+    <div>
+      <h1>Kampagnen <span id="hName" style="color:var(--pink)"></span></h1>
+      <p class="lead" style="margin:0">Von der Idee bis zum Ergebnis. Ist eine Kampagne vorbei, tragt ihr in 20 Sekunden ein, wie sie gelaufen ist. Das landet im <a href="#rezeptbuch" style="color:var(--pink)">Rezeptbuch</a> und fließt in jeden nächsten Vorschlag ein, bei diesem Kunden und bei ähnlichen Lokalen.</p>
+    </div>
+    <button class="btn btn--pink" type="button" id="newBtn">+ Neue Kampagne</button>
+  </div>
+  <div id="urgent"></div>
+  <div class="board" id="board"></div>
+
+  <section class="rz" id="rezeptbuch">
+    <h2>Rezeptbuch · was das Tool gelernt hat</h2>
+    <p class="lead" style="margin:0">Jedes eingetragene Ergebnis wird hier eine Zeile. Wenn Claude ein neues Konzept baut, bekommt es die passenden Zeilen mit: gleiche Mechanik, gleiche Sparte, gleicher Kunde. Gutes wird höher gewichtet, Schlechtes vermieden.</p>
+    <div class="chips" id="rzf"></div>
+    <div class="scroll"><table class="rtable"><thead><tr><th>Ergebnis</th><th>Kampagne</th><th class="hide-m">Mechanik</th><th class="hide-m">Ziel / erreicht</th><th>Lehre fürs nächste Mal</th></tr></thead><tbody id="rzb"></tbody></table></div>
+    <p class="hint" style="font-size:12.5px;color:var(--muted);margin-top:10px">Grau hinterlegte Einträge sind Beispiele (erfunden), damit das Rezeptbuch nicht leer startet. <button type="button" id="rzReset" style="background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit">Demo zurücksetzen</button></p>
+  </section>
+</main>
+
+<!-- Ergebnis eintragen -->
+<div class="modal" id="mRes" role="dialog" aria-modal="true" aria-labelledby="mResT">
+  <div class="box">
+    <h3 id="mResT">Wie ist es gelaufen?</h3>
+    <p class="hint" id="mResSub"></p>
+    <div id="mResForm">
+      <div class="rate" id="rate">
+        <button type="button" class="gut" data-r="gut"><i>👍</i>Gut</button>
+        <button type="button" class="mittel" data-r="mittel"><i>👌</i>Mittel</button>
+        <button type="button" class="schlecht" data-r="schlecht"><i>👎</i>Schlecht</button>
+      </div>
+      <label class="fld"><span id="zielLbl">Ziel</span>
+        <div class="numrow"><input type="number" id="ist" inputmode="numeric" min="0" placeholder="z. B. 48"><span id="unitLbl"></span></div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13.5px;color:var(--mist)"><input type="checkbox" id="unknown" style="width:18px;height:18px;accent-color:var(--pink)"> Zahl unbekannt</label>
+      </label>
+      <label class="fld"><span>Ein Satz dazu (optional)</span><textarea id="satz" placeholder="z. B. Montags voll, aber kaum Wein dazu bestellt."></textarea></label>
+      <p class="sub" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Nochmal machen?</p>
+      <div class="chips" id="again" style="margin-top:0"></div>
+      <p class="hint" style="margin:6px 0 14px">In der echten Version fragt der Telegram-Bot den Wirt nach Kampagnenende von selbst: „Wie viele FORNO-Bestellungen hattet ihr?“ Die Antwort steht dann schon hier.</p>
+      <div class="mb"><button class="btn btn--pink" type="button" id="resSave">Ergebnis speichern</button><button class="btn" type="button" data-close>Abbrechen</button></div>
+    </div>
+    <div id="mResDone" style="display:none">
+      <div class="learn"><b>✓ Im Rezeptbuch gespeichert</b><p id="lessonTxt"></p><p id="effectTxt" style="color:var(--paper)"></p></div>
+      <div class="mb"><button class="btn btn--pink" type="button" id="tryNew">Neuen Vorschlag testen</button><button class="btn" type="button" data-close>Fertig</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Neue Kampagne -->
+<div class="modal" id="mNew" role="dialog" aria-modal="true" aria-labelledby="mNewT">
+  <div class="box">
+    <h3 id="mNewT">Neue Kampagne</h3>
+    <p class="hint">Anlass wählen oder ein Ziel in eigenen Worten. Das Tool baut den Vorschlag aus Kundenakte, Anlasskalender und Rezeptbuch.</p>
+    <div id="newForm">
+      <label class="fld"><span>Anlass (passend zu <b id="typLbl"></b>)</span><select id="anlass"></select></label>
+      <label class="fld"><span>oder Ziel in eigenen Worten</span><input id="frei" placeholder="z. B. Dienstag ist zu ruhig"></label>
+      <div class="mb"><button class="btn btn--pink" type="button" id="build">Vorschlag bauen</button><button class="btn" type="button" data-close>Abbrechen</button></div>
+    </div>
+    <div class="think" id="think" style="display:none"></div>
+    <div id="newOut" style="display:none"></div>
+  </div>
+</div>
+
+<script src="../assets/js/templates.js"></script>
+<script src="../assets/js/clients.js"></script>
+<script src="../assets/js/anlaesse.js"></script>
+<script src="../assets/js/kampagnen.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/assist.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const CID = TFT_currentClient(), CL = TFT_CLIENTS[CID];
+const TYP = (TFT_TYPEN.find(t => t.id === CL.typ) || {}).label || CL.typLabel;
+let K = TFT_kamp.all(CID);
+const save = () => TFT_kamp.save(CID, K);
+const today = new Date().toISOString().slice(0, 10);
+const fmt = d => new Date(d + "T12:00").toLocaleDateString("de-AT", { day: "numeric", month: "numeric" });
+const fmtY = d => new Date(d + "T12:00").toLocaleDateString("de-AT", { day: "numeric", month: "numeric", year: "numeric" });
+const COLS = [["idee", "Idee"], ["angeboten", "Angeboten"], ["verkauft", "Verkauft"], ["laeuft", "Läuft"], ["fertig", "Fertig"]];
+const RL = { gut: "👍 Gut", mittel: "👌 Mittel", schlecht: "👎 Schlecht" };
+let freshRz = null;
+
+$("hName").textContent = "· " + CL.name;
+Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
+$("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
+$("ctLink").href = "../content/?k=" + CID;
+TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../content/?k=" + CID }, { label: "Kampagnen" }], back: "../anfragen/" });
+
+// Abgelaufene laufende Kampagnen automatisch auf „Fertig“
+K.forEach(k => { if (k.status === "laeuft" && k.bis < today) k.status = "fertig"; });
+
+function render() {
+  const miss = K.filter(k => k.status === "fertig" && !k.result);
+  $("urgent").innerHTML = miss.length ? `<div class="urgent"><div><b>${miss.length === 1 ? `„${esc(miss[0].title)}“ ist vorbei` : `${miss.length} Kampagnen sind vorbei`}, das Ergebnis fehlt noch.</b><p>Dauert 20 Sekunden und macht jeden nächsten Vorschlag besser.</p></div><button class="btn btn--pink" type="button" id="urgBtn">Ergebnis eintragen</button></div>` : "";
+  if (miss.length) $("urgBtn").onclick = () => openRes(miss[0].id);
+  const b = $("board"); b.innerHTML = "";
+  COLS.forEach(([st, label]) => {
+    const items = K.filter(k => k.status === st);
+    const col = document.createElement("div"); col.className = "col";
+    col.innerHTML = `<h2>${label} <span>${items.length}</span></h2>` + (items.length ? "" : `<div class="empty">–</div>`);
+    items.forEach(k => col.appendChild(card(k)));
+    b.appendChild(col);
+  });
+  renderRz();
+}
+function card(k) {
+  const M = TFT_MECH[k.mech] || {};
+  const d = document.createElement("div"); d.className = "kc" + (k.status === "fertig" && !k.result ? " miss" : "");
+  d.innerHTML = `<div class="t">${esc(k.title)}</div>
+    <div class="m">${esc(k.anlass)} · ${fmt(k.von)}–${fmt(k.bis)}</div>
+    <div class="tags"><span class="tg">${esc(M.label || k.mech)}</span><span class="tg">Ziel: ${esc(k.ziel)} ${esc(k.unit)}</span>${k.src ? `<span class="tg src">${esc(k.src)}</span>` : ""}</div>
+    ${k.result ? `<div class="res ${k.result.rating}"><b>${RL[k.result.rating]}${k.result.ist != null ? ` · ${k.result.ist} von ${k.ziel}` : ""}</b>${esc(k.result.satz || "")}</div>` : ""}
+    <details><summary>Details</summary><p><span>Idee:</span> ${esc(k.idee)}</p><p><span>Angebot:</span> ${esc(k.angebot)}</p><p><span>Messen:</span> ${esc(M.mess || "")}</p><p><span>Content:</span> ${esc(k.content || "")}</p>${k.posts ? `<p><span>Im Content-Studio:</span> ${k.posts} Posts/Stories angelegt</p>` : ""}</details>
+    <div class="act"></div>`;
+  const act = d.querySelector(".act");
+  const btn = (txt, fn, pri) => { const x = document.createElement("button"); x.type = "button"; x.textContent = txt; if (pri) x.className = "pri"; x.onclick = fn; act.appendChild(x); };
+  const move = (st) => () => { k.status = st; save(); render(); };
+  if (k.status === "idee") { btn("Dem Kunden angeboten", move("angeboten"), true); btn("Verwerfen", () => { K = K.filter(x => x !== k); save(); render(); }); }
+  if (k.status === "angeboten") { btn("Verkauft ✓", move("verkauft"), true); btn("Abgelehnt", () => { k.status = "idee"; k.src = "abgelehnt"; save(); render(); }); }
+  if (k.status === "verkauft") btn("Starten & Content anlegen", () => start(k), true);
+  if (k.status === "laeuft") { if (k.posts) { const a = document.createElement("a"); a.href = "../content/?k=" + CID; a.textContent = "Im Content-Studio"; act.appendChild(a); } btn("Beenden & Ergebnis", () => { k.status = "fertig"; k.bis = k.bis > today ? today : k.bis; save(); render(); openRes(k.id); }); }
+  if (k.status === "fertig") btn(k.result ? "Ergebnis ändern" : "Ergebnis eintragen", () => openRes(k.id), !k.result);
+  return d;
+}
+
+// ---------- Kampagne starten: Posts im Content-Studio anlegen ----------
+function start(k) {
+  const add = (n) => { const x = new Date(Math.max(new Date(k.von + "T12:00"), new Date(today + "T12:00").getTime() + 864e5)); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
+  const price = (k.angebot.match(/(\d{1,3}(?:[,.]\d{2})?\s*€)/) || [])[1] || "";
+  const id = n => "c" + Date.now().toString(36) + n;
+  const posts = [
+    { id: id(1), tpl: "event", v: "dark", date: add(0), status: "draft", f: { date: `${fmt(k.von)}–${fmt(k.bis)}`, title: k.title, sub: k.angebot }, caption: k.idee, camp: k.id },
+    { id: id(2), tpl: "offer", v: "light", date: add(3), status: "draft", f: { kicker: k.anlass, title: k.title, price, sub: k.angebot }, caption: k.idee, camp: k.id },
+    { id: id(3), tpl: "special", v: "dark", date: add(1), status: "draft", f: { kicker: "Nur bis " + fmt(k.bis), title: k.title, price, sub: k.angebot }, caption: "", camp: k.id },
+    { id: id(4), tpl: "special", v: "accent", date: add(6), status: "draft", f: { kicker: "Noch bis " + fmt(k.bis), title: k.title, price, sub: "Kennwort beim Bestellen nennen" }, caption: "", camp: k.id }
+  ];
+  try { const key = "tft-inject-" + CID; const old = JSON.parse(localStorage.getItem(key) || "[]"); localStorage.setItem(key, JSON.stringify(old.concat(posts))); } catch (e) {}
+  k.status = "laeuft"; k.posts = posts.length; save(); render();
+}
+
+// ---------- Ergebnis eintragen ----------
+let curK = null, rating = null, again = "ja";
+function openRes(id) {
+  curK = K.find(k => k.id === id); if (!curK) return;
+  const r = curK.result || {};
+  rating = r.rating || null; again = r.again || "ja";
+  $("mResT").textContent = `Wie lief „${curK.title}“?`;
+  $("mResSub").textContent = `${curK.anlass} · ${fmtY(curK.von)} bis ${fmtY(curK.bis)} · ${(TFT_MECH[curK.mech] || {}).label || ""}`;
+  $("zielLbl").textContent = `Ziel war ${curK.ziel} ${curK.unit}. Erreicht:`;
+  $("unitLbl").textContent = curK.unit;
+  $("ist").value = r.ist != null ? r.ist : ""; $("unknown").checked = r.ist === null && !!curK.result; $("ist").disabled = $("unknown").checked;
+  $("satz").value = r.satz || "";
+  $("mResForm").style.display = ""; $("mResDone").style.display = "none";
+  renderRate(); $("mRes").classList.add("open");
+}
+function renderRate() {
+  document.querySelectorAll("#rate button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.r === rating)));
+  const ag = $("again"); ag.innerHTML = "";
+  [["ja", "Ja, genau so"], ["angepasst", "Ja, aber anders"], ["nein", "Nein"]].forEach(([v, l]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.setAttribute("aria-pressed", String(again === v)); b.onclick = () => { again = v; renderRate(); }; ag.appendChild(b); });
+  $("resSave").disabled = !rating; $("resSave").style.opacity = rating ? 1 : .45;
+}
+document.querySelectorAll("#rate button").forEach(b => b.onclick = () => { rating = b.dataset.r; renderRate(); });
+$("ist").oninput = () => { if (!rating && $("ist").value) { const v = +$("ist").value; rating = v >= curK.ziel ? "gut" : v >= curK.ziel * .6 ? "mittel" : "schlecht"; renderRate(); } };
+$("unknown").onchange = () => { $("ist").disabled = $("unknown").checked; if ($("unknown").checked) $("ist").value = ""; };
+$("resSave").onclick = () => {
+  if (!rating) return;
+  const ist = $("unknown").checked || $("ist").value === "" ? null : +$("ist").value;
+  curK.result = { rating, ist, satz: $("satz").value.trim(), again, datum: today };
+  save();
+  // vorher: wie stand die Mechanik im Ranking?
+  const before = TFT_suggest(CID, CL, curK.anlass).ranking.find(x => x.m === curK.mech);
+  const entry = { id: "r-" + CID + "-" + curK.id, client: CL.name, typ: CL.typ, kamp: curK.title, anlass: curK.anlass, mech: curK.mech, ziel: curK.ziel, ist, unit: curK.unit, rating, satz: curK.result.satz, again, datum: today };
+  TFT_rezept.add(entry); freshRz = entry.id;
+  const after = TFT_suggest(CID, CL, curK.anlass).ranking.find(x => x.m === curK.mech);
+  $("lessonTxt").textContent = "Lehre: " + TFT_lesson(entry);
+  const M = TFT_MECH[curK.mech].label;
+  const diff = after && before ? after.score - before.score : 0;
+  $("effectTxt").innerHTML = rating === "gut"
+    ? `Wirkung: „${esc(M)}“ wird bei ${esc(CL.name)} und anderen ${esc(TYP)}-Lokalen künftig <b class="plus">stärker vorgeschlagen</b> (${diff >= 0 ? "+" : ""}${diff.toFixed(1)} Punkte).`
+    : rating === "schlecht"
+      ? `Wirkung: „${esc(M)}“ wird bei ${esc(CL.name)} und ähnlichen Lokalen <b class="minus">seltener vorgeschlagen</b> (${diff.toFixed(1)} Punkte), und Claude bekommt euren Satz als Warnung mit.`
+      : `Wirkung: „${esc(M)}“ bleibt im Rennen, euer Satz geht als Hinweis in den nächsten Vorschlag ein (${diff >= 0 ? "+" : ""}${diff.toFixed(1)} Punkte).`;
+  $("mResForm").style.display = "none"; $("mResDone").style.display = "";
+  render();
+};
+$("tryNew").onclick = () => { $("mRes").classList.remove("open"); openNew(curK.anlass); };
+
+// ---------- Neue Kampagne ----------
+const upcoming = TFT_ANLAESSE.filter(a => (a.typ || []).includes(CL.typ));
+function openNew(pre) {
+  $("typLbl").textContent = TYP;
+  const s = $("anlass"); s.innerHTML = "";
+  s.add(new Option("– Anlass wählen –", ""));
+  if (pre && !upcoming.some(a => a.t === pre)) s.add(new Option(pre, pre));
+  upcoming.forEach(a => s.add(new Option(`${a.d} · ${a.t}`, a.t)));
+  s.value = pre || ""; $("frei").value = "";
+  $("newForm").style.display = ""; $("think").style.display = "none"; $("newOut").style.display = "none";
+  $("mNew").classList.add("open");
+}
+$("newBtn").onclick = () => openNew();
+$("build").onclick = () => build($("frei").value.trim() || $("anlass").value);
+function build(input) {
+  if (!input) { $("anlass").focus(); return; }
+  const rz = TFT_rezept.all();
+  $("newForm").style.display = "none";
+  const steps = [`Kundenakte ${CL.name} gelesen (${TYP}, Ton, Do's & Don'ts)`, `Anlass „${input}“ im Kalender geprüft`, `Rezeptbuch durchsucht: ${rz.length} Einträge, ${rz.filter(r => r.typ === CL.typ).length} davon ${TYP}`, "Mechanik gewählt, Ziel und Messung festgelegt"];
+  const th = $("think"); th.style.display = ""; th.innerHTML = steps.map(s => `<div>⏳ ${esc(s)}</div>`).join("");
+  [...th.children].forEach((el, i) => setTimeout(() => { el.classList.add("on"); el.textContent = "✓ " + steps[i]; }, 300 + i * 380));
+  setTimeout(() => { th.style.display = "none"; showProposal(input); }, 300 + steps.length * 380 + 200);
+}
+function showProposal(input) {
+  const s = TFT_suggest(CID, CL, input), M = TFT_MECH[s.mech];
+  const dish = { ital: "Pizza", wirt: "Schnitzel", cafe: "Torte", bar: "Cocktail", asia: "Bowl", imbiss: "Burger", fine: "Menü", heuriger: "Brettljause" }[CL.typ] || "Gericht";
+  const name = input.replace(/\s*—.*$/, "").replace(/^\s*(dienstag|montag|mittwoch|donnerstag).*/i, m => m.split(" ")[0][0].toUpperCase() + m.split(" ")[0].slice(1).toLowerCase() + "-Special");
+  const ziel = { fixpreis: 35, limitiert: 150, vorbestellung: 40, gutschein: 60, event: 50, stempel: 80 }[s.mech];
+  const word = (CL.name.split(" ")[0] || "KENNWORT").toUpperCase().slice(0, 8);
+  const P = {
+    title: `${name}: ${s.mech === "limitiert" ? dish + " der Saison" : s.mech === "vorbestellung" ? "jetzt vorbestellen" : s.mech === "gutschein" ? "Gutschein mit Bonus" : s.mech === "event" ? "der Abend" : dish + " zum Fixpreis"}`,
+    idee: `${M.label} zu „${input}“, im Ton von ${CL.name}. Kennwort „${word}“, damit man es zählen kann.`,
+    angebot: s.mech === "gutschein" ? "50 € Gutschein + 10 € Bonus" : s.mech === "fixpreis" ? `${dish} + Getränk 18,90 €` : s.mech === "vorbestellung" ? "Menü für zwei 59 €" : "nach Absprache",
+    ziel, unit: M.unit
+  };
+  const used = s.ranking[0].used.slice(0, 4);
+  $("newOut").style.display = "";
+  $("newOut").innerHTML = `
+    <label class="fld"><span>Titel</span><input id="pT" value="${esc(P.title)}"></label>
+    <label class="fld"><span>Idee</span><textarea id="pI">${esc(P.idee)}</textarea></label>
+    <div class="grid2"><label class="fld"><span>Angebot</span><input id="pA" value="${esc(P.angebot)}"></label><label class="fld"><span>Ziel (${esc(P.unit)})</span><input id="pZ" type="number" value="${P.ziel}"></label></div>
+    <div class="why"><b>Warum „${esc(M.label)}“? Das hat Claude aus dem Rezeptbuch mitbekommen:</b>
+      <ul>${used.length ? used.map(u => `<li><span class="${u.w >= 0 ? "plus" : "minus"}">${u.w >= 0 ? "+" : "−"}</span> ${esc(u.r.kamp)} (${esc(u.r.client)}): ${RL[u.r.rating]}${u.r.ist != null ? `, ${u.r.ist} von ${u.r.ziel}` : ""}${u.r.satz ? ` · „${esc(u.r.satz)}“` : ""}</li>`).join("") : "<li>Noch keine Erfahrung mit dieser Mechanik, deshalb der Standard für den Anlass.</li>"}</ul>
+      <p style="font-size:12.5px;color:var(--muted);margin:8px 0 0">Ranking: ${s.ranking.map(x => `${esc(TFT_MECH[x.m].label)} ${x.score.toFixed(1)}`).join(" · ")}</p></div>
+    ${s.warn.length ? s.warn.map(w => `<p class="warn">⚠ Aus dem Rezeptbuch (${esc(w.client)}): „${esc(w.satz)}“</p>`).join("") : ""}
+    <p class="hint" style="margin:6px 0 12px">Messen: ${esc(M.mess)} · Recht: ${esc(M.recht)}<br>In der echten Version schreibt Claude Idee, Angebot und Texte frei aus der Kundenakte, die Demo setzt nur Bausteine zusammen.</p>
+    <div class="mb"><button class="btn btn--pink" type="button" id="pSave">Als Idee speichern</button><button class="btn" type="button" id="pAgain">Anderer Anlass</button></div>`;
+  $("pAgain").onclick = () => openNew();
+  $("pSave").onclick = () => {
+    const a = TFT_ANLAESSE.find(x => x.t === input);
+    const von = new Date(); von.setDate(von.getDate() + 21); const bis = new Date(von); bis.setDate(bis.getDate() + 21);
+    K.push({ id: "k" + Date.now().toString(36), title: $("pT").value, status: "idee", anlass: input, mech: s.mech, idee: $("pI").value, angebot: $("pA").value, von: von.toISOString().slice(0, 10), bis: bis.toISOString().slice(0, 10), ziel: +$("pZ").value || P.ziel, unit: P.unit, content: "1 Reel, 2 Posts, 4 Stories", src: a ? "Anlass-Planer" : "eigenes Ziel" });
+    save(); render(); $("mNew").classList.remove("open");
+  };
+}
+
+// ---------- Rezeptbuch ----------
+let rzFilter = "typ";
+function renderRz() {
+  const f = $("rzf"); f.innerHTML = "";
+  [["typ", `Ähnliche Lokale (${TYP})`], ["kunde", CL.name], ["alle", "Alle Kunden"]].forEach(([v, l]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.setAttribute("aria-pressed", String(rzFilter === v)); b.onclick = () => { rzFilter = v; renderRz(); }; f.appendChild(b); });
+  const all = TFT_rezept.all().filter(r => rzFilter === "alle" || (rzFilter === "typ" ? r.typ === CL.typ : r.client === CL.name));
+  $("rzb").innerHTML = all.length ? all.map(r => `<tr class="${r.id === freshRz ? "fresh" : ""}" ${r.demo ? 'style="opacity:.7"' : ""}><td><span class="dot ${r.rating}"></span>${RL[r.rating].slice(2)}<small>${fmtY(r.datum)}</small></td><td><b>${esc(r.kamp)}</b><small>${esc(r.client)}${r.demo ? " · Beispiel" : ""}</small></td><td class="hide-m">${esc((TFT_MECH[r.mech] || {}).label || r.mech)}</td><td class="hide-m">${r.ist != null ? `${r.ist} / ${r.ziel}` : `– / ${r.ziel}`}<small>${esc(r.unit)}</small></td><td>${esc(TFT_lesson(r))}</td></tr>`).join("") : `<tr><td colspan="5" class="empty">Noch keine Einträge in dieser Ansicht.</td></tr>`;
+}
+$("rzReset").onclick = () => { TFT_rezept.reset(); TFT_kamp.reset(CID); K = TFT_kamp.all(CID); freshRz = null; render(); };
+
+document.querySelectorAll(".modal").forEach(m => { m.addEventListener("click", e => { if (e.target === m || e.target.closest("[data-close]")) m.classList.remove("open"); }); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") document.querySelectorAll(".modal.open").forEach(m => m.classList.remove("open")); });
+
+// ---------- Bearbeitungs-Chat ----------
+TFT_assist({
+  title: "Kampagnen " + CL.name,
+  hello: `Ich trage Ergebnisse ein und baue neue Vorschläge für ${CL.name}.`,
+  examples: [K.find(k => k.status === "fertig") ? `Ergebnis ${K.find(k => k.status === "fertig").title}: gut, 46, montags fast voll` : "Ergebnis …: gut, 40", "Neue Kampagne Valentinstag", "Neue Kampagne: Dienstag ist zu ruhig"],
+  fallback: "Kampagnen umschreiben, Präsentation erzeugen, Angebot durchrechnen",
+  handle: t => {
+    const rm = t.match(/^ergebnis\s+(.+?)\s*[:,]\s*(gut|mittel|schlecht)\b\s*,?\s*(\d+)?\s*,?\s*(.*)$/i);
+    if (rm) {
+      const k = K.find(x => x.title.toLowerCase().includes(rm[1].toLowerCase().trim())); if (!k) return { say: `Keine Kampagne „${rm[1]}“ gefunden.`, what: "nichts geändert" };
+      if (k.status !== "fertig") { k.status = "fertig"; }
+      openRes(k.id); rating = rm[2].toLowerCase(); if (rm[3]) $("ist").value = rm[3]; $("satz").value = rm[4] || ""; renderRate(); $("resSave").click();
+      return { say: `Ergebnis für „${k.title}“ eingetragen: ${rating}${rm[3] ? ", " + rm[3] + " von " + k.ziel : ""}.`, what: "im Rezeptbuch gespeichert", tool: `log_result("${k.id}", "${rating}")` };
+    }
+    const nm = t.match(/^neue\s+kampagne\s*[:\-]?\s*(.+)$/i);
+    if (nm) { openNew(); const hit = upcoming.find(a => a.t.toLowerCase().includes(nm[1].toLowerCase())); build(hit ? hit.t : nm[1]); return { say: "Vorschlag wird gebaut, siehe Fenster.", what: "Vorschlag erstellt", tool: `suggest_campaign("${nm[1]}")` }; }
+    return null;
+  }
+});
+render();
+if (location.hash === "#ergebnis") { const m = K.find(k => k.status === "fertig" && !k.result); if (m) openRes(m.id); }
+})();
+</script>
+</body>
+</html>
