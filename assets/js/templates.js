@@ -39,7 +39,7 @@ window.TFT_TEMPLATES = {
   reel: {
     label: "Reel", format: "Reel 9:16", w: 1080, h: 1920, video: true,
     fields: [
-      { k: "url", label: "Video-Link (mp4, extern gehostet)", def: "" },
+      { k: "url", label: "Video (SharePoint-Link)", def: "" },
       { k: "hook", label: "Hook-Text (optional)", def: "" }
     ]
   },
@@ -138,7 +138,7 @@ window.TFT_TEMPLATES = {
       const safe = /^https:\/\//i.test(url) ? url : "";
       const vid = safe
         ? `<video src="${esc(safe)}" ${opts.controls ? "controls" : "autoplay muted loop"} playsinline preload="metadata" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000"></video>`
-        : `<div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;${B};font-size:44px;color:${p.fg};opacity:.6;padding:80px;background:repeating-linear-gradient(135deg, ${p.ac}33 0 18px, ${p.ac}1a 18px 36px)">Video-Link einfügen<br><span style="font-size:30px">(Dropbox, Bunny, R2, eigener Server …)</span></div>`;
+        : `<div style="position:absolute;inset:0;display:grid;place-items:center;text-align:center;${B};font-size:44px;color:${p.fg};opacity:.6;padding:80px;background:repeating-linear-gradient(135deg, ${p.ac}33 0 18px, ${p.ac}1a 18px 36px)">Video-Link einfügen<br><span style="font-size:30px">(liegt in SharePoint, wird nur verlinkt)</span></div>`;
       const hook = f.hook ? `<div style="position:absolute;left:80px;right:80px;top:260px;${H};font-size:96px;line-height:1;color:#fff;text-shadow:0 4px 30px rgba(0,0,0,.6);pointer-events:none">${nl(f.hook)}</div>` : "";
       const icon = `<div style="position:absolute;right:50px;top:50px;width:90px;height:90px;border-radius:24px;background:rgba(0,0,0,.45);display:grid;place-items:center;pointer-events:none"><svg width="48" height="48" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>`;
       return wrap(vid + hook + (opts.controls ? "" : icon));
