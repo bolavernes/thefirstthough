@@ -32,6 +32,7 @@
   .ph-head b{display:block;font-size:15px}
   .ph-head span{font-size:12px;color:#6d7f8f}
   .chat{flex:1;overflow-y:auto;padding:14px 12px;display:flex;flex-direction:column;gap:8px;background:#0e1621}
+  .chat > *{flex-shrink:0}
   .m{max-width:86%;padding:9px 12px 7px;border-radius:12px;font-size:15px;line-height:1.4;color:#f5f5f5;white-space:pre-wrap}
   .m.bot{background:#182533;align-self:flex-start;border-top-left-radius:4px}
   .m.me{background:#2b5278;align-self:flex-end;border-top-right-radius:4px}
@@ -67,13 +68,14 @@
         <li><b>Anfrage:</b> landet sofort im Dashboard mit Kunde, Art und Frist. Der Wirt bekommt eine Bestätigung.</li>
         <li><b>Alles dokumentiert:</b> Jede Nachricht steht im Dashboard, auch die automatisch erledigten.</li>
       </ol>
-      <p class="note">Mediathek „Beisl Fuchsbau“ (Demo):</p>
+      <p class="note">Kunde: <select id="client" aria-label="Kunde wählen" style="font:600 13px var(--sans);background:var(--ink-2);color:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 10px"></select></p>
+      <p class="note">Mediathek „<span id="mtName"></span>“:</p>
       <div class="media" id="media"></div>
       <p class="note" style="margin-top:18px">Probier's: Tipp einen Vorschlag an oder schreib selbst, z. B. „Neu: Kürbiscremesuppe 6,50“ oder „Heute erst ab 17 Uhr offen“.</p>
     </div>
 
     <div class="phone">
-      <div class="ph-head"><div class="ph-av"><img src="../assets/img/logo-white.svg" alt=""></div><div><b>Fuchsbau × the first thought</b><span>Telegram-Bot · antwortet sofort</span></div></div>
+      <div class="ph-head"><div class="ph-av"><img src="../assets/img/logo-white.svg" alt=""></div><div><b id="phName">the first thought</b><span>Telegram-Bot · antwortet sofort</span></div></div>
       <div class="chat" id="chat"></div>
       <form class="inbar" id="form"><input id="in" placeholder="Was gibt's heute?" autocomplete="off"><button type="submit" aria-label="Senden">➤</button></form>
     </div>
@@ -81,25 +83,21 @@
 </main>
 
 <script src="../assets/js/templates.js"></script>
+<script src="../assets/js/clients.js"></script>
 <script src="../assets/js/inbox.js"></script>
 <script>
 (() => {
 "use strict";
-let brand = JSON.parse(JSON.stringify(TFT_BRAND_DEFAULT));
-try { const st = JSON.parse(localStorage.getItem("tft-content-demo-v2") || "null"); if (st && st.brand) brand = st.brand; } catch (e) {}
+const CID = TFT_currentClient(), CL = TFT_CLIENTS[CID];
+const brand = TFT_getBrand(CID);
 TFT_loadFonts(brand);
-
-const MEDIA = [
-  { f: "seebarsch_grill_02.jpg", t: ["seebarsch", "wolfsbarsch", "branzino", "fisch", "grill"] },
-  { f: "forelle_mandeln_01.jpg", t: ["forelle", "fisch"] },
-  { f: "schnitzel_pfanne_05.jpg", t: ["schnitzel", "wiener", "butterschmalz"] },
-  { f: "gansl_tranchiert_03.jpg", t: ["gansl", "gans", "martini"] },
-  { f: "kuerbissuppe_01.jpg", t: ["kürbis", "kuerbis", "suppe", "kürbiscremesuppe"] },
-  { f: "kaiserschmarrn_02.jpg", t: ["schmarrn", "kaiserschmarrn", "dessert", "nachspeise"] },
-  { f: "schanigarten_regen_01.jpg", t: ["unwetter", "regen", "schlechtwetter", "schanigarten", "sturm"] },
-  { f: "lokal_aussen_abend.jpg", t: ["offen", "geschlossen", "zu", "ruhetag", "urlaub"] }
-];
-document.getElementById("media").innerHTML = MEDIA.map(m => `<span>📷 ${m.f}</span>`).join("");
+document.addEventListener("tft-fonts", () => document.querySelectorAll("[data-post]").forEach(el => TFT_mount(el, JSON.parse(el.dataset.post), brand)));
+const SHORT = brand.name.split(" ").slice(-1)[0];
+Object.values(TFT_CLIENTS).forEach(c => document.getElementById("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
+document.getElementById("client").value = CID; document.getElementById("client").onchange = e => TFT_setClient(e.target.value);
+document.getElementById("phName").textContent = brand.name + " × the first thought";
+document.getElementById("mtName").textContent = brand.name;
+document.getElementById("media").innerHTML = CL.media.map(m => m.url ? `<span style="display:inline-flex;align-items:center;gap:6px"><img src="${m.url}" alt="" style="width:22px;height:22px;object-fit:cover;border-radius:4px">${m.tags[0]}</span>` : `<span>📷 ${m.name}</span>`).join("");
 
 const chat = document.getElementById("chat");
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -109,11 +107,8 @@ function msg(text, who) { const d = document.createElement("div"); d.className =
 function chips(list, onPick) { const c = document.createElement("div"); c.className = "chips"; list.forEach(t => { const b = document.createElement("button"); b.type = "button"; b.textContent = t; b.onclick = () => { c.remove(); onPick(t); }; c.appendChild(b); }); chat.appendChild(c); scroll(); }
 function typing(ms) { const t = document.createElement("div"); t.className = "typing"; t.textContent = "Bot baut Vorschläge …"; chat.appendChild(t); scroll(); return new Promise(r => setTimeout(() => { t.remove(); r(); }, ms)); }
 
-function pickMedia(text) {
-  const low = text.toLowerCase();
-  const hit = MEDIA.find(m => m.t.some(t => low.includes(t)));
-  return hit ? hit.f : "lokal_innen_01.jpg";
-}
+function pickMedia(text) { return TFT_pickMedia(CID, text); }
+const mName = m => m.url ? m.url.split("/").pop() : m.name;
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 
 function parse(text) {
@@ -122,7 +117,7 @@ function parse(text) {
   const ab = low.match(/ab\s+(\d{1,2})(?:[:.](\d{2}))?\s*(?:uhr)?/);
   if (/geschlossen| zu |ruhetag|urlaub/.test(low)) {
     return { kind: "info", media: pickMedia(text), base: { kicker: "Heute", big: "geschlossen", sub: reason ? `Wegen ${reason.replace(/[.!]+$/, "")}. Morgen sind wir wieder für euch da!` : "Morgen sind wir wieder für euch da!" },
-      caps: [`Heute bleibt der Fuchsbau zu${reason ? " wegen " + reason : ""}. Morgen wieder wie gewohnt!`, `Kurze Pause heute. Wir sehen uns morgen 🦊`, `Heute geschlossen. Danke fürs Verständnis!`] };
+      caps: [`Heute bleibt das ${SHORT} zu${reason ? " wegen " + reason : ""}. Morgen wieder wie gewohnt!`, `Kurze Pause heute. Wir sehen uns morgen 🙌`, `Heute geschlossen. Danke fürs Verständnis!`] };
   }
   if (ab) {
     const t = ab[1] + (ab[2] ? ":" + ab[2] : "") + " Uhr";
@@ -144,14 +139,14 @@ function parse(text) {
 
 function variants(r) {
   if (r.kind === "info") return [
-    { tpl: "today", v: "dark", f: r.base, media: r.media },
-    { tpl: "today", v: "accent", f: r.base, media: r.media },
-    { tpl: "today", v: "light", f: r.base, media: r.media }
+    { tpl: "today", v: "dark", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" },
+    { tpl: "today", v: "accent", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" },
+    { tpl: "today", v: "light", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" }
   ];
   return [
-    { tpl: "special", v: "dark", f: r.base, media: r.media },
-    { tpl: "special", v: "light", f: r.base, media: r.media },
-    { tpl: "offer", v: "accent", f: { kicker: r.base.kicker, title: r.base.title, price: r.base.price, sub: r.base.sub }, media: r.media }
+    { tpl: "special", v: "dark", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" },
+    { tpl: "special", v: "light", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" },
+    { tpl: "offer", v: "accent", f: { kicker: r.base.kicker, title: r.base.title, price: r.base.price, sub: r.base.sub }, media: r.media.url ? "" : r.media.name, img: r.media.url || "" }
   ];
 }
 
@@ -164,14 +159,14 @@ async function handle(text) {
   const tk = TFT_inbox.add({ client: brand.name, text, kind: "basic", status: "auto", auto: true });
   lastTicket = tk.id;
   const vs = variants(r);
-  msg(`Hab dir 3 Vorschläge im Fuchsbau-Look gebaut.${r.kind === "special" ? `\nFoto aus eurer Mediathek: ${r.media}` : ""}`, "bot");
+  msg(`Hab dir 3 Vorschläge im ${brand.name}-Look gebaut.${r.kind === "special" ? `\nFoto aus eurer Mediathek: ${mName(r.media)}` : ""}`, "bot");
   const row = document.createElement("div"); row.className = "vars";
   vs.forEach((v, i) => {
     const c = document.createElement("div"); c.className = "var";
     c.innerHTML = `<div class="pv"></div><button type="button">Nimm ${i + 1}</button>`;
     c.querySelector("button").onclick = () => pick(i, v, r);
     row.appendChild(c);
-    requestAnimationFrame(() => TFT_mount(c.querySelector(".pv"), v, brand));
+    c.querySelector(".pv").dataset.post = JSON.stringify(v); requestAnimationFrame(() => TFT_mount(c.querySelector(".pv"), v, brand));
   });
   chat.appendChild(row); scroll();
   chips(["Anderen Text", "Abbrechen"], t => {
@@ -188,12 +183,12 @@ async function pick(i, v, r) {
   await typing(700);
   const d = document.createElement("div"); d.className = "m bot"; d.style.width = "70%";
   d.innerHTML = `<div class="pv" style="border-radius:8px;overflow:hidden;margin-bottom:6px"></div>Hier ist deine Story. Lang drücken zum Speichern und in Instagram teilen.\n\nCaption: „${esc(r.caps[0])}“<small>${time()}</small>`;
-  chat.appendChild(d); requestAnimationFrame(() => TFT_mount(d.querySelector(".pv"), v, brand)); scroll();
+  chat.appendChild(d); d.querySelector(".pv").dataset.post = JSON.stringify(v); requestAnimationFrame(() => TFT_mount(d.querySelector(".pv"), v, brand)); scroll();
   if (lastTicket) TFT_inbox.update(lastTicket, { result: "Variante " + (i + 1) + " geschickt" });
   chips(["Für mich posten", "Passt, poste ich selbst"], t => {
     msg(t, "me");
     if (t === "Für mich posten") { msg("Mach ich. Sie geht in 30 Minuten online, the first thought sieht sie vorher im Dashboard.", "bot"); if (lastTicket) TFT_inbox.update(lastTicket, { result: "Variante " + (i + 1) + " · wird gepostet" }); }
-    else msg("Top! Schreib einfach, wenn's morgen was gibt. 🦊", "bot");
+    else msg("Top! Schreib einfach, wenn's morgen was gibt. 🙌", "bot");
   });
 }
 
@@ -210,7 +205,9 @@ async function request(text, kind) {
 
 document.getElementById("form").onsubmit = e => { e.preventDefault(); const i = document.getElementById("in"); const t = i.value.trim(); if (!t) return; i.value = ""; document.querySelectorAll(".chips").forEach(c => c.remove()); handle(t); };
 msg("Servus! Ich bin euer Content-Bot von the first thought. Schreib mir einfach, was heute los ist, und ich bau euch die Story dazu.", "bot");
-chips(["Heute Seebarsch vom Grill 24,90", "Heute geschlossen wegen Unwetter", "Ich brauch ein Foto vom neuen Burger für die Karte", "Können wir zu Silvester was machen?"], t => handle(t));
+chips(CID === "adriano"
+  ? ["Heute Spaghetti mit Muscheln 16,90", "Heute geschlossen wegen Unwetter", "Brauch ein Video von der neuen Kürbis-Lasagne", "Können wir zu Silvester was machen?"]
+  : ["Heute Seebarsch vom Grill 24,90", "Heute geschlossen wegen Unwetter", "Ich brauch ein Foto vom neuen Burger für die Karte", "Können wir zu Silvester was machen?"], t => handle(t));
 })();
 </script>
 </body>

@@ -7,6 +7,9 @@ Konzept-Entwurf und klickbarer Prototyp für das interne Tool von **the first th
 | `/` | Konzept-Übersicht mit interaktivem Anlass-Planer |
 | `/fragebogen/` | iPad-Fragebogen (Demo, PWA, „Zum Home-Bildschirm“ → läuft ohne Browserleiste) |
 | `/auswertung/` | Beispiel einer Kunden-Auswertung im Cockpit (erfundenes Lokal) |
+| `/brandkit/` | Brand-Kit pro Kunde: Logo, Farben, Schriften (Upload), Ton, Mediathek, Live-Vorschau |
+| `/content/` | Content-Studio mit Feed-Vorschau, Vorlagen, Freigabe-Link |
+| `/bot/` · `/anfragen/` | Kunden-Bot (Simulation) und Dashboard mit Kundenliste |
 | `/konzept/` | Vollständiges Konzept inkl. offener Fragen (`docs/konzept.md`) |
 | `/research/` | Research-Report mit Quellen (`docs/research.md`) |
 
@@ -28,3 +31,6 @@ Fragebogen-Inhalt mit Minashe finalisieren → Supabase (eu-central-1) + Auth �
 
 ---
 Fonts: Franie & Thefirstfont aus dem Webauftritt von the first thought. Konzept & Umsetzung: la'ver studio.
+
+## Beispielkunde Adriano
+Logo, Farben und Fotos von Adriano liegen unter `assets/kunden/adriano/` (Fotos aus dem Website-Entwurf, Clips verkleinert). **Die Schriften Davida und ITC Newtext sind lizenzpflichtig und deshalb nicht im Repo.** Im Brand-Kit (`/brandkit/?k=adriano`) einmal hochladen, dann bleiben sie im Browser; bis dahin nimmt das Tool Ersatzschriften (Rye, Jost).

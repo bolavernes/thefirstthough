@@ -87,6 +87,17 @@
   .colors{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   .colors label{font-size:12px;color:var(--muted)}
   .colors input{width:100%;height:40px;border:1.5px solid var(--line);border-radius:10px;background:var(--ink);padding:2px}
+  .hdr-r{display:flex;gap:8px;align-items:center}
+  .csel{font:600 14px var(--sans);background:var(--ink-2);color:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;max-width:180px}
+  .bk{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .bk .sw2{width:30px;height:30px;border-radius:8px;border:1px solid var(--line)}
+  .bk .lg{height:30px;padding:4px 8px;border-radius:8px;display:flex;align-items:center}
+  .bk .lg img{height:22px}
+  .bk small{display:block;color:var(--muted);font-size:12.5px;width:100%;margin-top:4px}
+  .mt{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:-4px 0 12px}
+  .mt button{aspect-ratio:1;border-radius:8px;border:2px solid transparent;background:var(--ink-3) center/cover;cursor:pointer;padding:0}
+  .mt button[aria-pressed="true"]{border-color:var(--pink)}
+  .tile img{width:100%;height:100%;object-fit:cover;display:block}
   .agency-only{display:none}
   body.agency .agency-only{display:block}
   body.client .client-hide{display:none !important}
@@ -109,15 +120,16 @@
   .checks label{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--mist);margin:8px 0}
   .checks input{width:20px;height:20px;accent-color:var(--pink);flex:none}
   #exportStage{position:fixed;left:-20000px;top:0}
-  @media (max-width:560px){.crumbs{display:none}}
+  @media (max-width:760px){.crumbs{display:none}}
+  @media (max-width:420px){.csel{max-width:130px}}
 </style>
 </head>
 <body class="agency">
-<div class="banner">Prototyp · erfundener Kunde · nur the first thought bearbeitet hier. Der Kunde kommentiert und gibt frei, über den PIN-Link.</div>
+<div class="banner">Prototyp · Adriano mit echtem Branding, Texte und Termine sind Beispiele · nur the first thought bearbeitet hier. Der Kunde kommentiert und gibt frei, über den PIN-Link.</div>
 <header class="top"><div class="wrap">
   <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
-  <span class="crumbs">Cockpit / Beisl Fuchsbau / <b>Content</b></span>
-  <a class="btn" href="../bot/" style="padding:10px 14px;font-size:13px">Kunden-Bot ansehen →</a>
+  <span class="crumbs">Cockpit / <span id="crumbName">Kunde</span> / <b>Content</b></span>
+  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="bkLink" href="../brandkit/" style="padding:10px 14px;font-size:13px">Brand-Kit</a></div>
 </div></header>
 
 <main class="wrap">
@@ -157,7 +169,9 @@
           <div class="panel">
             <h3>Inhalt</h3>
             <div id="fields"></div>
-            <label class="fld"><span>Foto</span><input type="file" id="photo" accept="image/*"></label>
+            <label class="fld" id="mtlabel"><span>Foto aus der Mediathek</span></label>
+            <div class="mt" id="mt"></div>
+            <label class="fld"><span>oder eigenes Foto</span><input type="file" id="photo" accept="image/*"></label>
             <p class="hint" id="vidhint" style="display:none;margin:-4px 0 12px">Das Video bleibt in SharePoint. Das Tool speichert nur den Verweis und holt beim Abspielen einen kurzlebigen Link über Microsoft Graph. In der Demo: direkter .mp4-Link.</p>
             <label class="fld"><span>Caption</span><textarea id="caption"></textarea></label>
           </div>
@@ -165,16 +179,9 @@
             <h3>Farbvariante <span class="lock">🔒 aus Brand-Kit</span></h3>
             <div class="sw" id="sw"></div>
           </div>
-          <div class="panel agency-only">
-            <h3>Brand-Kit <span class="lock">nur Agentur</span></h3>
-            <div class="colors">
-              <label>Dunkel<input type="color" id="cDark"></label>
-              <label>Hell<input type="color" id="cLight"></label>
-              <label>Akzent<input type="color" id="cAccent"></label>
-            </div>
-            <label class="fld" style="margin-top:12px"><span>Headline-Schrift</span><select id="fHead"></select></label>
-            <label class="fld"><span>Text-Schrift</span><select id="fBody"></select></label>
-            <label class="fld"><span>Logo-Text</span><input type="text" id="logo"></label>
+          <div class="panel">
+            <h3>Brand-Kit <a href="../brandkit/" id="bkLink2" style="font-size:12.5px;color:var(--pink)">bearbeiten →</a></h3>
+            <div class="bk" id="bk"></div>
           </div>
           <div class="panel">
             <div class="row">
@@ -218,10 +225,13 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="../assets/js/templates.js"></script>
+<script src="../assets/js/clients.js"></script>
 <script>
 (() => {
 "use strict";
-const KEY = "tft-content-demo-v2";
+const CID = TFT_currentClient();
+const CL = TFT_CLIENTS[CID];
+const KEY = CID === "fuchsbau" ? "tft-content-demo-v2" : "tft-content-" + CID + "-v1";
 const STATUS = { draft: "Entwurf", review: "Zur Freigabe", ok: "Freigegeben", change: "Änderung" };
 const today = new Date();
 const d = n => { const x = new Date(today); x.setDate(x.getDate() + n); return x.toISOString().slice(0, 10); };
@@ -238,7 +248,8 @@ const seed = () => ({
 });
 let S;
 try { S = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
-if (!S || !S.posts) S = seed();
+if (!S || !S.posts) S = CL.seed ? { posts: CL.seed() } : seed();
+S.brand = TFT_getBrand(CID);
 // Feedback vom Kunden übernehmen (#fb=...)
 function applyFb() {
   try {
@@ -252,7 +263,7 @@ function applyFb() {
 }
 applyFb();
 window.addEventListener("hashchange", () => { if (applyFb()) { save(); renderAll(); } });
-const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ posts: S.posts })); } catch (e) {} };
 let sel = S.posts[0]?.id;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -267,10 +278,16 @@ const OLD = [ // bestehende Posts (Platzhalter)
 
 function renderFeed() {
   const b = S.brand;
-  $("igav").style.background = b.colors.dark; $("igav").style.color = b.colors.light; $("igav").textContent = b.logo.slice(0, 2);
-  $("igname").textContent = b.name;
+  $("igav").style.background = b.colors.dark; $("igav").style.color = b.colors.light;
+  $("igav").innerHTML = b.logoOnDark ? `<img src="${esc(b.logoOnDark)}" alt="" style="width:46px">` : esc((b.logo || b.name).slice(0, 2));
+  $("igname").textContent = b.name; $("igname").nextSibling.textContent = CL.bio || "";
   const grid = $("grid"); grid.innerHTML = "";
   const planned = S.posts.filter(p => !TFT_TEMPLATES[p.tpl].format.startsWith("Story")).slice().sort((a, b2) => b2.date.localeCompare(a.date));
+  if (CL.old) {
+    planned.forEach(p => addTile(grid, p, b));
+    CL.old.forEach(u => { const t = document.createElement("div"); t.className = "tile old"; t.innerHTML = `<img src="${esc(u)}" alt="">`; grid.appendChild(t); });
+    return;
+  }
   [...planned.map(p => ({ p, old: false })), ...OLD.map(p => ({ p, old: true }))].forEach(({ p, old }) => {
     const t = document.createElement("div"); t.className = "tile" + (old ? " old" : "") + (p.id === sel ? " sel" : "");
     const inner = document.createElement("div"); inner.className = "inner"; t.appendChild(inner);
@@ -278,6 +295,15 @@ function renderFeed() {
     grid.appendChild(t);
     requestAnimationFrame(() => TFT_mount(inner, p, b));
   });
+}
+
+function addTile(grid, p, b) {
+  const t = document.createElement("div"); t.className = "tile" + (p.id === sel ? " sel" : "");
+  const inner = document.createElement("div"); inner.className = "inner"; t.appendChild(inner);
+  const bd = document.createElement("span"); bd.className = "badge " + p.status; bd.textContent = STATUS[p.status]; t.appendChild(bd);
+  t.onclick = () => { sel = p.id; renderAll(); };
+  grid.appendChild(t);
+  requestAnimationFrame(() => TFT_mount(inner, p, b));
 }
 
 function renderList() {
@@ -337,9 +363,14 @@ function renderEditor() {
     sw.appendChild(b);
   });
   // Brand-Kit
-  $("cDark").value = S.brand.colors.dark; $("cLight").value = S.brand.colors.light; $("cAccent").value = S.brand.colors.accent;
-  ["fHead", "fBody"].forEach(id => { const s = $(id); if (!s.options.length) TFT_FONTS.forEach(f => s.add(new Option(f, f))); });
-  $("fHead").value = S.brand.head; $("fBody").value = S.brand.body; $("logo").value = S.brand.logo;
+  const B = S.brand, cf = n => (B.fonts || []).some(f => f.family === n);
+  $("bk").innerHTML = ["dark", "light", "accent"].map(k => `<span class="sw2" style="background:${B.colors[k]}" title="${k}"></span>`).join("")
+    + (B.logoOnDark ? `<span class="lg" style="background:${B.colors.dark}"><img src="${esc(B.logoOnDark)}" alt=""></span>` : "")
+    + `<small>Headline: <b>${esc(B.head)}</b>${cf(B.head) || TFT_FONTS.includes(B.head) ? "" : " (nicht hochgeladen, Ersatz: " + esc(B.headFallback) + ")"} · Text: <b>${esc(B.body)}</b>${cf(B.body) || TFT_FONTS.includes(B.body) ? "" : " (Ersatz: " + esc(B.bodyFallback) + ")"}</small>`;
+  const mt = $("mt"); mt.innerHTML = "";
+  const media = CL.media.filter(m => m.url);
+  $("mtlabel").style.display = mt.style.display = media.length ? "" : "none";
+  media.forEach(m => { const b = document.createElement("button"); b.type = "button"; b.style.backgroundImage = `url('${m.url}')`; b.title = m.tags.join(", "); b.setAttribute("aria-pressed", String(p.img === m.url)); b.onclick = () => { p.img = m.url; touch(p); }; mt.appendChild(b); });
   $("sendinfo").textContent = `${S.posts.filter(x => x.status === "draft" || x.status === "change").length} Posts bereit zur Freigabe · ${S.posts.filter(x => x.status === "ok").length} freigegeben`;
 }
 
@@ -356,16 +387,18 @@ $("photo").onchange = e => {
   img.onload = () => { const c = document.createElement("canvas"); const s = Math.min(1, 1400 / Math.max(img.width, img.height)); c.width = img.width * s; c.height = img.height * s; c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); cur().img = c.toDataURL("image/jpeg", .82); URL.revokeObjectURL(url); touch(cur()); };
   img.src = url;
 };
-["cDark", "cLight", "cAccent"].forEach(id => $(id).oninput = e => { S.brand.colors[{ cDark: "dark", cLight: "light", cAccent: "accent" }[id]] = e.target.value; save(); renderAll(); });
-$("fHead").onchange = e => { S.brand.head = e.target.value; save(); renderAll(); };
-$("fBody").onchange = e => { S.brand.body = e.target.value; save(); renderAll(); };
-$("logo").oninput = e => { S.brand.logo = e.target.value || "LOGO"; save(); renderFeedList(); TFT_mount($("preview"), cur(), S.brand); };
+// Kundenwahl
+Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
+$("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
+$("crumbName").textContent = CL.name;
+["bkLink", "bkLink2"].forEach(id => $(id).href = "../brandkit/?k=" + CID);
+document.addEventListener("tft-fonts", () => renderAll());
 $("dup").onclick = () => { const p = cur(); const id = "p" + Date.now(); S.posts.push(Object.assign(JSON.parse(JSON.stringify(p)), { id, status: "draft", comment: "" })); sel = id; save(); renderAll(); };
 $("del").onclick = () => { if (S.posts.length < 2) return; S.posts = S.posts.filter(p => p.id !== sel); sel = S.posts[0].id; save(); renderAll(); };
 
 $("png").onclick = async () => {
   const p = cur(); const st = $("exportStage");
-  st.innerHTML = TFT_renderPost(p, S.brand);
+  st.innerHTML = TFT_renderPost(p, S.brand); TFT_fit(st);
   await document.fonts.ready;
   const canvas = await html2canvas(st.firstElementChild, { scale: 1, backgroundColor: null, logging: false });
   const a = document.createElement("a"); a.download = `${S.brand.handle}_${p.date}_${p.tpl}.png`; a.href = canvas.toDataURL("image/png"); a.click();
@@ -379,7 +412,7 @@ $("send").onclick = async () => {
   if (!items.length) return;
   const pin = String(Math.floor(1000 + Math.random() * 9000));
   const salt = Math.random().toString(36).slice(2, 10);
-  const payload = { b: S.brand, s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption })) };
+  const payload = { b: TFT_brandLite(S.brand), s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption, img: p.img && !/^data:/.test(p.img) ? p.img : undefined })) };
   items.forEach(p => { p.status = "review"; p.comment = ""; });
   save(); renderAll();
   const url = new URL("../freigabe/", location.href).href + "#d=" + TFT_pack(payload);

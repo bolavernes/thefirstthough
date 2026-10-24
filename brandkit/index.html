@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Brand-Kit</title>
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  .banner{background:var(--yellow);color:var(--ink);font-size:13.5px;font-weight:600;text-align:center;padding:8px var(--gutter)}
+  header.top{position:sticky;top:0;z-index:30;background:rgba(20,20,20,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--paper)}
+  .hdr-r{display:flex;gap:8px;align-items:center}
+  .csel{font:600 14px var(--sans);background:var(--ink-2);color:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;max-width:190px}
+  h1{font-weight:900;font-size:clamp(30px,4vw,46px);margin:26px 0 6px;line-height:1.05}
+  .lead{color:var(--mist);margin:0 0 24px;max-width:760px}
+  .layout{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:28px;align-items:start;padding-bottom:80px}
+  @media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+  .panel h2{font-size:17px;font-weight:700;margin:0 0 4px}
+  .panel .hint{font-size:13px;color:var(--muted);margin:0 0 14px}
+  .logos{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .slot{border:1.5px dashed var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px;align-items:stretch}
+  .slot .pv{height:90px;border-radius:10px;display:grid;place-items:center;padding:10px}
+  .slot .pv img{max-height:60px;max-width:100%}
+  .slot .pv span{font-size:12.5px;opacity:.7}
+  .slot small{font-size:12px;color:var(--muted)}
+  .up{font:600 13px var(--sans);text-align:center;border:1.5px solid var(--line);border-radius:10px;padding:9px;cursor:pointer;color:var(--paper)}
+  .up:hover{border-color:var(--pink);color:var(--pink)}
+  .up input{display:none}
+  .colors{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .col label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+  .col .pick{display:flex;gap:6px;align-items:center}
+  .col input[type=color]{width:44px;height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--ink);padding:2px;flex:none}
+  .col input[type=text]{width:100%;min-width:0;font:14px ui-monospace,Menlo,monospace;background:var(--ink);color:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px 8px}
+  .chk{margin-top:12px;font-size:13px;color:var(--mist)}
+  .chk b.ok{color:#3ccf7a}.chk b.bad{color:var(--pink)}
+  .font{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
+  .font .top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+  .font .sample{font-size:34px;line-height:1.15;margin:10px 0;word-break:break-word}
+  .font .sample.body{font-size:18px;line-height:1.4}
+  .font .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .font select{flex:1;min-width:0;font:14px var(--sans);background:var(--ink);color:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:9px}
+  .font .state{font-size:12.5px;color:var(--muted);margin-top:8px}
+  .font .state b{color:#3ccf7a}
+  .font .state b.warn{color:var(--yellow)}
+  label.fld{display:block;margin-bottom:12px}
+  label.fld span{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  label.fld textarea,label.fld input{width:100%;font:15px var(--sans);color:var(--paper);background:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:10px 12px}
+  label.fld textarea{min-height:70px;resize:vertical}
+  .media{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+  .media div{aspect-ratio:1;border-radius:8px;background:var(--ink-3) center/cover;position:relative}
+  .media div span{position:absolute;left:4px;right:4px;bottom:4px;font-size:10px;background:rgba(0,0,0,.6);color:#fff;border-radius:6px;padding:3px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .previews{position:sticky;top:84px}
+  .previews h2{font-size:17px;margin:0 0 4px}
+  .pvgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+  @media (max-width:1200px){.pvgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .pvgrid figure{margin:0}
+  .pvgrid .box{border-radius:12px;overflow:hidden;box-shadow:0 14px 40px rgba(0,0,0,.4)}
+  .pvgrid figcaption{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .vars{display:flex;gap:6px;margin:0 0 14px}
+  .vars button{font:600 13px var(--sans);padding:8px 12px;border-radius:999px;border:1.5px solid var(--line);background:transparent;color:var(--mist);cursor:pointer}
+  .vars button[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+  .actions .btn{padding:12px 16px;font-size:14px}
+  .saved{font-size:13px;color:#3ccf7a;opacity:0;transition:opacity .3s}
+  .saved.on{opacity:1}
+  @media (max-width:760px){.crumbs{display:none}}
+  @media (max-width:980px){.previews{position:static}}
+</style>
+</head>
+<body>
+<div class="banner">Prototyp · Uploads bleiben nur in diesem Browser. Schriften werden nicht auf den Server geladen (Lizenz).</div>
+<header class="top"><div class="wrap">
+  <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
+  <span class="crumbs">Cockpit / <span id="crumbName">Kunde</span> / <b>Brand-Kit</b></span>
+  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="ctLink" href="../content/" style="padding:10px 14px;font-size:13px">Content →</a></div>
+</div></header>
+
+<main class="wrap">
+  <h1 id="title">Brand-Kit</h1>
+  <p class="lead">Einmal pro Kunde einrichten: Logo, Farben, Schriften, Ton. Jede Story und jeder Post im Content-Studio und im Bot nutzt genau das. Rechts siehst du sofort, wie es aussieht.</p>
+  <div class="layout">
+    <div>
+      <section class="panel">
+        <h2>Logo</h2>
+        <p class="hint">SVG (am besten) oder PNG mit transparentem Hintergrund. Eine Version für dunkle, eine für helle Hintergründe.</p>
+        <div class="logos">
+          <div class="slot"><div class="pv" id="lgDarkPv"></div><small>Auf dunklem Grund</small><label class="up">Hochladen<input type="file" id="lgDark" accept=".svg,image/svg+xml,image/png"></label></div>
+          <div class="slot"><div class="pv" id="lgLightPv"></div><small>Auf hellem Grund</small><label class="up">Hochladen<input type="file" id="lgLight" accept=".svg,image/svg+xml,image/png"></label></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Farben</h2>
+        <p class="hint">Drei Farben reichen. Das Tool wählt Text- und Akzentfarbe automatisch so, dass es lesbar bleibt.</p>
+        <div class="colors">
+          <div class="col"><label>Dunkel</label><div class="pick"><input type="color" id="cDark"><input type="text" id="tDark" maxlength="7"></div></div>
+          <div class="col"><label>Hell</label><div class="pick"><input type="color" id="cLight"><input type="text" id="tLight" maxlength="7"></div></div>
+          <div class="col"><label>Akzent</label><div class="pick"><input type="color" id="cAccent"><input type="text" id="tAccent" maxlength="7"></div></div>
+        </div>
+        <div class="chk" id="contrast"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Schriften</h2>
+        <p class="hint">Eigene Schrift hochladen (OTF, TTF, WOFF, WOFF2) oder eine Web-Schrift wählen. Bis die eigene Schrift da ist, nimmt das Tool die Ersatzschrift.</p>
+        <div class="font">
+          <div class="top">Headline <span id="hState"></span></div>
+          <div class="sample" id="hSample">Pizza con zucca</div>
+          <div class="row"><select id="hSel"></select><label class="up">Schrift hochladen<input type="file" id="hUp" accept=".otf,.ttf,.woff,.woff2"></label></div>
+          <div class="state" id="hInfo"></div>
+        </div>
+        <div class="font">
+          <div class="top">Text <span id="bState"></span></div>
+          <div class="sample body" id="bSample">Kürbis, Zucchini, Lauch, Speck. Aus dem Holzofen. ÄÖÜ ß 15,50 €</div>
+          <div class="row"><select id="bSel"></select><label class="up">Schrift hochladen<input type="file" id="bUp" accept=".otf,.ttf,.woff,.woff2"></label></div>
+          <div class="state" id="bInfo"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Ton & Regeln</h2>
+        <p class="hint">Liest Claude bei jeder Caption und jedem Konzept mit.</p>
+        <label class="fld"><span>Tonalität</span><textarea id="tone"></textarea></label>
+        <label class="fld"><span>Immer</span><textarea id="dos"></textarea></label>
+        <label class="fld"><span>Nie</span><textarea id="donts"></textarea></label>
+        <label class="fld"><span>Instagram-Name</span><input id="handle"></label>
+      </section>
+
+      <section class="panel">
+        <h2>Mediathek</h2>
+        <p class="hint">Fotos aus den Shootings, mit Schlagworten. Bot und Content-Studio holen sich daraus das passende Bild. In echt liegen die Dateien in SharePoint.</p>
+        <div class="media" id="media"></div>
+      </section>
+
+      <div class="actions">
+        <span class="saved" id="saved">✓ gespeichert</span>
+        <button class="btn" type="button" id="reset">Auf Standard zurücksetzen</button>
+      </div>
+    </div>
+
+    <div class="previews">
+      <h2>Live-Vorschau</h2>
+      <p class="lead" style="font-size:14px;margin-bottom:12px">So sehen Vorlagen mit diesem Brand-Kit aus.</p>
+      <div class="vars" id="vars"></div>
+      <div class="pvgrid" id="pv"></div>
+    </div>
+  </div>
+</main>
+
+<script src="../assets/js/templates.js"></script>
+<script src="../assets/js/clients.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const CID = TFT_currentClient(), CL = TFT_CLIENTS[CID];
+let B = TFT_getBrand(CID);
+let variant = "dark";
+
+Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
+$("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
+$("crumbName").textContent = CL.name; $("title").textContent = "Brand-Kit " + CL.name;
+$("ctLink").href = "../content/?k=" + CID;
+
+let tm;
+function save() {
+  const ok = TFT_saveBrand(CID, B);
+  $("saved").textContent = ok ? "✓ gespeichert" : "Speicher voll: Schrift zu groß für die Demo";
+  $("saved").classList.add("on"); clearTimeout(tm); tm = setTimeout(() => $("saved").classList.remove("on"), 1500);
+}
+
+// ---------- Logo ----------
+function renderLogos() {
+  const set = (id, src, bg) => { const el = $(id); el.style.background = bg; el.innerHTML = src ? `<img src="${esc(src)}" alt="">` : `<span style="color:${bg === B.colors.dark ? B.colors.light : B.colors.dark}">${esc(B.logo || B.name)} (Text)</span>`; };
+  set("lgDarkPv", B.logoOnDark, B.colors.dark);
+  set("lgLightPv", B.logoOnLight, B.colors.light);
+}
+function readFile(file, cb) { const r = new FileReader(); r.onload = () => cb(r.result); r.readAsDataURL(file); }
+$("lgDark").onchange = e => { const f = e.target.files[0]; if (f) readFile(f, d => { B.logoOnDark = d; save(); renderAll(); }); };
+$("lgLight").onchange = e => { const f = e.target.files[0]; if (f) readFile(f, d => { B.logoOnLight = d; save(); renderAll(); }); };
+
+// ---------- Farben ----------
+const MAP = { Dark: "dark", Light: "light", Accent: "accent" };
+Object.entries(MAP).forEach(([k, key]) => {
+  $("c" + k).oninput = e => { B.colors[key] = e.target.value; $("t" + k).value = e.target.value.toUpperCase(); save(); renderAll(); };
+  $("t" + k).onchange = e => { const v = e.target.value.trim(); if (/^#[0-9a-f]{6}$/i.test(v)) { B.colors[key] = v; save(); renderAll(); } };
+});
+function renderColors() {
+  Object.entries(MAP).forEach(([k, key]) => { $("c" + k).value = B.colors[key]; $("t" + k).value = B.colors[key].toUpperCase(); });
+  const c = TFT_contrast(B.colors.dark, B.colors.light);
+  $("contrast").innerHTML = `Kontrast Dunkel/Hell: <b class="${c >= 4.5 ? "ok" : "bad"}">${c.toFixed(1)} : 1</b> ${c >= 4.5 ? "gut lesbar" : "zu schwach für kleine Schrift"}`;
+}
+
+// ---------- Schriften ----------
+["hSel", "bSel"].forEach(id => TFT_FONTS.forEach(f => $(id).add(new Option(f, f))));
+function fontOptions() {
+  ["hSel", "bSel"].forEach(id => {
+    const sel = $(id); [...sel.options].filter(o => o.dataset.custom).forEach(o => o.remove());
+    (B.fonts || []).forEach(f => { const o = new Option(f.family + " (hochgeladen)", f.family); o.dataset.custom = "1"; sel.add(o, 0); });
+    const cur = id === "hSel" ? B.head : B.body;
+    if (![...sel.options].some(o => o.value === cur)) { const o = new Option(cur + " (fehlt noch)", cur); o.dataset.custom = "1"; sel.add(o, 0); }
+    sel.value = cur;
+  });
+}
+function fontState(name, fb, infoId) {
+  const up = (B.fonts || []).some(f => f.family === name), web = TFT_FONTS.includes(name);
+  $(infoId).innerHTML = up ? `<b>✓ ${esc(name)}</b> ist hochgeladen und aktiv.` : web ? `<b>✓ ${esc(name)}</b> (Web-Schrift)` : `<b class="warn">${esc(name)} fehlt</b> – bitte Datei hochladen. Bis dahin: ${esc(fb)}.`;
+}
+function upload(which) {
+  return e => {
+    const f = e.target.files[0]; if (!f) return;
+    if (f.size > 1.5e6) { alert("Datei zu groß für die Demo (max. 1,5 MB)."); return; }
+    readFile(f, data => {
+      let family = f.name.replace(/\.(otf|ttf|woff2?)$/i, "").replace(/[-_]+/g, " ").replace(/\s+(regular|bold|book|roman)$/i, "").trim();
+      if (which === "h" && B.head && !TFT_FONTS.includes(B.head) && !(B.fonts || []).some(x => x.family === B.head)) family = B.head;
+      if (which === "b" && B.body && !TFT_FONTS.includes(B.body) && !(B.fonts || []).some(x => x.family === B.body)) family = B.body;
+      B.fonts = (B.fonts || []).filter(x => x.family !== family).concat([{ family, data, file: f.name }]);
+      if (which === "h") B.head = family; else B.body = family;
+      save(); TFT_loadFonts(B); renderAll();
+    });
+  };
+}
+$("hUp").onchange = upload("h"); $("bUp").onchange = upload("b");
+$("hSel").onchange = e => { B.head = e.target.value; save(); renderAll(); };
+$("bSel").onchange = e => { B.body = e.target.value; save(); renderAll(); };
+function renderFonts() {
+  fontOptions();
+  $("hSample").style.fontFamily = `'${B.head}','${B.headFallback}',serif`;
+  $("bSample").style.fontFamily = `'${B.body}','${B.bodyFallback}',sans-serif`;
+  $("hSample").style.color = $("bSample").style.color = "var(--paper)";
+  fontState(B.head, B.headFallback, "hInfo"); fontState(B.body, B.bodyFallback, "bInfo");
+}
+
+// ---------- Ton ----------
+["tone", "dos", "donts", "handle"].forEach(k => { $(k).value = B[k] || ""; $(k).oninput = e => { B[k] = e.target.value; save(); }; });
+
+// ---------- Mediathek ----------
+$("media").innerHTML = CL.media.map(m => `<div style="${m.url ? `background-image:url('${esc(m.url)}')` : ""}" title="${esc(m.tags.join(", "))}"><span>${esc(m.tags.slice(0, 2).join(" · ") || m.name)}</span></div>`).join("") || "<p class='hint'>Noch keine Fotos.</p>";
+
+// ---------- Vorschau ----------
+const VARS = [["dark", "Dunkel"], ["light", "Hell"], ["accent", "Akzent"]];
+VARS.forEach(([v, l]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.onclick = () => { variant = v; renderPreview(); }; b.dataset.v = v; $("vars").appendChild(b); });
+const img = q => (TFT_pickMedia(CID, q) || {}).url || "";
+function samples() {
+  const sp = CID === "adriano";
+  return [
+    { label: "Tagesangebot (Story)", post: { tpl: "special", img: img(sp ? "spaghetti" : "seebarsch"), f: sp ? { kicker: "Heute frisch", title: "Spaghetti\nai frutti di mare", price: "17,90", sub: "Solange der Vorrat reicht" } : {} } },
+    { label: "Heute-Info (Story)", post: { tpl: "today", f: sp ? { kicker: "Heute", big: "geschlossen", sub: "Wegen Unwetter. Morgen ist der Holzofen wieder an!" } : {} } },
+    { label: "Angebot (Post)", post: { tpl: "offer", img: img(sp ? "holzofen" : "schnitzel"), f: sp ? { kicker: "Aus dem Holzofen", title: "Pizza con zucca", price: "15,50", sub: "Kürbis · Zucchini · Lauch · Speck" } : {} } },
+    { label: "Event (Post)", post: { tpl: "event", img: img(sp ? "tafel" : "gansl"), f: sp ? { date: "Kürbis\n& Sturm", title: "Die Herbstkarte ist da", sub: "Bis Ende November" } : {} } }
+  ];
+}
+function renderPreview() {
+  $("vars").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === variant)));
+  const g = $("pv"); g.innerHTML = "";
+  samples().forEach(s => {
+    const fig = document.createElement("figure"); fig.innerHTML = `<div class="box"></div><figcaption>${esc(s.label)}</figcaption>`;
+    g.appendChild(fig);
+    requestAnimationFrame(() => TFT_mount(fig.querySelector(".box"), Object.assign({ v: variant }, s.post), B));
+  });
+}
+
+function renderAll() { TFT_loadFonts(B); renderLogos(); renderColors(); renderFonts(); renderPreview(); }
+$("reset").onclick = () => { TFT_resetBrand(CID); B = TFT_getBrand(CID); ["tone", "dos", "donts", "handle"].forEach(k => $(k).value = B[k] || ""); renderAll(); };
+document.addEventListener("tft-fonts", () => { renderFonts(); renderPreview(); });
+window.addEventListener("resize", () => { clearTimeout(window.__r); window.__r = setTimeout(renderPreview, 200); });
+renderAll();
+})();
+</script>
+</body>
+</html>
