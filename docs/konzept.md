@@ -182,6 +182,28 @@ Damit beantwortet sich Minashes Frage „Wie wissen Mitarbeiter, welcher Content
 
 ---
 
+## 6c. Trend-Radar: virale Reel-Ideen pro Kundentyp
+
+Einmal pro Woche (z. B. Montag 7 Uhr) bekommt Minashe pro Kundentyp ein **Viral-Briefing**: die 5–10 Reels, die in der Sparte gerade überdurchschnittlich laufen, mit Link, Views, warum es funktioniert, und für welche Kunden sich das Format eignet („passt zu Beisl Fuchsbau und Gasthaus X“). Es liegt im Dashboard und kommt als Telegram-Nachricht ans Team.
+
+**Woher die Daten kommen:**
+- **TikTok Creative Center** (gratis): trendende Sounds, Hashtags und Creator nach Land. Keine Schnittstelle, daher als Website oder über einen Apify-Baustein (ca. 1,50 $ pro 1.000 Einträge).
+- **Instagram-Hashtag-Suche** (offiziell, gratis): Top-Beiträge zu #wienessen, #foodvienna, #schnitzel … (30 Hashtags pro Woche).
+- **Beobachtungsliste:** 50–100 Gastro-Accounts aus Wien, DACH und international (z. B. Fabel Friet, Frittenwerk). Das Tool holt deren neue Reels über einen Daten-Anbieter (Apify oder ScrapeCreators, ca. 1–2,60 $ pro 1.000 Treffer) und markiert Ausreißer: Views im Verhältnis zur Follower-Zahl.
+- **Team-Funde** aus der Referenz-Bibliothek.
+
+**Apps, die es dafür schon gibt** (Stand Oktober 2026; keine davon hat eine offene Schnittstelle mit Video-Links für Nischen-Trends, deshalb eher als Ergänzung):
+- TrendTok (ca. 20 $/Jahr): TikTok-Trend-Sounds und -Hashtags nach Region
+- Pentos (99–999 $/Monat): TikTok-Analysen
+- Trendpop (jetzt Teil von Collab): Agentur-Preise auf Anfrage
+- Buzzsumo (ab 199 $/Monat), RivalIQ (ab 239 $/Monat): Konkurrenz- und Content-Analyse
+- Metricool (ab ca. 20 $/Monat): Konkurrenz-Vergleich auf Instagram/TikTok
+
+**Kosten fürs Tool:** realistisch 30–150 $/Monat Daten-Anbieter, plus Claude für die Auswertung (wenige Dollar pro Woche).
+**Recht:** Nur Link, Zahlen und Cover speichern, keine Profildaten, 90 Tage Löschfrist; Daten-Anbieter sind eine Grauzone (Datenschutz-Konzept, Abschnitt 7).
+
+---
+
 ## 7. Der Anlass-Planer — fertige Konzepte, bevor der Kunde fragt
 
 Das ist der Teil, mit dem Minashe Geld verdient: Das Tool weiß das ganze Jahr im Voraus, welcher Anlass zu welchem Kunden passt, und legt rechtzeitig ein fertiges Konzept auf den Tisch.
