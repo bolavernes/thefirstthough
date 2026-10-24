@@ -176,6 +176,7 @@
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const CID = TFT_currentClient(), CL = TFT_CLIENTS[CID];
+TFT_loadLayouts(CID);
 let B = TFT_getBrand(CID);
 let variant = "dark";
 

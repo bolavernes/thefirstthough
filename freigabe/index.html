@@ -70,6 +70,7 @@ try { const m = location.hash.match(/d=([^&]+)/); if (m) D = TFT_unpack(m[1]); }
 if (!D) { app.innerHTML = `<div class="lockscreen"><div><h1>Link ungültig</h1><p>Bitte frag bei the first thought einen neuen Freigabe-Link an.</p></div></div>`; return; }
 if (D.x && Date.now() > D.x) { app.innerHTML = `<div class="lockscreen"><div><h1>Link abgelaufen</h1><p>Dieser Freigabe-Link war 7 Tage gültig. Bitte frag einen neuen an.</p></div></div>`; return; }
 TFT_loadFonts(D.b);
+(D.p || []).forEach(p => { if (p.layout) TFT_useLayout(p.tpl, p.layout); });
 
 // ---------- PIN ----------
 let pin = "", tries = 0, lockedUntil = 0;

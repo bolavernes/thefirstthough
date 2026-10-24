@@ -345,10 +345,9 @@ function renderEditor() {
     b.onclick = () => { p.tpl = k; p.f = {}; touch(p); };
     tp.appendChild(b);
   });
-  const ly = $("lyEdit"), base = { offer: 1, special: 1, today: 1, event: 1, story: 1 };
-  if (t.custom) { ly.style.display = ""; ly.textContent = "✎ Layout „" + t.label + "“ bearbeiten"; ly.href = `../vorlagen/?k=${CID}&l=${t.layout.id}`; }
-  else if (base[p.tpl]) { ly.style.display = ""; ly.textContent = "✎ Als eigenes Layout anpassen"; ly.href = `../vorlagen/?k=${CID}&from=${p.tpl}`; }
-  else ly.style.display = "none";
+  const ly = $("lyEdit");
+  ly.textContent = "✎ Layout „" + t.label + "“ bearbeiten" + (t.customized ? " (angepasst)" : "");
+  ly.href = `../vorlagen/?k=${CID}&l=${t.custom ? t.layout.id : "std-" + p.tpl}`;
   // Felder
   const fl = $("fields"); fl.innerHTML = "";
   t.fields.forEach(f => {
@@ -423,7 +422,7 @@ $("send").onclick = async () => {
   if (!items.length) return;
   const pin = String(Math.floor(1000 + Math.random() * 9000));
   const salt = Math.random().toString(36).slice(2, 10);
-  const payload = { b: TFT_brandLite(S.brand), s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption, layout: p.tpl.startsWith("L:") ? TFT_tpl(p).layout : undefined, img: p.img && !/^data:/.test(p.img) ? p.img : undefined })) };
+  const payload = { b: TFT_brandLite(S.brand), s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption, layout: (p.tpl.startsWith("L:") || TFT_tpl(p).customized) ? TFT_tpl(p).layout : undefined, img: p.img && !/^data:/.test(p.img) ? p.img : undefined })) };
   items.forEach(p => { p.status = "review"; p.comment = ""; });
   save(); renderAll();
   const url = new URL("../freigabe/", location.href).href + "#d=" + TFT_pack(payload);

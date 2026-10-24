@@ -159,6 +159,7 @@
       <div class="panel">
         <h2>Vorlage</h2>
         <label class="fld"><span>Name</span><input type="text" id="lName"></label>
+        <p class="hint" id="stdNote">Standardvorlage: Änderungen gelten nur für diesen Kunden, überall wo die Vorlage benutzt wird (Content, Bot, Freigabe). „Auf Standard zurücksetzen“ holt das Original zurück.</p>
         <p class="sub">Format</p>
         <div class="chips" id="fmts" style="margin-bottom:12px"></div>
         <p class="sub">Beispieltexte (nur Vorschau)</p>
@@ -197,67 +198,37 @@ const uid = p => (p || "e") + Date.now().toString(36) + Math.random().toString(3
 const clone = o => JSON.parse(JSON.stringify(o));
 const FMT = TFT_FMT, FL = TFT_FIELD_LABELS;
 
-// ---------- Startvorlagen (entsprechen den eingebauten Vorlagen) ----------
+// ---------- Vorlagen: 7 Standardvorlagen (pro Kunde anpassbar) + eigene ----------
 const T = (field, x, y, w, h, o) => Object.assign({ type: "text", field, x, y, w, h, font: "head", size: 80, color: "fg", align: "left" }, o || {});
-const PRESETS = {
-  offer: { name: "Angebot", format: "post45", els: [
-    { type: "photo", x: 0, y: 0, w: 1080, h: 760 },
-    { type: "badge", field: "price", x: 770, y: 640, w: 240, h: 240, size: 62, rotate: -8, color: "ac" },
-    T("kicker", 80, 820, 920, 50, { font: "body", size: 34, weight: 600, upper: true, color: "ac" }),
-    T("title", 80, 880, 920, 230, { size: 108, lh: 1 }),
-    T("sub", 80, 1130, 920, 60, { font: "body", size: 36, opacity: .85 }),
-    { type: "logo", x: 80, y: 1230, w: 320, h: 60, align: "left" }] },
-  special: { name: "Tagesangebot", format: "story", els: [
-    { type: "photo", x: 0, y: 0, w: 1080, h: 1150 },
-    { type: "shade", x: 0, y: 850, w: 1080, h: 300, color: "bg", dir: "down" },
-    { type: "logo", x: 90, y: 110, w: 420, h: 90, align: "left" },
-    T("kicker", 90, 1120, 900, 70, { font: "body", size: 50, weight: 700, upper: true, color: "ac" }),
-    T("title", 90, 1200, 900, 380, { size: 140, lh: 1 }),
-    { type: "badge", field: "price", x: 710, y: 960, w: 280, h: 280, size: 70, rotate: -8, color: "ac" },
-    T("sub", 90, 1640, 900, 130, { font: "body", size: 44, opacity: .85 })] },
-  today: { name: "Heute-Info", format: "story", els: [
-    { type: "box", x: 70, y: 70, w: 940, h: 1780, border: 6, radius: 40, color: "ac" },
-    { type: "logo", x: 240, y: 170, w: 600, h: 110, align: "center" },
-    T("kicker", 130, 600, 820, 90, { font: "body", size: 64, weight: 700, upper: true, color: "ac", align: "center" }),
-    T("big", 130, 700, 820, 420, { size: 190, lh: .95, align: "center" }),
-    T("sub", 130, 1180, 820, 300, { font: "body", size: 52, lh: 1.3, align: "center", opacity: .9 })] },
-  event: { name: "Event", format: "post45", els: [
-    { type: "box", x: 60, y: 60, w: 960, h: 1230, border: 4, color: "ac" },
-    { type: "photo", x: 120, y: 130, w: 840, h: 560 },
-    T("date", 120, 730, 840, 150, { size: 130, lh: .95, color: "ac" }),
-    T("title", 120, 900, 840, 200, { size: 76, lh: 1.04 }),
-    T("sub", 120, 1150, 840, 60, { font: "body", size: 34, opacity: .85 })] },
-  story: { name: "Countdown", format: "story", els: [
-    { type: "photo", x: 0, y: 0, w: 1080, h: 1920, opacity: .35 },
-    { type: "shade", x: 0, y: 300, w: 1080, h: 900, color: "bg", dir: "down" },
-    { type: "box", x: 0, y: 1190, w: 1080, h: 730, fill: true, color: "bg" },
-    { type: "logo", x: 90, y: 120, w: 400, h: 80, align: "left" },
-    T("kicker", 90, 820, 900, 70, { font: "body", size: 52, weight: 600, upper: true, color: "ac" }),
-    T("big", 90, 900, 900, 260, { size: 250, lh: .9 }),
-    T("title", 90, 1170, 900, 240, { size: 110, lh: 1 }),
-    T("sub", 90, 1620, 900, 130, { font: "body", size: 44, weight: 700, align: "center", color: "onAc", pill: "ac" })] },
+const STDK = ["special", "today", "story", "reel", "offer", "event", "quote"];
+const BLANK = {
   blankStory: { name: "Leere Story", format: "story", els: [{ type: "logo", x: 340, y: 120, w: 400, h: 90, align: "center" }] },
   blankPost: { name: "Leerer Post", format: "post45", els: [{ type: "logo", x: 80, y: 1230, w: 320, h: 60, align: "left" }] }
 };
+function samplesFor(k) {
+  const o = {}, tt = TFT_TEMPLATES[k];
+  if (tt) tt.fields.forEach(f => { o[f.k] = f.def; });
+  if (CL.seed) { const sd = CL.seed().find(p => p.tpl === k); if (sd && sd.f) Object.assign(o, sd.f); }
+  if (k === "reel" && !o.url) o.url = CID === "fuchsbau" ? "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" : ((CL.media.find(m => /\.mp4$/.test(m.url || "")) || {}).url || "");
+  return o;
+}
+function stdCopy(k) { const L = TFT_stdDefault(k); L.samples = samplesFor(k); return L; }
+const isStdDefault = l => l.std && JSON.stringify({ f: l.format, e: l.els }) === JSON.stringify({ f: TFT_STD[l.std].format, e: TFT_STD[l.std].els });
 function fromPreset(k) {
-  const P = PRESETS[k], L = { id: uid("l"), name: P.name + " (eigen)", format: P.format, els: clone(P.els).map(e => Object.assign(e, { id: uid() })), samples: {}, base: k };
-  const tt = TFT_TEMPLATES[k];
-  if (tt) tt.fields.forEach(f => { L.samples[f.k] = f.def; });
-  if (CL.seed) { // Adriano: passende Beispieltexte
-    const s = CL.seed().find(p => p.tpl === k); if (s && s.f) Object.assign(L.samples, s.f);
-  }
+  const P = TFT_STD[k] ? Object.assign(TFT_stdDefault(k), { name: TFT_TEMPLATES[k].label }) : clone(BLANK[k]);
+  const L = { id: uid("l"), name: P.name + " (eigen)", format: P.format, els: P.els.map(e => Object.assign(e, { id: uid() })), samples: TFT_STD[k] ? samplesFor(k) : {}, base: k };
   return L;
 }
 
 // ---------- Zustand ----------
-let layouts = [];
-try { layouts = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) {}
+let stored = [];
+try { stored = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) {}
+let layouts = [...STDK.map(k => { const o = stored.find(l => l.std === k); return o ? Object.assign(o, { name: TFT_TEMPLATES[k].label }) : stdCopy(k); }), ...stored.filter(l => !l.std)];
 const qs = new URLSearchParams(location.search);
 let dirty = false;
-if (qs.get("from") && PRESETS[qs.get("from")]) { const L = fromPreset(qs.get("from")); layouts.push(L); dirty = true; history.replaceState(null, "", "?k=" + CID + "&l=" + L.id); }
-if (!layouts.length) { layouts.push(fromPreset(CID === "adriano" ? "special" : "offer")); dirty = true; }
-let cur = (layouts.find(l => l.id === qs.get("l")) || layouts[0]).id;
-let selId = null, variant = "dark", snap = true, img = (CL.media.find(m => m.url) || {}).url || "";
+if (qs.get("from") && (TFT_STD[qs.get("from")] || BLANK[qs.get("from")])) { const L = fromPreset(qs.get("from")); layouts.push(L); dirty = true; history.replaceState(null, "", "?k=" + CID + "&l=" + L.id); }
+let cur = (layouts.find(l => l.id === qs.get("l")) || layouts.find(l => !l.std) || layouts[0]).id;
+let selId = null, variant = "dark", snap = true, img = (CL.media.find(m => m.url && !/\.mp4$/.test(m.url)) || {}).url || "";
 const L = () => layouts.find(l => l.id === cur);
 const E = () => (L().els || []).find(e => e.id === selId);
 const fm = () => FMT[L().format] || FMT.post45;
@@ -280,17 +251,20 @@ function changed(record) {
   renderAll();
 }
 function persist() {
-  try { localStorage.setItem(KEY, JSON.stringify(layouts)); } catch (e) { $("saved").className = "err"; $("saved").textContent = "Speichern fehlgeschlagen (Speicher voll?)"; return false; }
-  const ok = localStorage.getItem(KEY) === JSON.stringify(layouts);
+  const out = layouts.filter(l => !isStdDefault(l));
+  try { localStorage.setItem(KEY, JSON.stringify(out)); } catch (e) { $("saved").className = "err"; $("saved").textContent = "Speichern fehlgeschlagen (Speicher voll?)"; return false; }
+  const ok = localStorage.getItem(KEY) === JSON.stringify(out);
   dirty = !ok;
+  const nStd = out.filter(l => l.std).length, nOwn = out.filter(l => !l.std).length;
   $("saved").className = ok ? "ok" : "err";
-  $("saved").textContent = ok ? `✓ Gespeichert · ${layouts.length} Vorlage${layouts.length === 1 ? "" : "n"} für ${CL.name}` : "Speichern fehlgeschlagen";
+  $("saved").textContent = ok ? `✓ Gespeichert · ${nStd} Standardvorlage${nStd === 1 ? "" : "n"} angepasst, ${nOwn} eigene für ${CL.name}` : "Speichern fehlgeschlagen";
+  renderList();
   return ok;
 }
 
 // ---------- Darstellung ----------
 let S = 1;
-function post() { return { tpl: "__edit", v: variant, f: {}, img, layout: L() }; }
+function post() { return { tpl: "__edit", v: variant, f: L().samples || {}, img, layout: L() }; }
 function sizeStage() {
   const f = fm(), wrap = $("stagewrap");
   const aw = Math.max(200, wrap.clientWidth - (window.innerWidth <= 760 ? 22 : 36));
@@ -304,8 +278,8 @@ function renderArt() {
   TFT_fit($("art")); TFT_track($("art"));
   renderOv();
 }
-const ICON = { text: "T", badge: "●", photo: "▣", logo: "◆", box: "□", shade: "◐" };
-const TYPE = { text: "Text", badge: "Preis-Badge", photo: "Foto", logo: "Logo", box: "Fläche/Rahmen", shade: "Verlauf" };
+const ICON = { text: "T", badge: "●", photo: "▣", logo: "◆", box: "□", shade: "◐", video: "▶", play: "▷" };
+const TYPE = { text: "Text", badge: "Preis-Badge", photo: "Foto", logo: "Logo", box: "Fläche/Rahmen", shade: "Verlauf", video: "Video", play: "Play-Symbol" };
 const elName = e => e.type === "text" || e.type === "badge" ? (e.field ? (FL[e.field] || e.field) : "Text „" + (e.text || "").slice(0, 16) + "“") : e.type === "box" ? (e.fill ? "Fläche" : "Rahmen") : TYPE[e.type];
 function renderOv() {
   const ov = $("ov"); ov.innerHTML = "";
@@ -320,18 +294,20 @@ function place(b, e) { b.style.left = e.x * S + "px"; b.style.top = e.y * S + "p
 
 function renderList() {
   const box = $("lays"); box.innerHTML = "";
-  $("layCount").textContent = layouts.length + " für " + CL.name;
-  layouts.forEach(l => {
+  $("layCount").textContent = CL.name;
+  layouts.forEach((l, i) => {
+    if (i === 0 || (!l.std && layouts[i - 1].std)) { const h = document.createElement("p"); h.className = "sub"; h.style.margin = i ? "12px 0 2px" : "0 0 2px"; h.textContent = l.std ? "Standardvorlagen" : "Eigene Vorlagen"; box.appendChild(h); }
     const b = document.createElement("button"); b.type = "button"; b.className = "lay"; b.setAttribute("aria-pressed", String(l.id === cur));
     const f = FMT[l.format] || FMT.post45;
-    b.innerHTML = `<div class="th"></div><div><b>${esc(l.name)}</b><span>${esc(f.label)}${l.bot ? " · Bot" : ""}</span></div>`;
+    b.innerHTML = `<div class="th"></div><div><b>${esc(l.name)}</b><span>${esc(f.label)}${l.std ? (isStdDefault(l) ? " · Standard" : " · <i style='font-style:normal;color:var(--pink)'>angepasst</i>") : " · ★ eigen"}${l.bot ? " · Bot" : ""}</span></div>`;
     b.onclick = () => { cur = l.id; selId = null; history.replaceState(null, "", "?k=" + CID + "&l=" + l.id); renderAll(); };
     box.appendChild(b);
-    requestAnimationFrame(() => TFT_mount(b.querySelector(".th"), { tpl: "__edit", v: variant, f: {}, img, layout: l }, brand));
+    requestAnimationFrame(() => TFT_mount(b.querySelector(".th"), { tpl: "__edit", v: variant, f: l.samples || {}, img, layout: l }, brand));
   });
   const nw = $("new"); nw.innerHTML = "";
-  [["special", "Story"], ["today", "Story"], ["story", "Story"], ["offer", "Post 4:5"], ["event", "Post 4:5"], ["blankStory", "9:16"], ["blankPost", "4:5"]].forEach(([k, s]) => {
-    const b = document.createElement("button"); b.type = "button"; b.className = "chipb"; b.innerHTML = `+ ${esc(PRESETS[k].name)}<small>${s}${k.startsWith("blank") ? "" : " · als Start"}</small>`;
+  [["blankStory", "9:16"], ["blankPost", "4:5"], ["current", "Kopie der offenen"]].forEach(([k, s]) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chipb"; b.innerHTML = `+ ${k === "current" ? "Kopie" : esc(BLANK[k].name)}<small>${s}</small>`;
+    if (k === "current") { b.onclick = () => $("lDup").click(); nw.appendChild(b); return; }
     b.onclick = () => { const l = fromPreset(k); layouts.push(l); cur = l.id; selId = null; changed(); };
     nw.appendChild(b);
   });
@@ -361,7 +337,7 @@ function renderLayers() {
 }
 
 // ---------- Eigenschaften ----------
-const COLORS = () => [["fg", "Schrift"], ["ac", "Akzent"], ["bg", "Hintergrund"], ["onAc", "auf Akzent"]];
+const COLORS = () => [["fg", "Schrift"], ["ac", "Akzent"], ["bg", "Hintergrund"], ["onAc", "auf Akzent"], ["white", "Weiß"]];
 function renderProps() {
   const P = $("elPanel"), e = E();
   if (!e) { P.innerHTML = `<h2>Element</h2><div class="empty">Klick ein Element in der Vorschau an, um es zu verschieben, zu skalieren oder Schriftgröße und Farbe zu ändern.</div>`; return; }
@@ -381,7 +357,7 @@ function renderProps() {
   if (e.type === "box") h += `<div class="row2"><div><p class="sub">Art</p><div class="chips" id="pBox"></div></div></div><p class="sub">Rahmenstärke</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pBorder" min="0" max="30" value="${e.border || 0}"><input type="number" id="pBorderN" value="${e.border || 0}"></div>`;
   if (e.type === "shade") h += `<p class="sub">Richtung</p><div class="chips" id="pDir" style="margin-bottom:10px"></div>`;
   if (e.type !== "logo" && e.type !== "shade" && e.type !== "badge") h += `<p class="sub">Eckenradius</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pRad" min="0" max="200" value="${e.radius || 0}"><input type="number" id="pRadN" value="${e.radius || 0}"></div>`;
-  if (e.type !== "photo" && e.type !== "logo") h += `<p class="sub">Farbe aus dem Brand-Kit</p><div class="chips" id="pColor" style="margin-bottom:10px"></div>`;
+  if (!["photo", "logo", "video", "play"].includes(e.type)) h += `<p class="sub">Farbe aus dem Brand-Kit</p><div class="chips" id="pColor" style="margin-bottom:10px"></div>`;
   h += `<p class="sub">Deckkraft</p><div class="rng" style="margin-bottom:12px"><input type="range" id="pOp" min="0.1" max="1" step="0.05" value="${e.opacity != null ? e.opacity : 1}"><input type="number" id="pOpN" step="0.05" value="${e.opacity != null ? e.opacity : 1}"></div>`;
   h += `<div class="row2"><div style="flex:none"><p class="sub">Schnell platzieren</p><div class="pos9" id="pPos"></div></div><div><p class="sub">Position & Größe (px)</p><div class="xywh">${["x", "y", "w", "h"].map(k => `<label>${k.toUpperCase()}<input type="number" data-k="${k}" value="${Math.round(e[k])}"></label>`).join("")}</div>
     <div class="acts"><button class="chipb" type="button" id="pFull">Ganzflächig</button><button class="chipb" type="button" id="pCenter">Mittig</button></div></div></div>`;
@@ -390,7 +366,7 @@ function renderProps() {
   const chips = (id, opts, curV, set) => { const c = $(id); if (!c) return; opts.forEach(([v, label, dot]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(curV === v)); b.innerHTML = (dot ? `<span class="dot" style="background:${dot}"></span>` : "") + esc(label); b.onclick = () => { set(v); changed(); }; c.appendChild(b); }); };
   const pc = paletteNow();
   chips("pFont", [["head", "Headline"], ["body", "Text"]], e.font || "head", v => e.font = v);
-  if ($("pStyle")) { $("pStyle").innerHTML = ""; [["upper", "GROSS", !!e.upper], ["bold", "Fett", (e.weight || 400) >= 600]].forEach(([k, l, on]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(on)); b.textContent = l; b.onclick = () => { if (k === "upper") e.upper = !e.upper; else e.weight = (e.weight || 400) >= 600 ? 400 : 700; changed(); }; $("pStyle").appendChild(b); }); }
+  if ($("pStyle")) { $("pStyle").innerHTML = ""; [["upper", "GROSS", !!e.upper], ["bold", "Fett", (e.weight || 400) >= 600], ["shadow", "Schatten", !!e.shadow]].forEach(([k, l, on]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(on)); b.textContent = l; b.onclick = () => { if (k === "upper") e.upper = !e.upper; else if (k === "shadow") e.shadow = !e.shadow; else e.weight = (e.weight || 400) >= 600 ? 400 : 700; changed(); }; $("pStyle").appendChild(b); }); }
   chips("pAlign", [["left", "Links"], ["center", "Mitte"], ["right", "Rechts"]], e.align || "left", v => e.align = v);
   chips("pPill", [["", "Keine"], ["ac", "Akzent", pc.ac], ["fg", "Schrift", pc.fg]], e.pill || "", v => { e.pill = v || undefined; if (v && e.color === v) e.color = v === "ac" ? "onAc" : "bg"; });
   chips("pColor", COLORS().map(([k, l]) => [k, l, pc[k]]), e.color || (e.type === "badge" ? "ac" : "fg"), v => e.color = v);
@@ -413,7 +389,7 @@ function paletteNow() {
   const tmp = document.createElement("div");
   tmp.innerHTML = TFT_renderPost({ tpl: "__edit", v: variant, f: { title: "x" }, layout: { format: "post11", els: [{ id: "a", type: "text", field: "title", x: 0, y: 0, w: 10, h: 10, color: "ac" }, { id: "b", type: "box", x: 0, y: 0, w: 1, h: 1, fill: true, color: "onAc" }] } }, brand);
   const root = tmp.firstElementChild, a = root.querySelector('[data-el="a"]'), b = root.querySelector('[data-el="b"]');
-  return { bg: root.style.background, fg: root.style.color, ac: a.style.color, onAc: b.style.background };
+  return { bg: root.style.background, fg: root.style.color, ac: a.style.color, onAc: b.style.background, white: "#fff" };
 }
 function dupEl() { const e = E(); if (!e) return; const n = Object.assign(clone(e), { id: uid(), x: e.x + 30, y: e.y + 30 }); L().els.push(n); selId = n.id; changed(); }
 function delEl() { const e = E(); if (!e) return; L().els = L().els.filter(x => x !== e); selId = null; changed(); }
@@ -422,9 +398,10 @@ let lt; function renderArtLight() { clearTimeout(lt); lt = setTimeout(renderArt,
 function renderLayoutPanel() {
   const l = L();
   $("hName").textContent = "· " + CL.name;
-  $("lName").value = l.name;
+  $("lName").value = l.name; $("lName").disabled = !!l.std;
+  $("stdNote").style.display = l.std ? "" : "none";
   const fc = $("fmts"); fc.innerHTML = "";
-  Object.entries(FMT).forEach(([k, f]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(l.format === k)); b.textContent = f.label; b.onclick = () => setFormat(k); fc.appendChild(b); });
+  Object.entries(FMT).forEach(([k, f]) => { if (l.std && l.format !== k) return; const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(l.format === k)); b.textContent = f.label + (l.std ? " 🔒" : ""); b.onclick = () => { if (!l.std) setFormat(k); }; fc.appendChild(b); });
   const sm = $("samples"); sm.innerHTML = "";
   const used = [...new Set(l.els.filter(e => e.field).map(e => e.field))];
   if (!used.length) sm.innerHTML = `<p class="hint">Keine Textfelder in dieser Vorlage.</p>`;
@@ -433,7 +410,10 @@ function renderLayoutPanel() {
   const media = CL.media.filter(m => m.url);
   $("mtLabel").style.display = mt.style.display = media.length ? "" : "none";
   media.forEach(m => { const b = document.createElement("button"); b.type = "button"; b.style.backgroundImage = `url('${m.url}')`; b.title = m.tags.join(", "); b.setAttribute("aria-pressed", String(img === m.url)); b.onclick = () => { img = m.url; renderAll(); }; mt.appendChild(b); });
-  $("lBot").checked = !!l.bot;
+  $("lBot").checked = !!l.bot; $("lBot").closest("label").style.display = l.std ? "none" : "";
+  $("lDup").textContent = l.std ? "Als eigene Vorlage kopieren" : "Vorlage duplizieren";
+  $("lDel").textContent = l.std ? "Auf Standard zurücksetzen" : "Vorlage löschen";
+  $("lDel").disabled = l.std && isStdDefault(l); $("lDel").style.opacity = $("lDel").disabled ? .4 : 1;
   $("toContent").href = "../content/?k=" + CID;
 }
 function setFormat(k) {
@@ -450,8 +430,8 @@ function renderAll() { TFT_loadFonts(brand); renderVars(); renderArt(); renderLi
 
 $("lName").oninput = e => { L().name = e.target.value || "Ohne Namen"; dirty = true; $("saved").className = "err"; $("saved").textContent = "● Nicht gespeichert"; commit(); clearTimeout(lt); lt = setTimeout(renderList, 300); };
 $("lBot").onchange = e => { L().bot = e.target.checked; changed(); };
-$("lDup").onclick = () => { const n = Object.assign(clone(L()), { id: uid("l"), name: L().name + " Kopie" }); n.els.forEach(e => e.id = uid()); layouts.push(n); cur = n.id; selId = null; changed(); };
-$("lDel").onclick = () => { if (layouts.length < 2) { $("saved").className = "err"; $("saved").textContent = "Die letzte Vorlage kann nicht gelöscht werden"; return; } layouts = layouts.filter(l => l.id !== cur); cur = layouts[0].id; selId = null; changed(); };
+$("lDup").onclick = () => { const n = Object.assign(clone(L()), { id: uid("l"), name: L().name + (L().std ? " (eigen)" : " Kopie") }); delete n.std; n.els.forEach(e => e.id = uid()); layouts.push(n); cur = n.id; selId = null; changed(); };
+$("lDel").onclick = () => { if (L().std) { const k = L().std, i = layouts.indexOf(L()); layouts[i] = Object.assign(stdCopy(k), { samples: L().samples }); selId = null; changed(); return; } if (layouts.length < 2) { $("saved").className = "err"; $("saved").textContent = "Die letzte Vorlage kann nicht gelöscht werden"; return; } layouts = layouts.filter(l => l.id !== cur); cur = (layouts.find(l => !l.std) || layouts[0]).id; selId = null; changed(); };
 $("undo").onclick = undo; $("redo").onclick = redo;
 $("grid").onclick = () => { snap = !snap; $("grid").setAttribute("aria-pressed", String(snap)); };
 $("saveBtn").onclick = persist;
@@ -522,6 +502,7 @@ const WORD = [
   [/logo/, e => e.type === "logo"], [/foto|bild/, e => e.type === "photo"], [/preis|badge|kreis/, e => e.type === "badge"],
   [/headline|titel|überschrift|gericht/, e => e.field === "title"], [/kicker|oben-text|dachzeile/, e => e.field === "kicker"],
   [/zeile unten|untertext|sub\b|unterzeile/, e => e.field === "sub"], [/datum/, e => e.field === "date"], [/groß-text|großer text|status|big/, e => e.field === "big"],
+  [/video|clip/, e => e.type === "video"], [/play|abspiel/, e => e.type === "play"], [/hook/, e => e.field === "hook"], [/zitat/, e => e.field === "quote"], [/name/, e => e.field === "name"], [/sterne/, e => e.text === "★★★★★"],
   [/rahmen/, e => e.type === "box" && !e.fill], [/fläche|balken/, e => e.type === "box" && e.fill], [/verlauf/, e => e.type === "shade"]
 ];
 const findEl = low => { for (const [re, fn] of WORD) if (re.test(low)) { const e = L().els.find(fn); if (e) return e; } return null; };

@@ -214,8 +214,8 @@ window.TFT_TEMPLATES = {
 
   // ---------- Eigene Layouts (Vorlagen-Editor) ----------
   const FMT = { story: { label: "Story 9:16", w: 1080, h: 1920 }, post45: { label: "Post 4:5", w: 1080, h: 1350 }, post11: { label: "Post 1:1", w: 1080, h: 1080 } };
-  const FL = { kicker: "Kicker", title: "Headline", price: "Preis", sub: "Zeile unten", date: "Datum", big: "Groß", cta: "Call to Action", quote: "Zitat", name: "Name" };
-  const FD = { kicker: "Heute frisch", title: "Pizza con zucca", price: "15,50", sub: "Kürbis · Zucchini · Lauch · Speck", date: "11.11.", big: "Heute", cta: "Jetzt reservieren", quote: "Die beste Pizza im Bezirk.", name: "Google-Bewertung" };
+  const FL = { kicker: "Kicker", title: "Headline", price: "Preis", sub: "Zeile unten", date: "Datum", big: "Groß", cta: "Call to Action", quote: "Zitat", name: "Name", hook: "Hook-Text", url: "Video-Link" };
+  const FD = { kicker: "Heute frisch", title: "Pizza con zucca", price: "15,50", sub: "Kürbis · Zucchini · Lauch · Speck", date: "11.11.", big: "Heute", cta: "Jetzt reservieren", quote: "Die beste Pizza im Bezirk.", name: "Google-Bewertung", hook: "Montag, 17:03.\nDas erste Schnitzel.", url: "" };
   window.TFT_FMT = FMT; window.TFT_FIELD_LABELS = FL; window.TFT_FIELD_DEFAULTS = FD;
   const layoutTpl = L => {
     const fields = [];
@@ -227,22 +227,94 @@ window.TFT_TEMPLATES = {
   window.TFT_registerLayout = L => { TFT_TEMPLATES["L:" + L.id] = layoutTpl(L); };
   // Vorlage eines Posts: eigene Layouts live, sonst Kopie aus dem Post (z. B. im Freigabe-Link)
   window.TFT_tpl = post => TFT_TEMPLATES[post.tpl] || (post.layout ? layoutTpl(post.layout) : TFT_TEMPLATES.offer);
+  // Die eingebauten Vorlagen als Element-Layouts: dadurch ist jede Vorlage im Layout-Editor bearbeitbar
+  const T = (field, x, y, w, h, o) => Object.assign({ type: "text", field, x, y, w, h, font: "head", size: 80, color: "fg", align: "left" }, o || {});
+  const STD = {
+    offer: { format: "post45", els: [
+      { type: "photo", x: 0, y: 0, w: 1080, h: 760 },
+      { type: "badge", field: "price", x: 770, y: 640, w: 240, h: 240, size: 62, rotate: -8, color: "ac" },
+      T("kicker", 80, 820, 920, 50, { font: "body", size: 34, weight: 600, upper: true, color: "ac" }),
+      T("title", 80, 880, 920, 230, { size: 108, lh: 1 }),
+      T("sub", 80, 1130, 920, 60, { font: "body", size: 36, opacity: .85 }),
+      { type: "logo", x: 80, y: 1230, w: 320, h: 60, align: "left" }] },
+    story: { format: "story", els: [
+      { type: "photo", x: 0, y: 0, w: 1080, h: 1920, opacity: .35 },
+      { type: "shade", x: 0, y: 300, w: 1080, h: 900, color: "bg", dir: "down" },
+      { type: "box", x: 0, y: 1190, w: 1080, h: 730, fill: true, color: "bg" },
+      { type: "logo", x: 90, y: 120, w: 400, h: 80, align: "left" },
+      T("kicker", 90, 820, 900, 70, { font: "body", size: 52, weight: 600, upper: true, color: "ac" }),
+      T("big", 90, 900, 900, 260, { size: 250, lh: .9 }),
+      T("title", 90, 1170, 900, 240, { size: 110, lh: 1 }),
+      T("sub", 90, 1620, 900, 130, { font: "body", size: 44, weight: 700, align: "center", color: "onAc", pill: "ac" })] },
+    quote: { format: "post11", els: [
+      T("", 80, 40, 320, 300, { text: "„", size: 300, lh: 1, color: "ac" }),
+      T("quote", 90, 300, 900, 470, { size: 80, lh: 1.1 }),
+      T("", 90, 830, 520, 60, { text: "★★★★★", font: "body", size: 40, color: "ac" }),
+      T("name", 90, 910, 560, 60, { font: "body", size: 32, opacity: .8 }),
+      { type: "logo", x: 690, y: 920, w: 300, h: 60, align: "right" }] },
+    reel: { format: "story", els: [
+      { type: "video", x: 0, y: 0, w: 1080, h: 1920 },
+      T("hook", 80, 260, 920, 420, { size: 96, lh: 1, color: "white", shadow: true }),
+      { type: "play", x: 940, y: 50, w: 90, h: 90 }] },
+    special: { format: "story", els: [
+      { type: "photo", x: 0, y: 0, w: 1080, h: 1150 },
+      { type: "shade", x: 0, y: 850, w: 1080, h: 300, color: "bg", dir: "down" },
+      { type: "logo", x: 90, y: 110, w: 420, h: 90, align: "left" },
+      T("kicker", 90, 1120, 900, 70, { font: "body", size: 50, weight: 700, upper: true, color: "ac" }),
+      T("title", 90, 1200, 900, 380, { size: 140, lh: 1 }),
+      { type: "badge", field: "price", x: 710, y: 960, w: 280, h: 280, size: 70, rotate: -8, color: "ac" },
+      T("sub", 90, 1640, 900, 130, { font: "body", size: 44, opacity: .85 })] },
+    today: { format: "story", els: [
+      { type: "box", x: 70, y: 70, w: 940, h: 1780, border: 6, radius: 40, color: "ac" },
+      { type: "logo", x: 240, y: 170, w: 600, h: 110, align: "center" },
+      T("kicker", 130, 600, 820, 90, { font: "body", size: 64, weight: 700, upper: true, color: "ac", align: "center" }),
+      T("big", 130, 700, 820, 420, { size: 190, lh: .95, align: "center" }),
+      T("sub", 130, 1180, 820, 300, { font: "body", size: 52, lh: 1.3, align: "center", opacity: .9 })] },
+    event: { format: "post45", els: [
+      { type: "box", x: 60, y: 60, w: 960, h: 1230, border: 4, color: "ac" },
+      { type: "photo", x: 120, y: 130, w: 840, h: 560 },
+      T("date", 120, 730, 840, 150, { size: 130, lh: .95, color: "ac" }),
+      T("title", 120, 900, 840, 200, { size: 76, lh: 1.04 }),
+      T("sub", 120, 1150, 840, 60, { font: "body", size: 34, opacity: .85 })] }
+  };
+  Object.entries(STD).forEach(([k, L]) => { L.std = k; L.id = "std-" + k; L.name = TFT_TEMPLATES[k].label; L.els.forEach((e, i) => e.id = k + i); });
+  const stdFields = {}; Object.keys(STD).forEach(k => stdFields[k] = TFT_TEMPLATES[k].fields.slice());
+  const applyStd = (k, L) => {
+    const t = TFT_TEMPLATES[k]; t.layout = L;
+    const fields = stdFields[k].slice();
+    (L.els || []).forEach(e => { if (e.field && !fields.some(x => x.k === e.field)) fields.push({ k: e.field, label: FL[e.field] || e.field, def: FD[e.field] || "" }); });
+    t.fields = fields; t.customized = L !== STD[k];
+  };
+  window.TFT_STD = STD;
+  window.TFT_stdDefault = k => JSON.parse(JSON.stringify(STD[k]));
+  // Ein Layout für eine Vorlage verwenden (z. B. aus einem Freigabe-Link)
+  window.TFT_useLayout = (key, L) => { if (!L) return; if (STD[key]) applyStd(key, L); else if (key.startsWith("L:")) TFT_registerLayout(L); };
+  Object.keys(STD).forEach(k => applyStd(k, STD[k]));
   window.TFT_loadLayouts = function (cid) {
     let arr = []; try { arr = JSON.parse(localStorage.getItem("tft-layouts-" + cid) || "[]"); } catch (e) {}
     Object.keys(TFT_TEMPLATES).filter(k => k.startsWith("L:")).forEach(k => delete TFT_TEMPLATES[k]);
-    arr.forEach(TFT_registerLayout); return arr;
+    Object.keys(STD).forEach(k => applyStd(k, STD[k]));
+    arr.forEach(L => { if (L.std && STD[L.std]) applyStd(L.std, L); else TFT_registerLayout(L); });
+    return arr.filter(L => !L.std);
   };
   function renderLayout(t, f, p, H, B, photo, ph, logoSrc, brand, opts) {
-    const col = c => c === "ac" ? p.ac : c === "onAc" ? p.onAc : c === "bg" ? p.bg : p.fg;
+    const col = c => c === "ac" ? p.ac : c === "onAc" ? p.onAc : c === "bg" ? p.bg : c === "white" ? "#fff" : p.fg;
     const out = (t.layout.els || []).map(e => {
-      const pos = `position:absolute;left:${e.x}px;top:${e.y}px;width:${e.w}px;height:${e.h}px;box-sizing:border-box;`;
+      const pos = `position:absolute;left:${e.x}px;top:${e.y}px;width:${e.w}px;height:${e.h}px;box-sizing:border-box;${e.type === "video" ? "" : "pointer-events:none;"}`;
+      if (e.type === "video") {
+        const url = (f.url || "").trim(), safe = isUrl(url) && !/^data:/i.test(url) ? url : "";
+        return `<div data-el="${e.id}" style="${pos}overflow:hidden;border-radius:${e.radius || 0}px;background:#000">${safe
+          ? `<video src="${esc(safe)}" ${opts.controls ? "controls" : "autoplay muted loop"} playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;display:block"></video>`
+          : `<div style="width:100%;height:100%;display:grid;place-items:center;text-align:center;${B};font-size:44px;color:${p.fg};opacity:.6;padding:80px;box-sizing:border-box;background:repeating-linear-gradient(135deg, ${p.ac}33 0 18px, ${p.ac}1a 18px 36px)">Video-Link einfügen<br><span style="font-size:30px">(liegt in SharePoint, wird nur verlinkt)</span></div>`}</div>`;
+      }
+      if (e.type === "play") return opts.controls ? "" : `<div data-el="${e.id}" style="${pos}border-radius:24%;background:rgba(0,0,0,.45);display:grid;place-items:center"><svg width="55%" height="55%" viewBox="0 0 24 24" fill="#fff"><path d="M8 5v14l11-7z"/></svg></div>`;
       const op = e.opacity != null ? `opacity:${e.opacity};` : "";
       if (e.type === "photo") return `<div data-el="${e.id}" style="${pos}${photo};border-radius:${e.radius || 0}px;overflow:hidden;${op}">${ph}</div>`;
       if (e.type === "shade") return `<div data-el="${e.id}" style="${pos}background:linear-gradient(${e.dir === "up" ? "0deg" : "180deg"},${col(e.color || "bg")}00 0%,${col(e.color || "bg")} 100%);${op}"></div>`;
       if (e.type === "box") return `<div data-el="${e.id}" style="${pos}${e.fill ? `background:${col(e.color)};` : ""}${e.border ? `border:${e.border}px solid ${col(e.color)};` : ""}border-radius:${e.radius || 0}px;${op}"></div>`;
       if (e.type === "logo") return `<div data-el="${e.id}" style="${pos}display:flex;align-items:center;justify-content:${e.align === "center" ? "center" : e.align === "right" ? "flex-end" : "flex-start"};${op}">${logoSrc ? `<img src="${esc(logoSrc)}" alt="" style="max-width:100%;max-height:100%;display:block">` : `<div style="${H};font-size:${Math.round(e.h * .6)}px;letter-spacing:.15em;color:${p.fg}">${esc(brand.logo || brand.name)}</div>`}</div>`;
       if (e.type === "badge") return `<div data-el="${e.id}" data-fit="box" style="${pos}border-radius:50%;background:${col(e.color || "ac")};color:${e.color === "fg" ? p.bg : p.onAc};display:grid;place-items:center;text-align:center;${H};font-size:${e.size || 60}px;line-height:1;transform:rotate(${e.rotate || 0}deg);padding:${Math.round(e.w * .12)}px;overflow:hidden;${op}">${esc(e.field ? (f[e.field] || "") : (e.text || ""))}</div>`;
-      return `<div data-el="${e.id}" data-fit="box" style="${pos}${e.font === "body" ? B : H};font-size:${e.size || 60}px;line-height:${e.lh || 1.05};color:${col(e.color)};text-align:${e.align || "left"};${e.upper ? "text-transform:uppercase;letter-spacing:.06em;" : ""}font-weight:${e.weight || 400};${e.pill ? `background:${col(e.pill)};border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 40px;` : ""}overflow:hidden;${op}">${nl(e.field ? (f[e.field] || "") : (e.text || ""))}</div>`;
+      return `<div data-el="${e.id}" data-fit="box" style="${pos}${e.font === "body" ? B : H};font-size:${e.size || 60}px;line-height:${e.lh || 1.05};color:${col(e.color)};text-align:${e.align || "left"};${e.upper ? "text-transform:uppercase;letter-spacing:.06em;" : ""}font-weight:${e.weight || 400};${e.shadow ? "text-shadow:0 4px 30px rgba(0,0,0,.6);" : ""}${e.pill ? `background:${col(e.pill)};border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 40px;` : ""}overflow:hidden;${op}">${nl(e.field ? (f[e.field] || "") : (e.text || ""))}</div>`;
     }).join("");
     return `<div class="tft-post" style="position:relative;width:${t.w}px;height:${t.h}px;background:${p.bg};color:${p.fg};overflow:hidden">${out}</div>`;
   }
