@@ -37,6 +37,7 @@
   .m.bot{background:#182533;align-self:flex-start;border-top-left-radius:4px}
   .m.me{background:#2b5278;align-self:flex-end;border-top-right-radius:4px}
   .m small{display:block;text-align:right;font-size:10.5px;color:#6d7f8f;margin-top:2px}
+  .sys{align-self:center;font-size:11.5px;color:#8fa3b5;background:rgba(24,37,51,.8);border-radius:999px;padding:4px 10px;text-align:center}
   .typing{align-self:flex-start;background:#182533;border-radius:12px;padding:10px 14px;color:#6d7f8f;font-size:13px}
   .vars{align-self:stretch;display:flex;gap:8px;overflow-x:auto;padding:2px 0 6px;scrollbar-width:none}
   .vars::-webkit-scrollbar{display:none}
@@ -70,6 +71,7 @@
       </ol>
       <p class="note">Kunde: <select id="client" aria-label="Kunde wählen" style="font:600 13px var(--sans);background:var(--ink-2);color:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 10px"></select></p>
       <p class="note" id="fontNote"></p>
+      <p class="note" id="autoNote"></p>
       <p class="note">Mediathek „<span id="mtName"></span>“:</p>
       <div class="media" id="media"></div>
       <p class="note" style="margin-top:18px">Probier's: Tipp einen Vorschlag an oder schreib selbst, z. B. „Neu: Kürbiscremesuppe 6,50“ oder „Heute erst ab 17 Uhr offen“.</p>
@@ -86,6 +88,7 @@
 <script src="../assets/js/templates.js"></script>
 <script src="../assets/js/clients.js"></script>
 <script src="../assets/js/inbox.js"></script>
+<script src="../assets/js/kampagnen.js"></script>
 <script>
 (() => {
 "use strict";
@@ -221,11 +224,72 @@ async function request(text, kind) {
   });
 }
 
-document.getElementById("form").onsubmit = e => { e.preventDefault(); const i = document.getElementById("in"); const t = i.value.trim(); if (!t) return; i.value = ""; document.querySelectorAll(".chips").forEach(c => c.remove()); handle(t); };
+let awaiting = null;
+document.getElementById("form").onsubmit = e => { e.preventDefault(); const i = document.getElementById("in"); const t = i.value.trim(); if (!t) return; i.value = ""; document.querySelectorAll(".chips").forEach(c => c.remove()); if (awaiting) { const f = awaiting; awaiting = null; msg(t, "me"); f(t); return; } handle(t); };
+
+// ---------- Automatische Nachfrage: Kampagne vorbei / Halbzeit ----------
+const RATE = [["👍 Lief gut", "gut"], ["👌 So mittel", "mittel"], ["👎 Eher nicht", "schlecht"]];
+const sys = t => { const d = document.createElement("div"); d.className = "sys"; d.textContent = t; chat.appendChild(d); scroll(); };
+const ask = (list, fn) => { awaiting = fn; chips(list, t => { awaiting = null; msg(t, "me"); fn(t); }); };
+function kennwort(k) { const m = (k.idee || "").match(/„([A-ZÄÖÜ]{3,})“/); return m ? m[1] : null; }
+function question(k) {
+  const kw = kennwort(k);
+  if (/Kennw/.test(k.unit)) return kw ? `Ungefähr wie viele Gäste haben „${kw}“ gesagt, pro Abend? (Ziel war ${k.ziel})` : `Ungefähr wie viele haben das Angebot genommen, pro Abend? (Ziel war ${k.ziel})`;
+  if (/Portion/.test(k.unit)) return `Ungefähr wie viele Portionen habt ihr verkauft? (Ziel war ${k.ziel})`;
+  return `Ungefähr wie viele ${k.unit} sind darüber gekommen? (Ziel war ${k.ziel})`;
+}
+async function askResult(k, next) {
+  sys(`Automatisch · Kampagne „${k.title}“ ist vorbei`);
+  await typing(900);
+  msg(`Ciao! „${k.title}“ ist vorbei 🙌 Wie ist es gelaufen?`, "bot");
+  const res = { from: "Wirt per Telegram", datum: new Date().toISOString().slice(0, 10) };
+  ask(RATE.map(r => r[0]), t => {
+    res.rating = (RATE.find(r => r[0] === t) || [, /gut|super|top/i.test(t) ? "gut" : /schlecht|nicht|nix/i.test(t) ? "schlecht" : "mittel"])[1];
+    if (!RATE.some(r => r[0] === t)) res.satz = t;
+    setTimeout(() => {
+      msg(question(k), "bot");
+      const z = k.ziel, est = [Math.round(z * .5), Math.round(z * .8), z, Math.round(z * 1.2)];
+      ask([...est.map(String), "Weiß ich nicht"], t2 => {
+        const n = (t2.match(/\d+/) || [])[0]; res.ist = n ? +n : null;
+        setTimeout(() => {
+          msg("Danke! Noch ein Satz dazu? Was ist euch aufgefallen?", "bot");
+          ask(["Nein, passt"], t3 => {
+            if (t3 !== "Nein, passt") res.satz = [res.satz, t3].filter(Boolean).join(" · ");
+            const all = TFT_kamp.all(CID), kk = all.find(x => x.id === k.id); kk.pending = res; if (kk.status === "laeuft") kk.status = "fertig"; TFT_kamp.save(CID, all);
+            setTimeout(() => { msg("Grazie! Hab's an the first thought weitergegeben 🙏 Das hilft uns, die nächste Aktion noch besser zu machen.", "bot"); next && setTimeout(next, 1200); }, 500);
+          });
+        }, 400);
+      });
+    }, 400);
+  });
+}
+async function askHalf(k) {
+  sys(`Automatisch · Halbzeit bei „${k.title}“`);
+  await typing(800);
+  msg(`Halbzeit bei „${k.title}“! Wie läuft's bis jetzt?`, "bot");
+  ask(RATE.map(r => r[0]), t => {
+    const rating = (RATE.find(r => r[0] === t) || [, "mittel"])[1];
+    const all = TFT_kamp.all(CID), kk = all.find(x => x.id === k.id); kk.halfway = { rating, satz: RATE.some(r => r[0] === t) ? "" : t, datum: new Date().toISOString().slice(0, 10) }; TFT_kamp.save(CID, all);
+    if (rating === "gut") msg("Super, weiter so! 💪", "bot");
+    else { TFT_inbox.add({ client: brand.name, text: `Halbzeit „${k.title}“: ${t}. Nachschärfen?`, kind: "aenderung", status: "neu", due: "Diese Woche" }); msg("Danke fürs Bescheid geben. Das Team schaut sich an, wie wir nachschärfen, z. B. mit einer extra Story oder einem Reel. Ihr hört von uns.", "bot"); }
+  });
+}
+function autoAsk() {
+  const today = new Date().toISOString().slice(0, 10);
+  const all = TFT_kamp.all(CID);
+  const done = all.filter(k => (k.status === "fertig" || (k.status === "laeuft" && k.bis < today)) && !k.result && !k.pending);
+  const half = all.filter(k => k.status === "laeuft" && k.bis >= today && !k.halfway && (new Date(k.bis) - new Date(k.von)) / 864e5 >= 14 && today >= new Date((new Date(k.von).getTime() + new Date(k.bis).getTime()) / 2).toISOString().slice(0, 10));
+  document.getElementById("autoNote").innerHTML = `🤖 Fragt automatisch nach Kampagnen-Ergebnissen (täglich 10 Uhr, nie während des Service). <button type="button" id="autoReset" style="background:none;border:0;color:var(--pink);cursor:pointer;font:inherit;padding:0;text-decoration:underline">Demo: Nachfragen nochmal zeigen</button>`;
+  document.getElementById("autoReset").onclick = () => { const a = TFT_kamp.all(CID); a.forEach(k => { delete k.pending; delete k.halfway; }); TFT_kamp.save(CID, a); location.reload(); };
+  const chain = [...done.map(k => next => askResult(k, next)), ...half.map(k => () => askHalf(k))];
+  const run = i => { if (chain[i]) chain[i](() => run(i + 1)); };
+  if (chain.length) setTimeout(() => { document.querySelectorAll(".chips").forEach(c => c.remove()); run(0); }, 1500);
+}
 msg("Servus! Ich bin euer Content-Bot von the first thought. Schreib mir einfach, was heute los ist, und ich bau euch die Story dazu.", "bot");
 chips(CID === "adriano"
   ? ["Heute Spaghetti mit Muscheln 16,90", "Heute geschlossen wegen Unwetter", "Brauch ein Video von der neuen Kürbis-Lasagne", "Können wir zu Silvester was machen?"]
   : ["Heute Seebarsch vom Grill 24,90", "Heute geschlossen wegen Unwetter", "Ich brauch ein Foto vom neuen Burger für die Karte", "Können wir zu Silvester was machen?"], t => handle(t));
+autoAsk();
 })();
 </script>
 </body>

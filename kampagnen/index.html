@@ -138,6 +138,7 @@
     <h3 id="mResT">Wie ist es gelaufen?</h3>
     <p class="hint" id="mResSub"></p>
     <div id="mResForm">
+      <p class="learn" id="srcNote" style="display:none;font-size:14px;color:var(--mist);border-color:var(--blue);background:rgba(65,105,225,.10)"></p>
       <div class="rate" id="rate">
         <button type="button" class="gut" data-r="gut"><i>👍</i>Gut</button>
         <button type="button" class="mittel" data-r="mittel"><i>👌</i>Mittel</button>
@@ -150,7 +151,7 @@
       <label class="fld"><span>Ein Satz dazu (optional)</span><textarea id="satz" placeholder="z. B. Montags voll, aber kaum Wein dazu bestellt."></textarea></label>
       <p class="sub" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 6px">Nochmal machen?</p>
       <div class="chips" id="again" style="margin-top:0"></div>
-      <p class="hint" style="margin:6px 0 14px">In der echten Version fragt der Telegram-Bot den Wirt nach Kampagnenende von selbst: „Wie viele FORNO-Bestellungen hattet ihr?“ Die Antwort steht dann schon hier.</p>
+      <p class="hint" style="margin:6px 0 14px">Der Kunden-Bot fragt den Wirt nach Kampagnenende von selbst. Seine Antwort steht dann schon hier und muss nur bestätigt werden. <a href="#" id="botLink" style="color:var(--pink)">Im Bot ansehen →</a></p>
       <div class="mb"><button class="btn btn--pink" type="button" id="resSave">Ergebnis speichern</button><button class="btn" type="button" data-close>Abbrechen</button></div>
     </div>
     <div id="mResDone" style="display:none">
@@ -200,15 +201,18 @@ let freshRz = null;
 $("hName").textContent = "· " + CL.name;
 Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
 $("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
-$("ctLink").href = "../content/?k=" + CID;
+$("ctLink").href = "../content/?k=" + CID; $("botLink").href = "../bot/?k=" + CID;
 TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../content/?k=" + CID }, { label: "Kampagnen" }], back: "../anfragen/" });
 
 // Abgelaufene laufende Kampagnen automatisch auf „Fertig“
 K.forEach(k => { if (k.status === "laeuft" && k.bis < today) k.status = "fertig"; });
 
 function render() {
-  const miss = K.filter(k => k.status === "fertig" && !k.result);
-  $("urgent").innerHTML = miss.length ? `<div class="urgent"><div><b>${miss.length === 1 ? `„${esc(miss[0].title)}“ ist vorbei` : `${miss.length} Kampagnen sind vorbei`}, das Ergebnis fehlt noch.</b><p>Dauert 20 Sekunden und macht jeden nächsten Vorschlag besser.</p></div><button class="btn btn--pink" type="button" id="urgBtn">Ergebnis eintragen</button></div>` : "";
+  const miss = K.filter(k => k.status === "fertig" && !k.result).sort((a, b) => (b.pending ? 1 : 0) - (a.pending ? 1 : 0));
+  const pend = miss.filter(k => k.pending);
+  $("urgent").innerHTML = !miss.length ? "" : pend.length
+    ? `<div class="urgent"><div><b>💬 Der Wirt hat zu „${esc(pend[0].title)}“ geantwortet: ${RL[pend[0].pending.rating]}${pend[0].pending.ist != null ? `, ${pend[0].pending.ist} von ${pend[0].ziel}` : ""}.</b><p>Kurz prüfen und bestätigen, dann geht es ins Rezeptbuch.</p></div><button class="btn btn--pink" type="button" id="urgBtn">Prüfen & bestätigen</button></div>`
+    : `<div class="urgent"><div><b>${miss.length === 1 ? `„${esc(miss[0].title)}“ ist vorbei` : `${miss.length} Kampagnen sind vorbei`}, das Ergebnis fehlt noch.</b><p>Der Bot hat beim Wirt nachgefragt. Ihr könnt es auch gleich selbst eintragen.</p></div><button class="btn btn--pink" type="button" id="urgBtn">Ergebnis eintragen</button></div>`;
   if (miss.length) $("urgBtn").onclick = () => openRes(miss[0].id);
   const b = $("board"); b.innerHTML = "";
   COLS.forEach(([st, label]) => {
@@ -226,6 +230,8 @@ function card(k) {
   d.innerHTML = `<div class="t">${esc(k.title)}</div>
     <div class="m">${esc(k.anlass)} · ${fmt(k.von)}–${fmt(k.bis)}</div>
     <div class="tags"><span class="tg">${esc(M.label || k.mech)}</span><span class="tg">Ziel: ${esc(k.ziel)} ${esc(k.unit)}</span>${k.src ? `<span class="tg src">${esc(k.src)}</span>` : ""}</div>
+    ${!k.result && k.pending ? `<div class="res ${k.pending.rating}"><b>💬 Antwort vom Wirt: ${RL[k.pending.rating]}${k.pending.ist != null ? ` · ${k.pending.ist} von ${k.ziel}` : ""}</b>${esc(k.pending.satz || "")}<br><span style="color:var(--muted);font-size:12px">per Telegram, noch nicht bestätigt</span></div>` : ""}
+    ${k.halfway && !k.result && !k.pending ? `<div class="res ${k.halfway.rating}"><b>Halbzeit laut Wirt: ${RL[k.halfway.rating]}</b>${esc(k.halfway.satz || "")}</div>` : ""}
     ${k.result ? `<div class="res ${k.result.rating}"><b>${RL[k.result.rating]}${k.result.ist != null ? ` · ${k.result.ist} von ${k.ziel}` : ""}</b>${esc(k.result.satz || "")}</div>` : ""}
     <details><summary>Details</summary><p><span>Idee:</span> ${esc(k.idee)}</p><p><span>Angebot:</span> ${esc(k.angebot)}</p><p><span>Messen:</span> ${esc(M.mess || "")}</p><p><span>Content:</span> ${esc(k.content || "")}</p>${k.posts ? `<p><span>Im Content-Studio:</span> ${k.posts} Posts/Stories angelegt</p>` : ""}</details>
     <div class="act"></div>`;
@@ -236,7 +242,7 @@ function card(k) {
   if (k.status === "angeboten") { btn("Verkauft ✓", move("verkauft"), true); btn("Abgelehnt", () => { k.status = "idee"; k.src = "abgelehnt"; save(); render(); }); }
   if (k.status === "verkauft") btn("Starten & Content anlegen", () => start(k), true);
   if (k.status === "laeuft") { if (k.posts) { const a = document.createElement("a"); a.href = "../content/?k=" + CID; a.textContent = "Im Content-Studio"; act.appendChild(a); } btn("Beenden & Ergebnis", () => { k.status = "fertig"; k.bis = k.bis > today ? today : k.bis; save(); render(); openRes(k.id); }); }
-  if (k.status === "fertig") btn(k.result ? "Ergebnis ändern" : "Ergebnis eintragen", () => openRes(k.id), !k.result);
+  if (k.status === "fertig") btn(k.result ? "Ergebnis ändern" : k.pending ? "Prüfen & bestätigen" : "Ergebnis eintragen", () => openRes(k.id), !k.result);
   return d;
 }
 
@@ -259,7 +265,7 @@ function start(k) {
 let curK = null, rating = null, again = "ja";
 function openRes(id) {
   curK = K.find(k => k.id === id); if (!curK) return;
-  const r = curK.result || {};
+  const r = curK.result || curK.pending || {};
   rating = r.rating || null; again = r.again || "ja";
   $("mResT").textContent = `Wie lief „${curK.title}“?`;
   $("mResSub").textContent = `${curK.anlass} · ${fmtY(curK.von)} bis ${fmtY(curK.bis)} · ${(TFT_MECH[curK.mech] || {}).label || ""}`;
@@ -267,6 +273,8 @@ function openRes(id) {
   $("unitLbl").textContent = curK.unit;
   $("ist").value = r.ist != null ? r.ist : ""; $("unknown").checked = r.ist === null && !!curK.result; $("ist").disabled = $("unknown").checked;
   $("satz").value = r.satz || "";
+  $("srcNote").innerHTML = !curK.result && curK.pending ? `💬 Vorausgefüllt mit der Antwort vom Wirt (Telegram, ${fmtY(curK.pending.datum)}). Passt das so? Ihr könnt Zahl und Satz noch korrigieren.` : "";
+  $("srcNote").style.display = $("srcNote").innerHTML ? "" : "none";
   $("mResForm").style.display = ""; $("mResDone").style.display = "none";
   renderRate(); $("mRes").classList.add("open");
 }
@@ -282,11 +290,11 @@ $("unknown").onchange = () => { $("ist").disabled = $("unknown").checked; if ($(
 $("resSave").onclick = () => {
   if (!rating) return;
   const ist = $("unknown").checked || $("ist").value === "" ? null : +$("ist").value;
-  curK.result = { rating, ist, satz: $("satz").value.trim(), again, datum: today };
+  curK.result = { rating, ist, satz: $("satz").value.trim(), again, datum: today, quelle: curK.pending ? "Wirt per Telegram, vom Team bestätigt" : "Team" }; delete curK.pending;
   save();
   // vorher: wie stand die Mechanik im Ranking?
   const before = TFT_suggest(CID, CL, curK.anlass).ranking.find(x => x.m === curK.mech);
-  const entry = { id: "r-" + CID + "-" + curK.id, client: CL.name, typ: CL.typ, kamp: curK.title, anlass: curK.anlass, mech: curK.mech, ziel: curK.ziel, ist, unit: curK.unit, rating, satz: curK.result.satz, again, datum: today };
+  const entry = { id: "r-" + CID + "-" + curK.id, client: CL.name, typ: CL.typ, kamp: curK.title, anlass: curK.anlass, mech: curK.mech, ziel: curK.ziel, ist, unit: curK.unit, rating, satz: curK.result.satz, again, datum: today, quelle: curK.result.quelle };
   TFT_rezept.add(entry); freshRz = entry.id;
   const after = TFT_suggest(CID, CL, curK.anlass).ranking.find(x => x.m === curK.mech);
   $("lessonTxt").textContent = "Lehre: " + TFT_lesson(entry);
@@ -364,7 +372,7 @@ function renderRz() {
   const f = $("rzf"); f.innerHTML = "";
   [["typ", `Ähnliche Lokale (${TYP})`], ["kunde", CL.name], ["alle", "Alle Kunden"]].forEach(([v, l]) => { const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.setAttribute("aria-pressed", String(rzFilter === v)); b.onclick = () => { rzFilter = v; renderRz(); }; f.appendChild(b); });
   const all = TFT_rezept.all().filter(r => rzFilter === "alle" || (rzFilter === "typ" ? r.typ === CL.typ : r.client === CL.name));
-  $("rzb").innerHTML = all.length ? all.map(r => `<tr class="${r.id === freshRz ? "fresh" : ""}" ${r.demo ? 'style="opacity:.7"' : ""}><td><span class="dot ${r.rating}"></span>${RL[r.rating].slice(2)}<small>${fmtY(r.datum)}</small></td><td><b>${esc(r.kamp)}</b><small>${esc(r.client)}${r.demo ? " · Beispiel" : ""}</small></td><td class="hide-m">${esc((TFT_MECH[r.mech] || {}).label || r.mech)}</td><td class="hide-m">${r.ist != null ? `${r.ist} / ${r.ziel}` : `– / ${r.ziel}`}<small>${esc(r.unit)}</small></td><td>${esc(TFT_lesson(r))}</td></tr>`).join("") : `<tr><td colspan="5" class="empty">Noch keine Einträge in dieser Ansicht.</td></tr>`;
+  $("rzb").innerHTML = all.length ? all.map(r => `<tr class="${r.id === freshRz ? "fresh" : ""}" ${r.demo ? 'style="opacity:.7"' : ""}><td><span class="dot ${r.rating}"></span>${RL[r.rating].slice(2)}<small>${fmtY(r.datum)}</small></td><td><b>${esc(r.kamp)}</b><small>${esc(r.client)}${r.demo ? " · Beispiel" : ""}${r.quelle && /Wirt/.test(r.quelle) ? " · 💬 vom Wirt" : ""}</small></td><td class="hide-m">${esc((TFT_MECH[r.mech] || {}).label || r.mech)}</td><td class="hide-m">${r.ist != null ? `${r.ist} / ${r.ziel}` : `– / ${r.ziel}`}<small>${esc(r.unit)}</small></td><td>${esc(TFT_lesson(r))}</td></tr>`).join("") : `<tr><td colspan="5" class="empty">Noch keine Einträge in dieser Ansicht.</td></tr>`;
 }
 $("rzReset").onclick = () => { TFT_rezept.reset(); TFT_kamp.reset(CID); K = TFT_kamp.all(CID); freshRz = null; render(); };
 
