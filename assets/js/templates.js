@@ -124,7 +124,7 @@ window.TFT_TEMPLATES = {
   // Liefert HTML in Originalgröße (z. B. 1080×1350). Skalierung macht der Container.
   window.TFT_renderPost = function (post, brand, opts) {
     opts = opts || {};
-    const t = TFT_TEMPLATES[post.tpl];
+    const t = TFT_tpl(post);
     const f = Object.assign({}, ...t.fields.map(x => ({ [x.k]: x.def })), post.f || {});
     const p = palette(brand, post.v || "dark");
     const H = `font-family:'${brand.head}','${brand.headFallback || "Georgia"}',Georgia,serif`;
@@ -139,6 +139,7 @@ window.TFT_TEMPLATES = {
       ? `<img src="${esc(logoSrc)}" alt="" style="height:${h || 60}px;width:auto;display:block">`
       : `<div style="${H};font-size:${Math.round((h || 60) * .6)}px;letter-spacing:.18em;color:${p.fg}">${esc(brand.logo || brand.name)}</div>`;
     const wrap = (inner) => `<div class="tft-post" style="position:relative;width:${t.w}px;height:${t.h}px;background:${p.bg};color:${p.fg};overflow:hidden;box-sizing:border-box">${inner}</div>`;
+    if (t.layout) return renderLayout(t, f, p, H, B, photo, ph, logoSrc, brand, opts);
     const badge = (txt, size, x, y, d) => `<div style="position:absolute;right:${x}px;top:${y}px;width:${d}px;height:${d}px;border-radius:50%;background:${p.ac};color:${p.onAc};display:grid;place-items:center;text-align:center;${H};font-size:${size}px;line-height:1;transform:rotate(-8deg);padding:20px;box-sizing:border-box">${esc(txt)}</div>`;
 
     if (post.tpl === "offer") return wrap(`
@@ -211,25 +212,69 @@ window.TFT_TEMPLATES = {
     return wrap("");
   };
 
+  // ---------- Eigene Layouts (Vorlagen-Editor) ----------
+  const FMT = { story: { label: "Story 9:16", w: 1080, h: 1920 }, post45: { label: "Post 4:5", w: 1080, h: 1350 }, post11: { label: "Post 1:1", w: 1080, h: 1080 } };
+  const FL = { kicker: "Kicker", title: "Headline", price: "Preis", sub: "Zeile unten", date: "Datum", big: "Groß", cta: "Call to Action", quote: "Zitat", name: "Name" };
+  const FD = { kicker: "Heute frisch", title: "Pizza con zucca", price: "15,50", sub: "Kürbis · Zucchini · Lauch · Speck", date: "11.11.", big: "Heute", cta: "Jetzt reservieren", quote: "Die beste Pizza im Bezirk.", name: "Google-Bewertung" };
+  window.TFT_FMT = FMT; window.TFT_FIELD_LABELS = FL; window.TFT_FIELD_DEFAULTS = FD;
+  const layoutTpl = L => {
+    const fields = [];
+    (L.els || []).forEach(e => { if (e.field && !fields.some(x => x.k === e.field)) fields.push({ k: e.field, label: FL[e.field] || e.field, def: (L.samples && L.samples[e.field] != null) ? L.samples[e.field] : (FD[e.field] || "") }); });
+    const fm = FMT[L.format] || FMT.post45;
+    return { label: L.name || "Eigene Vorlage", format: fm.label, w: fm.w, h: fm.h, layout: L, fields, custom: true };
+  };
+  window.TFT_layoutTpl = layoutTpl;
+  window.TFT_registerLayout = L => { TFT_TEMPLATES["L:" + L.id] = layoutTpl(L); };
+  // Vorlage eines Posts: eigene Layouts live, sonst Kopie aus dem Post (z. B. im Freigabe-Link)
+  window.TFT_tpl = post => TFT_TEMPLATES[post.tpl] || (post.layout ? layoutTpl(post.layout) : TFT_TEMPLATES.offer);
+  window.TFT_loadLayouts = function (cid) {
+    let arr = []; try { arr = JSON.parse(localStorage.getItem("tft-layouts-" + cid) || "[]"); } catch (e) {}
+    Object.keys(TFT_TEMPLATES).filter(k => k.startsWith("L:")).forEach(k => delete TFT_TEMPLATES[k]);
+    arr.forEach(TFT_registerLayout); return arr;
+  };
+  function renderLayout(t, f, p, H, B, photo, ph, logoSrc, brand, opts) {
+    const col = c => c === "ac" ? p.ac : c === "onAc" ? p.onAc : c === "bg" ? p.bg : p.fg;
+    const out = (t.layout.els || []).map(e => {
+      const pos = `position:absolute;left:${e.x}px;top:${e.y}px;width:${e.w}px;height:${e.h}px;box-sizing:border-box;`;
+      const op = e.opacity != null ? `opacity:${e.opacity};` : "";
+      if (e.type === "photo") return `<div data-el="${e.id}" style="${pos}${photo};border-radius:${e.radius || 0}px;overflow:hidden;${op}">${ph}</div>`;
+      if (e.type === "shade") return `<div data-el="${e.id}" style="${pos}background:linear-gradient(${e.dir === "up" ? "0deg" : "180deg"},${col(e.color || "bg")}00 0%,${col(e.color || "bg")} 100%);${op}"></div>`;
+      if (e.type === "box") return `<div data-el="${e.id}" style="${pos}${e.fill ? `background:${col(e.color)};` : ""}${e.border ? `border:${e.border}px solid ${col(e.color)};` : ""}border-radius:${e.radius || 0}px;${op}"></div>`;
+      if (e.type === "logo") return `<div data-el="${e.id}" style="${pos}display:flex;align-items:center;justify-content:${e.align === "center" ? "center" : e.align === "right" ? "flex-end" : "flex-start"};${op}">${logoSrc ? `<img src="${esc(logoSrc)}" alt="" style="max-width:100%;max-height:100%;display:block">` : `<div style="${H};font-size:${Math.round(e.h * .6)}px;letter-spacing:.15em;color:${p.fg}">${esc(brand.logo || brand.name)}</div>`}</div>`;
+      if (e.type === "badge") return `<div data-el="${e.id}" data-fit="box" style="${pos}border-radius:50%;background:${col(e.color || "ac")};color:${e.color === "fg" ? p.bg : p.onAc};display:grid;place-items:center;text-align:center;${H};font-size:${e.size || 60}px;line-height:1;transform:rotate(${e.rotate || 0}deg);padding:${Math.round(e.w * .12)}px;overflow:hidden;${op}">${esc(e.field ? (f[e.field] || "") : (e.text || ""))}</div>`;
+      return `<div data-el="${e.id}" data-fit="box" style="${pos}${e.font === "body" ? B : H};font-size:${e.size || 60}px;line-height:${e.lh || 1.05};color:${col(e.color)};text-align:${e.align || "left"};${e.upper ? "text-transform:uppercase;letter-spacing:.06em;" : ""}font-weight:${e.weight || 400};${e.pill ? `background:${col(e.pill)};border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 40px;` : ""}overflow:hidden;${op}">${nl(e.field ? (f[e.field] || "") : (e.text || ""))}</div>`;
+    }).join("");
+    return `<div class="tft-post" style="position:relative;width:${t.w}px;height:${t.h}px;background:${p.bg};color:${p.fg};overflow:hidden">${out}</div>`;
+  }
+
   // Schrift verkleinern, bis lange Wörter in die Zeile passen (z. B. breite Display-Schriften)
   window.TFT_fit = function (root) {
     root.querySelectorAll("[data-fit]").forEach(el => {
-      let fs = parseFloat(el.style.fontSize) || 80, g = 0;
+      if (!el.dataset.fs) el.dataset.fs = parseFloat(el.style.fontSize) || 80;
+      let fs = parseFloat(el.dataset.fs), g = 0; el.style.fontSize = fs + "px";
       el.style.overflowWrap = "normal";
-      while (el.scrollWidth > el.clientWidth + 2 && fs > 18 && g++ < 40) { fs *= 0.93; el.style.fontSize = fs.toFixed(1) + "px"; }
+      const box = el.dataset.fit === "box";
+      while ((el.scrollWidth > el.clientWidth + 2 || (box && el.scrollHeight > el.clientHeight + 2)) && fs > 14 && g++ < 60) { fs *= 0.93; el.style.fontSize = fs.toFixed(1) + "px"; }
     });
   };
 
+  // Wenn Schriften nachladen (Google Fonts, hochgeladene Schriften), Text nochmal einpassen
+  const mounted = new Set();
+  window.TFT_track = el => mounted.add(el);
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener("loadingdone", () => {
+    mounted.forEach(el => { if (el.isConnected) TFT_fit(el); else mounted.delete(el); });
+  });
+
   // Rendert skaliert in einen Container mit fixer Breite
   window.TFT_mount = function (container, post, brand, opts) {
-    const t = TFT_TEMPLATES[post.tpl];
+    const t = TFT_tpl(post);
     const w = container.clientWidth || 300;
     const s = w / t.w;
     container.style.position = "relative";
     container.style.overflow = "hidden";
     container.style.aspectRatio = t.w + " / " + t.h;
     container.innerHTML = `<div style="position:absolute;left:0;top:0;transform-origin:0 0;transform:scale(${s})">${TFT_renderPost(post, brand, opts)}</div>`;
-    TFT_fit(container);
+    TFT_fit(container); mounted.add(container);
   };
 
   // Brand ohne eingebettete Dateien (für Freigabe-Links)

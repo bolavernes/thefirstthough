@@ -8,6 +8,7 @@ Konzept-Entwurf und klickbarer Prototyp für das interne Tool von **the first th
 | `/fragebogen/` | iPad-Fragebogen (Demo, PWA, „Zum Home-Bildschirm“ → läuft ohne Browserleiste) |
 | `/auswertung/` | Beispiel einer Kunden-Auswertung im Cockpit (erfundenes Lokal) |
 | `/brandkit/` | Brand-Kit pro Kunde: Logo, Farben, Schriften (Upload), Ton, Mediathek, Live-Vorschau |
+| `/vorlagen/` | Layout-Editor pro Kunde: Foto, Texte, Logo, Preis-Badge, Flächen per Drag & Drop anordnen, Rückgängig, Text-Befehle. Vorlagen erscheinen im Content-Studio (★) und optional im Kunden-Bot |
 | `/content/` | Content-Studio mit Feed-Vorschau, Vorlagen, Freigabe-Link |
 | `/bot/` · `/anfragen/` | Kunden-Bot (Simulation) und Dashboard mit Kundenliste |
 | `/konzept/` | Vollständiges Konzept inkl. offener Fragen (`docs/konzept.md`) |

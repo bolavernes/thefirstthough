@@ -120,7 +120,7 @@ function review() {
   <div class="bar"><div class="in"><span id="cnt"></span><button class="btn btn--pink" id="go" disabled>Absenden</button></div></div>`;
   const cards = document.getElementById("cards");
   D.p.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(p => {
-    const t = TFT_TEMPLATES[p.tpl];
+    const t = TFT_tpl(p);
     const c = document.createElement("div"); c.className = "card";
     c.innerHTML = `<div class="meta"><b>${esc(fmt(p.date))}</b><span>${esc(t.format)}</span></div><div class="pv ${t.h > t.w * 1.5 ? "story" : ""}"></div>${p.caption ? `<div class="cap">${esc(p.caption)}</div>` : ""}<div class="act"><button class="ok" type="button">✓ Passt</button><button class="ch" type="button">✎ Ändern</button></div><textarea placeholder="Was soll anders sein?"></textarea>`;
     const [ok, ch] = c.querySelectorAll(".act button"); const ta = c.querySelector("textarea");

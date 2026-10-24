@@ -91,7 +91,8 @@
 "use strict";
 const CID = TFT_currentClient(), CL = TFT_CLIENTS[CID];
 let brand = TFT_getBrand(CID);
-window.addEventListener("storage", e => { if (e.key === "tft-brand-" + CID) location.reload(); });
+const LAYOUTS = TFT_loadLayouts(CID);
+window.addEventListener("storage", e => { if (e.key === "tft-brand-" + CID || e.key === "tft-layouts-" + CID) location.reload(); });
 TFT_loadFonts(brand);
 document.addEventListener("tft-fonts", () => document.querySelectorAll("[data-post]").forEach(el => TFT_mount(el, JSON.parse(el.dataset.post), brand)));
 const SHORT = brand.name.split(" ").slice(-1)[0];
@@ -147,6 +148,14 @@ function parse(text) {
 }
 
 function variants(r) {
+  const vs = baseVariants(r);
+  // Eigene Layouts aus dem Layout-Editor (Häkchen „Im Kunden-Bot anbieten“) ersetzen den letzten Vorschlag
+  const keys = Object.keys(r.base);
+  const own = LAYOUTS.filter(l => l.bot && (l.els || []).some(e => e.field && keys.includes(e.field)));
+  own.slice(0, 2).forEach((l, i) => { vs[vs.length - 1 - i] = { tpl: "L:" + l.id, v: i ? "light" : "dark", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" }; });
+  return vs;
+}
+function baseVariants(r) {
   if (r.kind === "info") return [
     { tpl: "today", v: "dark", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" },
     { tpl: "today", v: "accent", f: r.base, media: r.media.url ? "" : r.media.name, img: r.media.url || "" },

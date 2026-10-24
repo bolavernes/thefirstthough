@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>the first thought — Layout-Editor</title>
+<meta name="theme-color" content="#141414">
+<link rel="icon" href="../assets/img/logo-pink.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="../assets/css/base.css">
+<style>
+  .banner{background:var(--yellow);color:var(--ink);font-size:13.5px;font-weight:600;text-align:center;padding:8px var(--gutter)}
+  header.top{position:sticky;top:0;z-index:30;background:rgba(20,20,20,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:64px;gap:14px;max-width:1500px}
+  .crumbs{font-size:13px;color:var(--muted);font-weight:600}
+  .crumbs b{color:var(--paper)}
+  .hdr-r{display:flex;gap:8px;align-items:center}
+  .hdr-r .btn{white-space:nowrap}
+  .csel{font:600 14px var(--sans);background:var(--ink-2);color:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;max-width:190px}
+  main.wrap{max-width:1500px;padding-bottom:110px}
+  h1{font-weight:900;font-size:clamp(26px,3.4vw,40px);margin:22px 0 4px;line-height:1.05}
+  .lead{color:var(--mist);margin:0 0 18px;max-width:820px;font-size:15px}
+  .ed{display:grid;grid-template-columns:260px minmax(0,1fr) 320px;gap:18px;align-items:start}
+  @media (max-width:1180px){.ed{grid-template-columns:240px minmax(0,1fr)}.ed .props{grid-column:1 / -1}}
+  @media (max-width:760px){.ed{grid-template-columns:minmax(0,1fr)}.ed .stagecol{order:-1;position:static}.stagewrap{padding:10px}.lead{font-size:14px}.lead .more{display:none}.stagehint{display:none}}
+  .panel{background:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+  .panel h2{font-size:15px;font-weight:700;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .panel h2 small{font-weight:600;color:var(--muted);font-size:12px}
+  .hint{font-size:12.5px;color:var(--muted);margin:0 0 10px}
+  .lays{display:flex;flex-direction:column;gap:6px}
+  .lay{display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;background:var(--ink);text-align:left;color:var(--paper);font:inherit}
+  .lay[aria-pressed="true"]{border-color:var(--pink)}
+  .lay .th{width:40px;flex:none;border-radius:5px;overflow:hidden}
+  .lay b{display:block;font-size:13.5px}
+  .lay span{font-size:12px;color:var(--muted)}
+  .new{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+  .chipb{font:600 12.5px var(--sans);background:transparent;color:var(--mist);border:1.5px solid var(--line);border-radius:10px;padding:9px 8px;cursor:pointer;text-align:left}
+  .chipb:hover{border-color:var(--pink);color:var(--pink)}
+  .chipb small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+  .tools{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .layers{display:flex;flex-direction:column;gap:4px;max-height:300px;overflow:auto}
+  .layers button{display:flex;gap:8px;align-items:center;font:600 13px var(--sans);background:var(--ink);color:var(--mist);border:1.5px solid transparent;border-radius:9px;padding:8px 10px;cursor:pointer;text-align:left}
+  .layers button[aria-pressed="true"]{border-color:var(--pink);color:var(--paper)}
+  .layers i{font-style:normal;width:18px;text-align:center;opacity:.8}
+
+  .stagecol{position:sticky;top:80px}
+  .stagebar{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+  .seg button{font:600 12.5px var(--sans);background:transparent;color:var(--mist);border:0;padding:8px 12px;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--paper);color:var(--ink)}
+  .iconb{font:600 13px var(--sans);background:var(--ink-2);color:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:8px 12px;cursor:pointer}
+  .iconb:disabled{opacity:.35;cursor:default}
+  .stagewrap{display:grid;place-items:center;background:repeating-conic-gradient(#1b1d20 0 25%, #202226 0 50%) 0 0/24px 24px;border:1px solid var(--line);border-radius:var(--radius);padding:18px;min-height:300px}
+  #stage{position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5);touch-action:none;user-select:none;-webkit-user-select:none}
+  #art{position:absolute;inset:0;overflow:hidden}
+  #ov{position:absolute;inset:0}
+  .ob{position:absolute;outline:1px dashed rgba(255,255,255,.28);outline-offset:-1px;cursor:move}
+  .ob:hover{outline-color:rgba(232,43,86,.8)}
+  .ob.sel{outline:2px solid var(--pink);outline-offset:0}
+  .ob .lb{position:absolute;left:-2px;top:-22px;font:700 11px var(--sans);background:var(--pink);color:var(--ink);padding:3px 6px;border-radius:5px 5px 5px 0;white-space:nowrap;display:none;pointer-events:none}
+  .ob.sel .lb{display:block}
+  .hd{position:absolute;width:16px;height:16px;background:#fff;border:2px solid var(--pink);border-radius:4px;display:none}
+  .ob.sel .hd{display:block}
+  .hd.nw{left:-9px;top:-9px;cursor:nwse-resize}.hd.ne{right:-9px;top:-9px;cursor:nesw-resize}
+  .hd.sw{left:-9px;bottom:-9px;cursor:nesw-resize}.hd.se{right:-9px;bottom:-9px;cursor:nwse-resize}
+  @media (pointer:coarse){.hd{width:20px;height:20px}.hd.nw{left:-11px;top:-11px}.hd.ne{right:-11px;top:-11px}.hd.sw{left:-11px;bottom:-11px}.hd.se{right:-11px;bottom:-11px}}
+  .guide{position:absolute;background:#3cf;pointer-events:none;display:none}
+  .guide.v{top:0;bottom:0;width:1px;left:50%}.guide.h{left:0;right:0;height:1px;top:50%}
+  .stagehint{font-size:12.5px;color:var(--muted);margin-top:10px;text-align:center}
+
+  label.fld{display:block;margin-bottom:10px}
+  label.fld > span{display:block;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+  .inp,label.fld input[type=text],label.fld textarea,label.fld select{width:100%;font:14px var(--sans);color:var(--paper);background:var(--ink);border:1.5px solid var(--line);border-radius:10px;padding:9px 11px}
+  label.fld textarea{min-height:58px;resize:vertical}
+  .rng{display:flex;gap:8px;align-items:center}
+  .rng input[type=range]{flex:1;accent-color:var(--pink)}
+  .rng input[type=number]{width:70px;font:13px var(--sans);color:var(--paper);background:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:7px}
+  .xywh{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+  .xywh label{font-size:11px;color:var(--muted);font-weight:600}
+  .xywh input{width:100%;font:13px var(--sans);color:var(--paper);background:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:7px 6px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chips button{font:600 12.5px var(--sans);background:transparent;color:var(--mist);border:1.5px solid var(--line);border-radius:999px;padding:7px 11px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+  .chips button[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .chips .dot{width:12px;height:12px;border-radius:50%;border:1px solid rgba(255,255,255,.4)}
+  .pos9{display:grid;grid-template-columns:repeat(3,34px);gap:4px}
+  .pos9 button{height:34px;border-radius:8px;border:1.5px solid var(--line);background:var(--ink);cursor:pointer;color:var(--muted);font-size:14px}
+  .pos9 button:hover{border-color:var(--pink);color:var(--pink)}
+  .row2{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px}
+  .row2 > div{flex:1;min-width:120px}
+  .sub{font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 5px}
+  .acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .mt{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+  .mt button{aspect-ratio:1;border-radius:7px;border:2px solid transparent;background:var(--ink-3) center/cover;cursor:pointer;padding:0}
+  .mt button[aria-pressed="true"]{border-color:var(--pink)}
+  .empty{font-size:13px;color:var(--muted);text-align:center;padding:16px 6px}
+  .ck{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--mist);margin:6px 0}
+  .ck input{width:18px;height:18px;accent-color:var(--pink);flex:none;margin-top:1px}
+
+  .savebar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(20,20,20,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+  .savebar .wrap{max-width:1500px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .savebar #saved{font-size:14px;color:var(--mist)}
+  .savebar #saved.ok{color:#3ccf7a}
+  .savebar #saved.err{color:var(--pink)}
+  .savebar .sbr{display:flex;gap:8px}
+  .savebar .btn{padding:13px 18px;font-size:14px;white-space:nowrap}
+  @media (max-width:760px){.crumbs{display:none}}
+  @media (max-width:560px){.savebar #toContent{display:none}.savebar #saved{font-size:12.5px;line-height:1.3}.hdr-r .btn{display:none}}
+</style>
+</head>
+<body>
+<div class="banner">Prototyp · Layout-Editor fürs Team · Vorlagen werden pro Kunde in diesem Browser gespeichert (echt: in der Datenbank)</div>
+<header class="top"><div class="wrap">
+  <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
+  <span class="crumbs"></span>
+  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="bkLink" href="../brandkit/" style="padding:10px 14px;font-size:13px">Brand-Kit</a></div>
+</div></header>
+
+<main class="wrap">
+  <h1>Layout-Editor <span id="hName" style="color:var(--pink)"></span></h1>
+  <p class="lead">Eigene Vorlagen pro Kunde: Foto, Texte, Logo und Preis-Badge mit der Maus oder dem Finger verschieben, an den Ecken skalieren.<span class="more"> Schrift und Farben kommen immer aus dem Brand-Kit, hier legst du nur fest, <b>wo</b> was sitzt und <b>wie groß</b>. Gespeicherte Vorlagen stehen im Content-Studio und im Kunden-Bot zur Auswahl.</span></p>
+
+  <div class="ed">
+    <aside>
+      <div class="panel">
+        <h2>Vorlagen <small id="layCount"></small></h2>
+        <div class="lays" id="lays"></div>
+        <p class="sub" style="margin-top:14px">Neue Vorlage</p>
+        <div class="new" id="new"></div>
+      </div>
+      <div class="panel">
+        <h2>Element hinzufügen</h2>
+        <div class="tools" id="tools"></div>
+      </div>
+      <div class="panel">
+        <h2>Ebenen <small>oben = vorne</small></h2>
+        <div class="layers" id="layers"></div>
+      </div>
+    </aside>
+
+    <section class="stagecol">
+      <div class="stagebar">
+        <div class="seg" id="vars"></div>
+        <div style="display:flex;gap:6px">
+          <button class="iconb" type="button" id="undo" title="Rückgängig (⌘Z)">↶ Rückgängig</button>
+          <button class="iconb" type="button" id="redo" title="Wiederholen (⇧⌘Z)">↷</button>
+          <button class="iconb" type="button" id="grid" aria-pressed="true" title="Am Raster einrasten">▦ Raster</button>
+        </div>
+      </div>
+      <div class="stagewrap" id="stagewrap">
+        <div id="stage"><div id="art"></div><div id="ov"></div><div class="guide v" id="gv"></div><div class="guide h" id="gh"></div></div>
+      </div>
+      <p class="stagehint">Klicken = auswählen · ziehen = verschieben · Ecken = Größe · Pfeiltasten = 1 px (mit ⇧ 10 px) · Entf = löschen · ⌘D = duplizieren</p>
+    </section>
+
+    <aside class="props">
+      <div class="panel" id="elPanel"></div>
+      <div class="panel">
+        <h2>Vorlage</h2>
+        <label class="fld"><span>Name</span><input type="text" id="lName"></label>
+        <p class="sub">Format</p>
+        <div class="chips" id="fmts" style="margin-bottom:12px"></div>
+        <p class="sub">Beispieltexte (nur Vorschau)</p>
+        <div id="samples"></div>
+        <p class="sub" id="mtLabel">Beispielfoto</p>
+        <div class="mt" id="mt" style="margin-bottom:12px"></div>
+        <label class="ck"><input type="checkbox" id="lBot"> Im Kunden-Bot als Variante anbieten</label>
+        <div class="acts">
+          <button class="chipb" type="button" id="lDup">Vorlage duplizieren</button>
+          <button class="chipb" type="button" id="lDel">Vorlage löschen</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<div class="savebar"><div class="wrap">
+  <span id="saved" class="ok">✓ Alles gespeichert</span>
+  <div class="sbr"><a class="btn" id="toContent" href="../content/">Im Content-Studio verwenden</a><button class="btn btn--pink" type="button" id="saveBtn">Speichern</button></div>
+</div></div>
+
+<script src="../assets/js/templates.js"></script>
+<script src="../assets/js/clients.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/assist.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const CID = TFT_currentClient();
+const CL = TFT_CLIENTS[CID];
+const KEY = "tft-layouts-" + CID;
+let brand = TFT_getBrand(CID);
+const uid = p => (p || "e") + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+const clone = o => JSON.parse(JSON.stringify(o));
+const FMT = TFT_FMT, FL = TFT_FIELD_LABELS;
+
+// ---------- Startvorlagen (entsprechen den eingebauten Vorlagen) ----------
+const T = (field, x, y, w, h, o) => Object.assign({ type: "text", field, x, y, w, h, font: "head", size: 80, color: "fg", align: "left" }, o || {});
+const PRESETS = {
+  offer: { name: "Angebot", format: "post45", els: [
+    { type: "photo", x: 0, y: 0, w: 1080, h: 760 },
+    { type: "badge", field: "price", x: 770, y: 640, w: 240, h: 240, size: 62, rotate: -8, color: "ac" },
+    T("kicker", 80, 820, 920, 50, { font: "body", size: 34, weight: 600, upper: true, color: "ac" }),
+    T("title", 80, 880, 920, 230, { size: 108, lh: 1 }),
+    T("sub", 80, 1130, 920, 60, { font: "body", size: 36, opacity: .85 }),
+    { type: "logo", x: 80, y: 1230, w: 320, h: 60, align: "left" }] },
+  special: { name: "Tagesangebot", format: "story", els: [
+    { type: "photo", x: 0, y: 0, w: 1080, h: 1150 },
+    { type: "shade", x: 0, y: 850, w: 1080, h: 300, color: "bg", dir: "down" },
+    { type: "logo", x: 90, y: 110, w: 420, h: 90, align: "left" },
+    T("kicker", 90, 1120, 900, 70, { font: "body", size: 50, weight: 700, upper: true, color: "ac" }),
+    T("title", 90, 1200, 900, 380, { size: 140, lh: 1 }),
+    { type: "badge", field: "price", x: 710, y: 960, w: 280, h: 280, size: 70, rotate: -8, color: "ac" },
+    T("sub", 90, 1640, 900, 130, { font: "body", size: 44, opacity: .85 })] },
+  today: { name: "Heute-Info", format: "story", els: [
+    { type: "box", x: 70, y: 70, w: 940, h: 1780, border: 6, radius: 40, color: "ac" },
+    { type: "logo", x: 240, y: 170, w: 600, h: 110, align: "center" },
+    T("kicker", 130, 600, 820, 90, { font: "body", size: 64, weight: 700, upper: true, color: "ac", align: "center" }),
+    T("big", 130, 700, 820, 420, { size: 190, lh: .95, align: "center" }),
+    T("sub", 130, 1180, 820, 300, { font: "body", size: 52, lh: 1.3, align: "center", opacity: .9 })] },
+  event: { name: "Event", format: "post45", els: [
+    { type: "box", x: 60, y: 60, w: 960, h: 1230, border: 4, color: "ac" },
+    { type: "photo", x: 120, y: 130, w: 840, h: 560 },
+    T("date", 120, 730, 840, 150, { size: 130, lh: .95, color: "ac" }),
+    T("title", 120, 900, 840, 200, { size: 76, lh: 1.04 }),
+    T("sub", 120, 1150, 840, 60, { font: "body", size: 34, opacity: .85 })] },
+  story: { name: "Countdown", format: "story", els: [
+    { type: "photo", x: 0, y: 0, w: 1080, h: 1920, opacity: .35 },
+    { type: "shade", x: 0, y: 300, w: 1080, h: 900, color: "bg", dir: "down" },
+    { type: "box", x: 0, y: 1190, w: 1080, h: 730, fill: true, color: "bg" },
+    { type: "logo", x: 90, y: 120, w: 400, h: 80, align: "left" },
+    T("kicker", 90, 820, 900, 70, { font: "body", size: 52, weight: 600, upper: true, color: "ac" }),
+    T("big", 90, 900, 900, 260, { size: 250, lh: .9 }),
+    T("title", 90, 1170, 900, 240, { size: 110, lh: 1 }),
+    T("sub", 90, 1620, 900, 130, { font: "body", size: 44, weight: 700, align: "center", color: "onAc", pill: "ac" })] },
+  blankStory: { name: "Leere Story", format: "story", els: [{ type: "logo", x: 340, y: 120, w: 400, h: 90, align: "center" }] },
+  blankPost: { name: "Leerer Post", format: "post45", els: [{ type: "logo", x: 80, y: 1230, w: 320, h: 60, align: "left" }] }
+};
+function fromPreset(k) {
+  const P = PRESETS[k], L = { id: uid("l"), name: P.name + " (eigen)", format: P.format, els: clone(P.els).map(e => Object.assign(e, { id: uid() })), samples: {}, base: k };
+  const tt = TFT_TEMPLATES[k];
+  if (tt) tt.fields.forEach(f => { L.samples[f.k] = f.def; });
+  if (CL.seed) { // Adriano: passende Beispieltexte
+    const s = CL.seed().find(p => p.tpl === k); if (s && s.f) Object.assign(L.samples, s.f);
+  }
+  return L;
+}
+
+// ---------- Zustand ----------
+let layouts = [];
+try { layouts = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) {}
+const qs = new URLSearchParams(location.search);
+let dirty = false;
+if (qs.get("from") && PRESETS[qs.get("from")]) { const L = fromPreset(qs.get("from")); layouts.push(L); dirty = true; history.replaceState(null, "", "?k=" + CID + "&l=" + L.id); }
+if (!layouts.length) { layouts.push(fromPreset(CID === "adriano" ? "special" : "offer")); dirty = true; }
+let cur = (layouts.find(l => l.id === qs.get("l")) || layouts[0]).id;
+let selId = null, variant = "dark", snap = true, img = (CL.media.find(m => m.url) || {}).url || "";
+const L = () => layouts.find(l => l.id === cur);
+const E = () => (L().els || []).find(e => e.id === selId);
+const fm = () => FMT[L().format] || FMT.post45;
+
+// ---------- Rückgängig ----------
+let hist = [JSON.stringify(layouts)], fut = [], ht;
+function commit(now) {
+  clearTimeout(ht);
+  const push = () => { const s = JSON.stringify(layouts); if (s !== hist[hist.length - 1]) { hist.push(s); if (hist.length > 80) hist.shift(); fut = []; } updUndo(); };
+  if (now) push(); else ht = setTimeout(push, 350);
+}
+function undo() { commit(true); if (hist.length < 2) return; fut.push(hist.pop()); layouts = JSON.parse(hist[hist.length - 1]); fix(); changed(false); }
+function redo() { if (!fut.length) return; const s = fut.pop(); hist.push(s); layouts = JSON.parse(s); fix(); changed(false); }
+function fix() { if (!L()) cur = layouts[0].id; if (!E()) selId = null; }
+function updUndo() { $("undo").disabled = hist.length < 2; $("redo").disabled = !fut.length; }
+
+function changed(record) {
+  dirty = true; $("saved").className = "err"; $("saved").textContent = "● Nicht gespeichert";
+  if (record !== false) commit();
+  renderAll();
+}
+function persist() {
+  try { localStorage.setItem(KEY, JSON.stringify(layouts)); } catch (e) { $("saved").className = "err"; $("saved").textContent = "Speichern fehlgeschlagen (Speicher voll?)"; return false; }
+  const ok = localStorage.getItem(KEY) === JSON.stringify(layouts);
+  dirty = !ok;
+  $("saved").className = ok ? "ok" : "err";
+  $("saved").textContent = ok ? `✓ Gespeichert · ${layouts.length} Vorlage${layouts.length === 1 ? "" : "n"} für ${CL.name}` : "Speichern fehlgeschlagen";
+  return ok;
+}
+
+// ---------- Darstellung ----------
+let S = 1;
+function post() { return { tpl: "__edit", v: variant, f: {}, img, layout: L() }; }
+function sizeStage() {
+  const f = fm(), wrap = $("stagewrap");
+  const aw = Math.max(200, wrap.clientWidth - (window.innerWidth <= 760 ? 22 : 36));
+  const ah = window.innerWidth <= 760 ? Math.max(420, window.innerHeight - 150) : Math.max(320, window.innerHeight - 330);
+  S = Math.min(aw / f.w, ah / f.h, 1);
+  $("stage").style.width = Math.round(f.w * S) + "px"; $("stage").style.height = Math.round(f.h * S) + "px";
+}
+function renderArt() {
+  sizeStage();
+  $("art").innerHTML = `<div style="position:absolute;left:0;top:0;transform-origin:0 0;transform:scale(${S})">${TFT_renderPost(post(), brand)}</div>`;
+  TFT_fit($("art")); TFT_track($("art"));
+  renderOv();
+}
+const ICON = { text: "T", badge: "●", photo: "▣", logo: "◆", box: "□", shade: "◐" };
+const TYPE = { text: "Text", badge: "Preis-Badge", photo: "Foto", logo: "Logo", box: "Fläche/Rahmen", shade: "Verlauf" };
+const elName = e => e.type === "text" || e.type === "badge" ? (e.field ? (FL[e.field] || e.field) : "Text „" + (e.text || "").slice(0, 16) + "“") : e.type === "box" ? (e.fill ? "Fläche" : "Rahmen") : TYPE[e.type];
+function renderOv() {
+  const ov = $("ov"); ov.innerHTML = "";
+  L().els.forEach(e => {
+    const b = document.createElement("div"); b.className = "ob" + (e.id === selId ? " sel" : ""); b.dataset.id = e.id;
+    place(b, e);
+    b.innerHTML = `<span class="lb">${esc(elName(e))}</span>` + ["nw", "ne", "sw", "se"].map(h => `<span class="hd ${h}" data-h="${h}"></span>`).join("");
+    ov.appendChild(b);
+  });
+}
+function place(b, e) { b.style.left = e.x * S + "px"; b.style.top = e.y * S + "px"; b.style.width = e.w * S + "px"; b.style.height = e.h * S + "px"; }
+
+function renderList() {
+  const box = $("lays"); box.innerHTML = "";
+  $("layCount").textContent = layouts.length + " für " + CL.name;
+  layouts.forEach(l => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "lay"; b.setAttribute("aria-pressed", String(l.id === cur));
+    const f = FMT[l.format] || FMT.post45;
+    b.innerHTML = `<div class="th"></div><div><b>${esc(l.name)}</b><span>${esc(f.label)}${l.bot ? " · Bot" : ""}</span></div>`;
+    b.onclick = () => { cur = l.id; selId = null; history.replaceState(null, "", "?k=" + CID + "&l=" + l.id); renderAll(); };
+    box.appendChild(b);
+    requestAnimationFrame(() => TFT_mount(b.querySelector(".th"), { tpl: "__edit", v: variant, f: {}, img, layout: l }, brand));
+  });
+  const nw = $("new"); nw.innerHTML = "";
+  [["special", "Story"], ["today", "Story"], ["story", "Story"], ["offer", "Post 4:5"], ["event", "Post 4:5"], ["blankStory", "9:16"], ["blankPost", "4:5"]].forEach(([k, s]) => {
+    const b = document.createElement("button"); b.type = "button"; b.className = "chipb"; b.innerHTML = `+ ${esc(PRESETS[k].name)}<small>${s}${k.startsWith("blank") ? "" : " · als Start"}</small>`;
+    b.onclick = () => { const l = fromPreset(k); layouts.push(l); cur = l.id; selId = null; changed(); };
+    nw.appendChild(b);
+  });
+}
+function renderTools() {
+  const t = $("tools"); t.innerHTML = "";
+  const f = () => fm();
+  const add = (label, mk) => { const b = document.createElement("button"); b.type = "button"; b.className = "chipb"; b.textContent = label; b.onclick = () => { const e = Object.assign(mk(), { id: uid() }); L().els.push(e); selId = e.id; changed(); }; t.appendChild(b); };
+  add("+ Text", () => T(unusedField(), 90, Math.round(f().h * .4), 900, 160, { size: 90 }));
+  add("+ Preis-Badge", () => ({ type: "badge", field: "price", x: f().w - 330, y: 120, w: 240, h: 240, size: 62, rotate: -8, color: "ac" }));
+  add("+ Foto", () => ({ type: "photo", x: 90, y: 200, w: 900, h: 700, radius: 0 }));
+  add("+ Logo", () => ({ type: "logo", x: 90, y: 90, w: 360, h: 80, align: "left" }));
+  add("+ Fläche", () => ({ type: "box", x: 90, y: f().h - 400, w: 900, h: 200, fill: true, color: "ac", radius: 24 }));
+  add("+ Rahmen", () => ({ type: "box", x: 60, y: 60, w: f().w - 120, h: f().h - 120, border: 6, color: "ac", radius: 0 }));
+  add("+ Verlauf", () => ({ type: "shade", x: 0, y: Math.round(f().h * .45), w: f().w, h: 400, color: "bg", dir: "down" }));
+  add("+ Fester Text", () => T("", 90, f().h - 300, 900, 100, { text: "Jetzt reservieren", font: "body", size: 44, weight: 700 }));
+}
+function unusedField() { const used = L().els.map(e => e.field); return ["title", "kicker", "sub", "price", "big", "date", "cta"].find(k => !used.includes(k)) || "title"; }
+function renderLayers() {
+  const box = $("layers"); box.innerHTML = "";
+  L().els.slice().reverse().forEach(e => {
+    const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(e.id === selId));
+    b.innerHTML = `<i>${ICON[e.type]}</i>${esc(elName(e))}`; b.onclick = () => { selId = e.id; renderAll(); };
+    box.appendChild(b);
+  });
+  if (!L().els.length) box.innerHTML = `<div class="empty">Noch leer. Links Elemente hinzufügen.</div>`;
+}
+
+// ---------- Eigenschaften ----------
+const COLORS = () => [["fg", "Schrift"], ["ac", "Akzent"], ["bg", "Hintergrund"], ["onAc", "auf Akzent"]];
+function renderProps() {
+  const P = $("elPanel"), e = E();
+  if (!e) { P.innerHTML = `<h2>Element</h2><div class="empty">Klick ein Element in der Vorschau an, um es zu verschieben, zu skalieren oder Schriftgröße und Farbe zu ändern.</div>`; return; }
+  const isTxt = e.type === "text" || e.type === "badge";
+  const fields = Object.keys(FL);
+  let h = `<h2>${ICON[e.type]} ${esc(elName(e))} <small>${esc(TYPE[e.type])}</small></h2>`;
+  if (isTxt) {
+    h += `<label class="fld"><span>Inhalt</span><select id="pField">${fields.map(k => `<option value="${k}" ${e.field === k ? "selected" : ""}>Feld: ${esc(FL[k])}</option>`).join("")}<option value="" ${!e.field ? "selected" : ""}>Fester Text (immer gleich)</option></select></label>`;
+    if (!e.field) h += `<label class="fld"><span>Text</span><textarea id="pText">${esc(e.text || "")}</textarea></label>`;
+    h += `<div class="row2"><div><p class="sub">Schrift</p><div class="chips" id="pFont"></div></div><div><p class="sub">Stil</p><div class="chips" id="pStyle"></div></div></div>`;
+    h += `<p class="sub">Schriftgröße (wird automatisch kleiner, wenn der Text nicht passt)</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pSize" min="16" max="320" value="${e.size || 60}"><input type="number" id="pSizeN" value="${e.size || 60}"></div>`;
+    if (e.type === "text") h += `<p class="sub">Zeilenabstand</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pLh" min="0.8" max="1.6" step="0.05" value="${e.lh || 1.05}"><input type="number" id="pLhN" step="0.05" value="${e.lh || 1.05}"></div>`;
+    if (e.type === "text") h += `<div class="row2"><div><p class="sub">Ausrichtung</p><div class="chips" id="pAlign"></div></div><div><p class="sub">Hinterlegung</p><div class="chips" id="pPill"></div></div></div>`;
+    if (e.type === "badge") h += `<p class="sub">Drehung</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pRot" min="-30" max="30" value="${e.rotate || 0}"><input type="number" id="pRotN" value="${e.rotate || 0}"></div>`;
+  }
+  if (e.type === "logo") h += `<p class="sub">Ausrichtung im Rahmen</p><div class="chips" id="pAlign" style="margin-bottom:10px"></div><p class="hint">Hell oder dunkel wählt das Tool automatisch, je nach Hintergrund.</p>`;
+  if (e.type === "box") h += `<div class="row2"><div><p class="sub">Art</p><div class="chips" id="pBox"></div></div></div><p class="sub">Rahmenstärke</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pBorder" min="0" max="30" value="${e.border || 0}"><input type="number" id="pBorderN" value="${e.border || 0}"></div>`;
+  if (e.type === "shade") h += `<p class="sub">Richtung</p><div class="chips" id="pDir" style="margin-bottom:10px"></div>`;
+  if (e.type !== "logo" && e.type !== "shade" && e.type !== "badge") h += `<p class="sub">Eckenradius</p><div class="rng" style="margin-bottom:10px"><input type="range" id="pRad" min="0" max="200" value="${e.radius || 0}"><input type="number" id="pRadN" value="${e.radius || 0}"></div>`;
+  if (e.type !== "photo" && e.type !== "logo") h += `<p class="sub">Farbe aus dem Brand-Kit</p><div class="chips" id="pColor" style="margin-bottom:10px"></div>`;
+  h += `<p class="sub">Deckkraft</p><div class="rng" style="margin-bottom:12px"><input type="range" id="pOp" min="0.1" max="1" step="0.05" value="${e.opacity != null ? e.opacity : 1}"><input type="number" id="pOpN" step="0.05" value="${e.opacity != null ? e.opacity : 1}"></div>`;
+  h += `<div class="row2"><div style="flex:none"><p class="sub">Schnell platzieren</p><div class="pos9" id="pPos"></div></div><div><p class="sub">Position & Größe (px)</p><div class="xywh">${["x", "y", "w", "h"].map(k => `<label>${k.toUpperCase()}<input type="number" data-k="${k}" value="${Math.round(e[k])}"></label>`).join("")}</div>
+    <div class="acts"><button class="chipb" type="button" id="pFull">Ganzflächig</button><button class="chipb" type="button" id="pCenter">Mittig</button></div></div></div>`;
+  h += `<div class="acts"><button class="chipb" type="button" id="pUp">Nach vorne</button><button class="chipb" type="button" id="pDown">Nach hinten</button><button class="chipb" type="button" id="pDup">Duplizieren</button><button class="chipb" type="button" id="pDel" style="color:var(--pink)">Löschen</button></div>`;
+  P.innerHTML = h;
+  const chips = (id, opts, curV, set) => { const c = $(id); if (!c) return; opts.forEach(([v, label, dot]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(curV === v)); b.innerHTML = (dot ? `<span class="dot" style="background:${dot}"></span>` : "") + esc(label); b.onclick = () => { set(v); changed(); }; c.appendChild(b); }); };
+  const pc = paletteNow();
+  chips("pFont", [["head", "Headline"], ["body", "Text"]], e.font || "head", v => e.font = v);
+  if ($("pStyle")) { $("pStyle").innerHTML = ""; [["upper", "GROSS", !!e.upper], ["bold", "Fett", (e.weight || 400) >= 600]].forEach(([k, l, on]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(on)); b.textContent = l; b.onclick = () => { if (k === "upper") e.upper = !e.upper; else e.weight = (e.weight || 400) >= 600 ? 400 : 700; changed(); }; $("pStyle").appendChild(b); }); }
+  chips("pAlign", [["left", "Links"], ["center", "Mitte"], ["right", "Rechts"]], e.align || "left", v => e.align = v);
+  chips("pPill", [["", "Keine"], ["ac", "Akzent", pc.ac], ["fg", "Schrift", pc.fg]], e.pill || "", v => { e.pill = v || undefined; if (v && e.color === v) e.color = v === "ac" ? "onAc" : "bg"; });
+  chips("pColor", COLORS().map(([k, l]) => [k, l, pc[k]]), e.color || (e.type === "badge" ? "ac" : "fg"), v => e.color = v);
+  chips("pBox", [["fill", "Fläche"], ["frame", "Rahmen"]], e.fill ? "fill" : "frame", v => { e.fill = v === "fill"; if (!e.fill && !e.border) e.border = 6; });
+  chips("pDir", [["down", "nach unten dichter"], ["up", "nach oben dichter"]], e.dir || "down", v => e.dir = v);
+  const rng = (id, key, num) => { const r = $(id), n = $(id + "N"); if (!r) return; const set = v => { e[key] = num ? parseFloat(v) : v; renderArtLight(); }; r.oninput = () => { n.value = r.value; set(r.value); }; n.oninput = () => { r.value = n.value; set(n.value); }; r.onchange = n.onchange = () => changed(); };
+  rng("pSize", "size", 1); rng("pLh", "lh", 1); rng("pRot", "rotate", 1); rng("pBorder", "border", 1); rng("pRad", "radius", 1); rng("pOp", "opacity", 1);
+  if ($("pField")) $("pField").onchange = ev => { e.field = ev.target.value || undefined; if (!e.field && !e.text) e.text = "Fester Text"; changed(); };
+  if ($("pText")) { $("pText").oninput = ev => { e.text = ev.target.value; renderArtLight(); }; $("pText").onchange = () => changed(); }
+  P.querySelectorAll(".xywh input").forEach(i => { i.onchange = () => { e[i.dataset.k] = Math.max(i.dataset.k === "w" || i.dataset.k === "h" ? 20 : -2000, parseInt(i.value, 10) || 0); changed(); }; });
+  const pos = $("pPos"), M = 80, f = fm();
+  ["↖", "↑", "↗", "←", "•", "→", "↙", "↓", "↘"].forEach((s, i) => { const b = document.createElement("button"); b.type = "button"; b.textContent = s; b.onclick = () => { const cx = i % 3, cy = Math.floor(i / 3); e.x = Math.round([M, (f.w - e.w) / 2, f.w - e.w - M][cx]); e.y = Math.round([M, (f.h - e.h) / 2, f.h - e.h - M][cy]); if (e.type === "logo" || e.type === "text") e.align = ["left", "center", "right"][cx]; changed(); }; pos.appendChild(b); });
+  $("pFull").onclick = () => { Object.assign(e, { x: 0, y: 0, w: f.w, h: f.h }); changed(); };
+  $("pCenter").onclick = () => { e.x = Math.round((f.w - e.w) / 2); changed(); };
+  $("pUp").onclick = () => { const a = L().els, i = a.indexOf(e); if (i < a.length - 1) { a.splice(i, 1); a.splice(i + 1, 0, e); changed(); } };
+  $("pDown").onclick = () => { const a = L().els, i = a.indexOf(e); if (i > 0) { a.splice(i, 1); a.splice(i - 1, 0, e); changed(); } };
+  $("pDup").onclick = dupEl; $("pDel").onclick = delEl;
+}
+function paletteNow() {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = TFT_renderPost({ tpl: "__edit", v: variant, f: { title: "x" }, layout: { format: "post11", els: [{ id: "a", type: "text", field: "title", x: 0, y: 0, w: 10, h: 10, color: "ac" }, { id: "b", type: "box", x: 0, y: 0, w: 1, h: 1, fill: true, color: "onAc" }] } }, brand);
+  const root = tmp.firstElementChild, a = root.querySelector('[data-el="a"]'), b = root.querySelector('[data-el="b"]');
+  return { bg: root.style.background, fg: root.style.color, ac: a.style.color, onAc: b.style.background };
+}
+function dupEl() { const e = E(); if (!e) return; const n = Object.assign(clone(e), { id: uid(), x: e.x + 30, y: e.y + 30 }); L().els.push(n); selId = n.id; changed(); }
+function delEl() { const e = E(); if (!e) return; L().els = L().els.filter(x => x !== e); selId = null; changed(); }
+let lt; function renderArtLight() { clearTimeout(lt); lt = setTimeout(renderArt, 30); }
+
+function renderLayoutPanel() {
+  const l = L();
+  $("hName").textContent = "· " + CL.name;
+  $("lName").value = l.name;
+  const fc = $("fmts"); fc.innerHTML = "";
+  Object.entries(FMT).forEach(([k, f]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(l.format === k)); b.textContent = f.label; b.onclick = () => setFormat(k); fc.appendChild(b); });
+  const sm = $("samples"); sm.innerHTML = "";
+  const used = [...new Set(l.els.filter(e => e.field).map(e => e.field))];
+  if (!used.length) sm.innerHTML = `<p class="hint">Keine Textfelder in dieser Vorlage.</p>`;
+  used.forEach(k => { const w = document.createElement("label"); w.className = "fld"; w.innerHTML = `<span>${esc(FL[k] || k)}</span><textarea rows="1"></textarea>`; const t = w.querySelector("textarea"); t.value = (l.samples && l.samples[k] != null) ? l.samples[k] : (TFT_FIELD_DEFAULTS[k] || ""); t.style.minHeight = "40px"; t.oninput = () => { l.samples = l.samples || {}; l.samples[k] = t.value; renderArtLight(); }; t.onchange = () => changed(); sm.appendChild(w); });
+  const mt = $("mt"); mt.innerHTML = "";
+  const media = CL.media.filter(m => m.url);
+  $("mtLabel").style.display = mt.style.display = media.length ? "" : "none";
+  media.forEach(m => { const b = document.createElement("button"); b.type = "button"; b.style.backgroundImage = `url('${m.url}')`; b.title = m.tags.join(", "); b.setAttribute("aria-pressed", String(img === m.url)); b.onclick = () => { img = m.url; renderAll(); }; mt.appendChild(b); });
+  $("lBot").checked = !!l.bot;
+  $("toContent").href = "../content/?k=" + CID;
+}
+function setFormat(k) {
+  const l = L(), a = FMT[l.format] || FMT.post45, b = FMT[k]; if (l.format === k) return;
+  const sy = b.h / a.h;
+  l.els.forEach(e => { e.y = Math.round(e.y * sy); if (e.type === "photo" || e.type === "box" || e.type === "shade") e.h = Math.round(e.h * sy); });
+  l.format = k; changed();
+}
+function renderVars() {
+  const v = $("vars"); v.innerHTML = "";
+  [["dark", "Dunkel"], ["light", "Hell"], ["accent", "Akzent"]].forEach(([k, l]) => { const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(variant === k)); b.textContent = l; b.onclick = () => { variant = k; renderAll(); }; v.appendChild(b); });
+}
+function renderAll() { TFT_loadFonts(brand); renderVars(); renderArt(); renderList(); renderLayers(); renderProps(); renderLayoutPanel(); updUndo(); }
+
+$("lName").oninput = e => { L().name = e.target.value || "Ohne Namen"; dirty = true; $("saved").className = "err"; $("saved").textContent = "● Nicht gespeichert"; commit(); clearTimeout(lt); lt = setTimeout(renderList, 300); };
+$("lBot").onchange = e => { L().bot = e.target.checked; changed(); };
+$("lDup").onclick = () => { const n = Object.assign(clone(L()), { id: uid("l"), name: L().name + " Kopie" }); n.els.forEach(e => e.id = uid()); layouts.push(n); cur = n.id; selId = null; changed(); };
+$("lDel").onclick = () => { if (layouts.length < 2) { $("saved").className = "err"; $("saved").textContent = "Die letzte Vorlage kann nicht gelöscht werden"; return; } layouts = layouts.filter(l => l.id !== cur); cur = layouts[0].id; selId = null; changed(); };
+$("undo").onclick = undo; $("redo").onclick = redo;
+$("grid").onclick = () => { snap = !snap; $("grid").setAttribute("aria-pressed", String(snap)); };
+$("saveBtn").onclick = persist;
+
+// ---------- Ziehen & Skalieren ----------
+let drag = null;
+$("ov").addEventListener("pointerdown", ev => {
+  const ob = ev.target.closest(".ob");
+  if (!ob) { selId = null; renderAll(); return; }
+  ev.preventDefault();
+  const id = ob.dataset.id; const e = L().els.find(x => x.id === id);
+  if (selId !== id) { selId = id; renderLayers(); renderProps(); $("ov").querySelectorAll(".ob").forEach(o => o.classList.toggle("sel", o.dataset.id === id)); }
+  drag = { e, h: ev.target.dataset.h || null, sx: ev.clientX, sy: ev.clientY, o: { x: e.x, y: e.y, w: e.w, h: e.h }, moved: false, ob: $("ov").querySelector(`.ob[data-id="${id}"]`) };
+  $("ov").setPointerCapture(ev.pointerId);
+});
+$("ov").addEventListener("pointermove", ev => {
+  if (!drag) return;
+  const dx = (ev.clientX - drag.sx) / S, dy = (ev.clientY - drag.sy) / S, e = drag.e, o = drag.o, f = fm();
+  if (Math.abs(dx) + Math.abs(dy) > 2) drag.moved = true;
+  const g = v => snap ? Math.round(v / 10) * 10 : Math.round(v);
+  let showV = false, showH = false;
+  if (!drag.h) {
+    e.x = g(o.x + dx); e.y = g(o.y + dy);
+    const cx = e.x + e.w / 2, cy = e.y + e.h / 2;
+    if (Math.abs(cx - f.w / 2) < 16) { e.x = Math.round(f.w / 2 - e.w / 2); showV = true; }
+    if (Math.abs(cy - f.h / 2) < 16) { e.y = Math.round(f.h / 2 - e.h / 2); showH = true; }
+  } else {
+    const h = drag.h, keep = ev.shiftKey || e.type === "badge";
+    let x = o.x, y = o.y, w = o.w, hh = o.h;
+    if (h.includes("e")) w = o.w + dx; if (h.includes("s")) hh = o.h + dy;
+    if (h.includes("w")) { w = o.w - dx; x = o.x + dx; } if (h.includes("n")) { hh = o.h - dy; y = o.y + dy; }
+    if (keep) { const r = o.w / o.h; if (Math.abs(w - o.w) > Math.abs(hh - o.h) * r) hh = w / r; else w = hh * r; if (h.includes("w")) x = o.x + o.w - w; if (h.includes("n")) y = o.y + o.h - hh; }
+    w = Math.max(30, g(w)); hh = Math.max(30, g(hh));
+    e.x = g(x); e.y = g(y); e.w = w; e.h = hh;
+  }
+  $("gv").style.display = showV ? "block" : "none"; $("gh").style.display = showH ? "block" : "none";
+  place(drag.ob, e);
+  const node = $("art").querySelector(`[data-el="${e.id}"]`);
+  if (node) { node.style.left = e.x + "px"; node.style.top = e.y + "px"; node.style.width = e.w + "px"; node.style.height = e.h + "px"; }
+});
+const endDrag = () => { if (!drag) return; const m = drag.moved; drag = null; $("gv").style.display = $("gh").style.display = "none"; if (m) changed(); };
+$("ov").addEventListener("pointerup", endDrag); $("ov").addEventListener("pointercancel", endDrag);
+
+document.addEventListener("keydown", ev => {
+  const typing = /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+  if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === "s") { ev.preventDefault(); persist(); return; }
+  if (typing) return;
+  if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === "z") { ev.preventDefault(); ev.shiftKey ? redo() : undo(); return; }
+  const e = E(); if (!e) return;
+  if ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === "d") { ev.preventDefault(); dupEl(); return; }
+  if (ev.key === "Delete" || ev.key === "Backspace") { ev.preventDefault(); delEl(); return; }
+  const st = ev.shiftKey ? 10 : 1, mv = { ArrowLeft: [-st, 0], ArrowRight: [st, 0], ArrowUp: [0, -st], ArrowDown: [0, st] }[ev.key];
+  if (mv) { ev.preventDefault(); e.x += mv[0]; e.y += mv[1]; changed(); }
+});
+window.addEventListener("resize", () => { clearTimeout(lt); lt = setTimeout(renderArt, 120); });
+document.addEventListener("tft-fonts", () => renderArtLight());
+window.addEventListener("storage", ev => { if (ev.key === "tft-brand-" + CID) { brand = TFT_getBrand(CID); renderAll(); } });
+
+// Kunde & Navigation
+Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
+$("client").value = CID; $("client").onchange = ev => { const id = ev.target.value; $("client").value = CID; TFT_go("?k=" + id); };
+$("bkLink").href = "../brandkit/?k=" + CID;
+TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../content/?k=" + CID }, { label: "Layout-Editor" }], back: "../content/?k=" + CID, dirty: () => dirty, save: () => persist() });
+if (dirty) { $("saved").className = "err"; $("saved").textContent = "● Neue Vorlage, noch nicht gespeichert"; }
+
+// ---------- Bearbeitungs-Chat ----------
+const WORD = [
+  [/logo/, e => e.type === "logo"], [/foto|bild/, e => e.type === "photo"], [/preis|badge|kreis/, e => e.type === "badge"],
+  [/headline|titel|überschrift|gericht/, e => e.field === "title"], [/kicker|oben-text|dachzeile/, e => e.field === "kicker"],
+  [/zeile unten|untertext|sub\b|unterzeile/, e => e.field === "sub"], [/datum/, e => e.field === "date"], [/groß-text|großer text|status|big/, e => e.field === "big"],
+  [/rahmen/, e => e.type === "box" && !e.fill], [/fläche|balken/, e => e.type === "box" && e.fill], [/verlauf/, e => e.type === "shade"]
+];
+const findEl = low => { for (const [re, fn] of WORD) if (re.test(low)) { const e = L().els.find(fn); if (e) return e; } return null; };
+const POSW = { "oben links": [0, 0], "links oben": [0, 0], "oben rechts": [2, 0], "rechts oben": [2, 0], "unten links": [0, 2], "links unten": [0, 2], "unten rechts": [2, 2], "rechts unten": [2, 2], "oben mittig": [1, 0], "oben mitte": [1, 0], "unten mittig": [1, 2], "unten mitte": [1, 2], "oben": [null, 0], "unten": [null, 2], "mittig": [1, 1], "in die mitte": [1, 1], "links": [0, null], "rechts": [2, null] };
+TFT_assist({
+  title: "Layout-Editor " + CL.name,
+  hello: `Ich verschiebe und forme die Vorlage „${L().name}“ per Text. Mehrere Befehle mit „;“ trennen.`,
+  examples: ["Logo oben rechts", "Headline größer", "Preis unten links", "Foto ganzflächig", "Text zentriert", "Neuer Text: Jetzt reservieren", "Vorschau hell", "Speichern"],
+  fallback: "Layout aus einem Referenz-Post nachbauen, Abstände ausgleichen, drei Varianten vorschlagen",
+  handle: t => {
+    const low = t.toLowerCase().trim(), f = fm();
+    if (/^speicher/.test(low)) { persist(); return { say: "Gespeichert.", what: $("saved").textContent.replace(/^✓\s*/, "") }; }
+    if (/rückgängig|undo/.test(low)) { undo(); return { say: "Letzten Schritt rückgängig gemacht.", what: "zurückgesetzt" }; }
+    const vm = low.match(/vorschau\s*(?:auf\s*)?(hell|dunkel|akzent)/);
+    if (vm) { variant = { hell: "light", dunkel: "dark", akzent: "accent" }[vm[1]]; renderAll(); return { say: `Vorschau zeigt „${vm[1]}“.`, what: "Ansicht geändert" }; }
+    const nm = t.match(/^(?:name|vorlage heißt|umbenennen(?: in)?)\s*[:=]?\s*(.+)$/i);
+    if (nm) { L().name = nm[1].trim(); changed(); return { say: `Vorlage heißt jetzt „${L().name}“.`, what: "umbenannt, noch nicht gespeichert", tool: `rename_layout(…)` }; }
+    const fmm = low.match(/format\s*(?:auf\s*)?(story|9:16|post|4:5|quadrat|1:1)/);
+    if (fmm) { const k = /story|9:16/.test(fmm[1]) ? "story" : /quadrat|1:1/.test(fmm[1]) ? "post11" : "post45"; setFormat(k); return { say: `Format ist jetzt ${FMT[k].label}.`, what: "Format geändert", tool: `set_format("${k}")` }; }
+    const nt = t.match(/^neue[rs]?\s+text\s*[:=]?\s*(.+)$/i);
+    if (nt) { const e = Object.assign(T("", 90, f.h - 220, 900, 110, { text: nt[1].trim(), font: "body", size: 46, weight: 700, align: "center" }), { id: uid() }); L().els.push(e); selId = e.id; changed(); return { say: `Fester Text „${nt[1].trim()}“ unten eingefügt.`, what: "Element hinzugefügt", tool: `add_element("text")` }; }
+    const ne = low.match(/^neue[rs]?\s+(?:element\s+)?(badge|preis|foto|logo|fläche|rahmen|verlauf)/);
+    if (ne) { const map = { badge: 1, preis: 1, foto: 2, logo: 3, "fläche": 4, rahmen: 5, verlauf: 6 }; $("tools").children[map[ne[1]]].click(); return { say: `${ne[1][0].toUpperCase() + ne[1].slice(1)} eingefügt und ausgewählt.`, what: "Element hinzugefügt", tool: `add_element("${ne[1]}")` }; }
+    const e = findEl(low) || (/(^|\s)(text|es|das)(\s|$)|^(größer|kleiner|zentriert|löschen)/.test(low) ? (E() || L().els.find(x => x.field === "title")) : E());
+    if (!e) return null;
+    selId = e.id;
+    const nameE = elName(e);
+    if (/lösch|entfern|weg\b/.test(low)) { delEl(); return { say: `${nameE} entfernt.`, what: "Element gelöscht", tool: `remove_element("${e.id}")` }; }
+    if (/ganzfläch|vollfläch|vollbild|ganzes bild/.test(low)) { Object.assign(e, { x: 0, y: 0, w: f.w, h: f.h }); if (e.type === "photo") { const a = L().els; a.splice(a.indexOf(e), 1); a.unshift(e); } changed(); return { say: `${nameE} füllt jetzt das ganze Bild${e.type === "photo" ? " (ganz hinten)" : ""}.`, what: "Layout geändert", tool: `set_rect("${e.id}", full)` }; }
+    const gm = low.match(/(viel\s+)?(größer|kleiner)/);
+    if (gm) { const k = (gm[2] === "größer" ? 1.15 : 0.87) ** (gm[1] ? 2 : 1); if (e.type === "text" || e.type === "badge") e.size = Math.round((e.size || 60) * k); if (e.type !== "text") { const cx = e.x + e.w / 2, cy = e.y + e.h / 2; e.w = Math.round(e.w * k); e.h = Math.round(e.h * k); e.x = Math.round(cx - e.w / 2); e.y = Math.round(cy - e.h / 2); } changed(); return { say: `${nameE} ${gm[2]}${e.size ? ` (Schrift ${e.size} px)` : ""}.`, what: "Layout geändert", tool: `resize_element("${e.id}", ${k.toFixed(2)})` }; }
+    const am = low.match(/(zentriert|linksbündig|rechtsbündig)/);
+    if (am && (e.type === "text" || e.type === "logo")) { e.align = { zentriert: "center", "linksbündig": "left", "rechtsbündig": "right" }[am[1]]; changed(); return { say: `${nameE} ${am[1]}.`, what: "Ausrichtung geändert", tool: `set_align("${e.id}", "${e.align}")` }; }
+    const cm = low.match(/(?:farbe\s*)?(akzent|hintergrund|schriftfarbe|schrift|weiß|hell|dunkel)\s*$/);
+    if (cm && /farbe|in akzent|in hintergrund/.test(low) && e.type !== "photo" && e.type !== "logo") { e.color = /akzent/.test(cm[1]) ? "ac" : /hintergrund/.test(cm[1]) ? "bg" : "fg"; changed(); return { say: `${nameE} hat jetzt die Farbe „${cm[1]}“ aus dem Brand-Kit.`, what: "Farbe geändert", tool: `set_color_role("${e.id}", "${e.color}")` }; }
+    if (/nach vorne|in den vordergrund/.test(low)) { const a = L().els; a.splice(a.indexOf(e), 1); a.push(e); changed(); return { say: `${nameE} ganz nach vorne.`, what: "Ebenen geändert" }; }
+    if (/nach hinten|in den hintergrund/.test(low)) { const a = L().els; a.splice(a.indexOf(e), 1); a.unshift(e); changed(); return { say: `${nameE} ganz nach hinten.`, what: "Ebenen geändert" }; }
+    const pk = Object.keys(POSW).sort((a, b) => b.length - a.length).find(k => low.includes(k));
+    if (pk) { const [cx, cy] = POSW[pk], M = 80; if (cx != null) e.x = Math.round([M, (f.w - e.w) / 2, f.w - e.w - M][cx]); if (cy != null) e.y = Math.round([M, (f.h - e.h) / 2, f.h - e.h - M][cy]); if (cx != null && (e.type === "logo" || e.type === "text")) e.align = ["left", "center", "right"][cx]; changed(); return { say: `${nameE} sitzt jetzt ${pk}.`, what: "Layout geändert, noch nicht gespeichert", tool: `move_element("${e.id}", "${pk}")` }; }
+    const px = low.match(/(höher|tiefer|weiter links|weiter rechts)(?:\s+um)?\s*(\d+)?/);
+    if (px) { const n = parseInt(px[2] || "60", 10); if (px[1] === "höher") e.y -= n; else if (px[1] === "tiefer") e.y += n; else if (px[1] === "weiter links") e.x -= n; else e.x += n; changed(); return { say: `${nameE} ${px[1]} (${n} px).`, what: "Layout geändert", tool: `nudge("${e.id}")` }; }
+    renderAll();
+    return null;
+  }
+});
+renderAll();
+})();
+</script>
+</body>
+</html>

@@ -78,7 +78,7 @@
   .savebar .sbr{display:flex;gap:8px}
   .savebar .btn{padding:13px 18px;font-size:14px;white-space:nowrap}
   main{padding-bottom:90px}
-  @media (max-width:560px){.savebar #toBot{display:none}.savebar #saved{font-size:12.5px;line-height:1.3}}
+  @media (max-width:560px){#lyLink{display:none}.savebar #toBot{display:none}.savebar #saved{font-size:12.5px;line-height:1.3}}
   @media (max-width:760px){.crumbs{display:none}}
   @media (max-width:980px){.previews{position:static}}
 </style>
@@ -88,7 +88,7 @@
 <header class="top"><div class="wrap">
   <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
   <span class="crumbs">Cockpit / <span id="crumbName">Kunde</span> / <b>Brand-Kit</b></span>
-  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="ctLink" href="../content/" style="padding:10px 14px;font-size:13px">Content →</a></div>
+  <div class="hdr-r"><select id="client" class="csel" aria-label="Kunde wählen"></select><a class="btn" id="lyLink" href="../vorlagen/" style="padding:10px 14px;font-size:13px">Layouts</a><a class="btn" id="ctLink" href="../content/" style="padding:10px 14px;font-size:13px">Content →</a></div>
 </div></header>
 
 <main class="wrap">
@@ -183,7 +183,7 @@ Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.r
 $("client").value = CID; $("client").onchange = e => { const id = e.target.value; e.target.value = CID; TFT_go("?k=" + id); };
 $("title").textContent = "Brand-Kit " + CL.name;
 TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../content/?k=" + CID }, { label: "Brand-Kit" }], back: "../content/?k=" + CID, dirty: () => dirty, save: () => persist() });
-$("ctLink").href = "../content/?k=" + CID; $("toBot").href = "../bot/?k=" + CID;
+$("ctLink").href = "../content/?k=" + CID; $("lyLink").href = "../vorlagen/?k=" + CID; $("toBot").href = "../bot/?k=" + CID;
 $("saveBtn").onclick = persist;
 document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); persist(); } });
 

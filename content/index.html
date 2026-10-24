@@ -164,8 +164,9 @@
             <div id="comment"></div>
           </div>
           <div class="panel client-hide">
-            <h3>Vorlage</h3>
+            <h3>Vorlage <a href="../vorlagen/" id="lyLink" style="font-size:12.5px;color:var(--pink)">Layout-Editor →</a></h3>
             <div class="tplsel" id="tpls"></div>
+            <a class="btn" id="lyEdit" href="../vorlagen/" style="margin-top:10px;padding:10px 14px;font-size:13px">✎ Dieses Layout anpassen</a>
           </div>
           <div class="panel">
             <h3>Inhalt</h3>
@@ -253,6 +254,7 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY) || "null"); } catch (e) {}
 if (!S || !S.posts) S = CL.seed ? { posts: CL.seed() } : seed();
 S.brand = TFT_getBrand(CID);
+TFT_loadLayouts(CID);
 // Feedback vom Kunden übernehmen (#fb=...)
 function applyFb() {
   try {
@@ -285,7 +287,7 @@ function renderFeed() {
   $("igav").innerHTML = b.logoOnDark ? `<img src="${esc(b.logoOnDark)}" alt="" style="width:46px">` : esc((b.logo || b.name).slice(0, 2));
   $("igname").textContent = b.name; $("igname").nextSibling.textContent = CL.bio || "";
   const grid = $("grid"); grid.innerHTML = "";
-  const planned = S.posts.filter(p => !TFT_TEMPLATES[p.tpl].format.startsWith("Story")).slice().sort((a, b2) => b2.date.localeCompare(a.date));
+  const planned = S.posts.filter(p => !TFT_tpl(p).format.startsWith("Story")).slice().sort((a, b2) => b2.date.localeCompare(a.date));
   if (CL.old) {
     planned.forEach(p => addTile(grid, p, b));
     CL.old.forEach(u => { const t = document.createElement("div"); t.className = "tile old"; t.innerHTML = `<img src="${esc(u)}" alt="">`; grid.appendChild(t); });
@@ -312,7 +314,7 @@ function addTile(grid, p, b) {
 function renderList() {
   const l = $("list"); l.innerHTML = "";
   S.posts.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(p => {
-    const t = TFT_TEMPLATES[p.tpl];
+    const t = TFT_tpl(p);
     const it = document.createElement("div"); it.className = "item" + (p.id === sel ? " sel" : "");
     it.innerHTML = `<div class="th"></div><div><b>${esc(fmt(p.date))} · ${esc(t.label)}</b><span>${esc(t.format)}${p.comment ? " · 💬 Kommentar" : ""}</span></div><span class="st ${p.status}">${STATUS[p.status]}</span>`;
     it.onclick = () => { sel = p.id; renderAll(); };
@@ -321,7 +323,7 @@ function renderList() {
   });
   const add = $("add"); add.innerHTML = "";
   Object.entries(TFT_TEMPLATES).forEach(([k, t]) => {
-    const b = document.createElement("button"); b.type = "button"; b.textContent = "+ " + t.label;
+    const b = document.createElement("button"); b.type = "button"; b.textContent = (t.custom ? "+ ★ " : "+ ") + t.label;
     b.onclick = () => { const id = "p" + Date.now(); S.posts.push({ id, tpl: k, v: "dark", date: d(14), status: "draft", f: {}, caption: "" }); sel = id; save(); renderAll(); };
     add.appendChild(b);
   });
@@ -329,7 +331,7 @@ function renderList() {
 
 function renderEditor() {
   const p = cur(); if (!p) return;
-  const t = TFT_TEMPLATES[p.tpl];
+  const t = TFT_tpl(p);
   const pv = $("preview"); pv.className = t.h > t.w * 1.5 ? "story" : "";
   requestAnimationFrame(() => TFT_mount(pv, p, S.brand));
   $("date").value = p.date;
@@ -339,10 +341,14 @@ function renderEditor() {
   const tp = $("tpls"); tp.innerHTML = "";
   Object.entries(TFT_TEMPLATES).forEach(([k, tt]) => {
     const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-pressed", String(k === p.tpl));
-    b.innerHTML = `${esc(tt.label)}<small>${esc(tt.format)}</small>`;
+    b.innerHTML = `${tt.custom ? "★ " : ""}${esc(tt.label)}<small>${esc(tt.format)}${tt.custom ? " · eigenes Layout" : ""}</small>`;
     b.onclick = () => { p.tpl = k; p.f = {}; touch(p); };
     tp.appendChild(b);
   });
+  const ly = $("lyEdit"), base = { offer: 1, special: 1, today: 1, event: 1, story: 1 };
+  if (t.custom) { ly.style.display = ""; ly.textContent = "✎ Layout „" + t.label + "“ bearbeiten"; ly.href = `../vorlagen/?k=${CID}&l=${t.layout.id}`; }
+  else if (base[p.tpl]) { ly.style.display = ""; ly.textContent = "✎ Als eigenes Layout anpassen"; ly.href = `../vorlagen/?k=${CID}&from=${p.tpl}`; }
+  else ly.style.display = "none";
   // Felder
   const fl = $("fields"); fl.innerHTML = "";
   t.fields.forEach(f => {
@@ -380,7 +386,7 @@ function renderEditor() {
 let tm;
 function renderFeedList() { clearTimeout(tm); tm = setTimeout(() => { renderFeed(); renderList(); }, 250); }
 function touch(p) { if (p && p.status === "ok") p.status = "draft"; save(); renderAll(); }
-function renderAll() { TFT_loadFonts(S.brand); renderFeed(); renderList(); renderEditor(); }
+function renderAll() { S.posts.forEach(p => { if (p.tpl.startsWith("L:") && TFT_TEMPLATES[p.tpl]) p.layout = TFT_TEMPLATES[p.tpl].layout; }); TFT_loadFonts(S.brand); renderFeed(); renderList(); renderEditor(); }
 
 $("date").onchange = e => { cur().date = e.target.value; touch(cur()); };
 $("caption").oninput = e => { cur().caption = e.target.value; save(); };
@@ -394,7 +400,8 @@ $("photo").onchange = e => {
 Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
 $("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
 TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../brandkit/?k=" + CID }, { label: "Content" }], back: "../anfragen/" });
-window.addEventListener("storage", e => { if (e.key === "tft-brand-" + CID) { S.brand = TFT_getBrand(CID); renderAll(); } });
+window.addEventListener("storage", e => { if (e.key === "tft-brand-" + CID) { S.brand = TFT_getBrand(CID); renderAll(); } if (e.key === "tft-layouts-" + CID) { TFT_loadLayouts(CID); renderAll(); } });
+$("lyLink").href = "../vorlagen/?k=" + CID;
 ["bkLink", "bkLink2"].forEach(id => $(id).href = "../brandkit/?k=" + CID);
 document.addEventListener("tft-fonts", () => renderAll());
 $("dup").onclick = () => { const p = cur(); const id = "p" + Date.now(); S.posts.push(Object.assign(JSON.parse(JSON.stringify(p)), { id, status: "draft", comment: "" })); sel = id; save(); renderAll(); };
@@ -402,8 +409,8 @@ $("del").onclick = () => { if (S.posts.length < 2) return; S.posts = S.posts.fil
 
 $("png").onclick = async () => {
   const p = cur(); const st = $("exportStage");
-  st.innerHTML = TFT_renderPost(p, S.brand); TFT_fit(st);
-  await document.fonts.ready;
+  st.innerHTML = TFT_renderPost(p, S.brand);
+  await document.fonts.ready; TFT_fit(st);
   const canvas = await html2canvas(st.firstElementChild, { scale: 1, backgroundColor: null, logging: false });
   const a = document.createElement("a"); a.download = `${S.brand.handle}_${p.date}_${p.tpl}.png`; a.href = canvas.toDataURL("image/png"); a.click();
   st.innerHTML = "";
@@ -416,7 +423,7 @@ $("send").onclick = async () => {
   if (!items.length) return;
   const pin = String(Math.floor(1000 + Math.random() * 9000));
   const salt = Math.random().toString(36).slice(2, 10);
-  const payload = { b: TFT_brandLite(S.brand), s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption, img: p.img && !/^data:/.test(p.img) ? p.img : undefined })) };
+  const payload = { b: TFT_brandLite(S.brand), s: salt, h: await TFT_hash(salt + pin), x: Date.now() + 7 * 864e5, p: items.map(p => ({ id: p.id, tpl: p.tpl, v: p.v, date: p.date, f: p.f, caption: p.caption, layout: p.tpl.startsWith("L:") ? TFT_tpl(p).layout : undefined, img: p.img && !/^data:/.test(p.img) ? p.img : undefined })) };
   items.forEach(p => { p.status = "review"; p.comment = ""; });
   save(); renderAll();
   const url = new URL("../freigabe/", location.href).href + "#d=" + TFT_pack(payload);
@@ -462,11 +469,11 @@ TFT_assist({
       return { say: `Neue ${TFT_TEMPLATES[k].label}-Vorlage angelegt${title ? ": " + title : ""}.`, what: "angelegt und ausgewählt", tool: `add_post("${k}", …)` };
     }
     const am = low.match(/^alle\s+(stories|posts|beiträge)\s+(hell|dunkel|akzent)/);
-    if (am) { const v = { hell: "light", dunkel: "dark", akzent: "accent" }[am[2]]; const isS = am[1] === "stories"; S.posts.forEach(x => { if (TFT_TEMPLATES[x.tpl].format.startsWith("Story") === isS) { x.v = v; if (x.status === "ok") x.status = "draft"; } }); save(); renderAll(); return { say: `Alle ${am[1]} auf „${am[2]}“ gestellt.`, what: "mehrere Posts geändert", tool: `bulk_set_variant("${v}")` }; }
+    if (am) { const v = { hell: "light", dunkel: "dark", akzent: "accent" }[am[2]]; const isS = am[1] === "stories"; S.posts.forEach(x => { if (TFT_tpl(x).format.startsWith("Story") === isS) { x.v = v; if (x.status === "ok") x.status = "draft"; } }); save(); renderAll(); return { say: `Alle ${am[1]} auf „${am[2]}“ gestellt.`, what: "mehrere Posts geändert", tool: `bulk_set_variant("${v}")` }; }
     if (!p) return null;
     const fm = t.match(/^([a-zäöüß ]+?)\s*[:=]\s*(.+)$/i) || t.match(/^(preis|headline|titel|kicker|hook|status)\s+(.+)$/i);
     if (fm) {
-      const key = FIELD[fm[1].trim().toLowerCase()]; const tf = TFT_TEMPLATES[p.tpl].fields.map(x => x.k);
+      const key = FIELD[fm[1].trim().toLowerCase()]; const tf = TFT_tpl(p).fields.map(x => x.k);
       if (fm[1].trim().toLowerCase() === "caption") { p.caption = fm[2]; save(); renderAll(); return { say: "Caption übernommen.", what: "Post geändert", tool: "update_post(caption)" }; }
       let k2 = key && tf.includes(key) ? key : key === "title" && tf.includes("big") ? "big" : key === "title" && tf.includes("quote") ? "quote" : null;
       if (k2) { p.f = p.f || {}; p.f[k2] = fm[2].replace(/\\n/g, "\n"); touch(p); return { say: `${fm[1].trim()} ist jetzt „${fm[2]}“.`, what: "Post geändert", tool: `update_post(${k2})` }; }
