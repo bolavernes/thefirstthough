@@ -69,8 +69,15 @@
   .vars button[aria-pressed="true"]{background:var(--paper);color:var(--ink);border-color:var(--paper)}
   .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
   .actions .btn{padding:12px 16px;font-size:14px}
-  .saved{font-size:13px;color:#3ccf7a;opacity:0;transition:opacity .3s}
-  .saved.on{opacity:1}
+  .savebar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(20,20,20,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--line)}
+  .savebar .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .savebar #saved{font-size:14px;color:var(--mist)}
+  .savebar #saved.ok{color:#3ccf7a}
+  .savebar #saved.err{color:var(--pink)}
+  .savebar .sbr{display:flex;gap:8px}
+  .savebar .btn{padding:13px 18px;font-size:14px;white-space:nowrap}
+  main{padding-bottom:90px}
+  @media (max-width:560px){.savebar #toBot{display:none}.savebar #saved{font-size:12.5px;line-height:1.3}}
   @media (max-width:760px){.crumbs{display:none}}
   @media (max-width:980px){.previews{position:static}}
 </style>
@@ -141,7 +148,6 @@
       </section>
 
       <div class="actions">
-        <span class="saved" id="saved">✓ gespeichert</span>
         <button class="btn" type="button" id="reset">Auf Standard zurücksetzen</button>
       </div>
     </div>
@@ -155,6 +161,10 @@
   </div>
 </main>
 
+<div class="savebar"><div class="wrap">
+  <span id="saved">Noch nichts geändert</span>
+  <div class="sbr"><a class="btn" id="toBot" href="../bot/">Im Bot testen</a><button class="btn btn--pink" type="button" id="saveBtn">Speichern</button></div>
+</div></div>
 <script src="../assets/js/templates.js"></script>
 <script src="../assets/js/clients.js"></script>
 <script>
@@ -169,13 +179,18 @@ let variant = "dark";
 Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
 $("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
 $("crumbName").textContent = CL.name; $("title").textContent = "Brand-Kit " + CL.name;
-$("ctLink").href = "../content/?k=" + CID;
+$("ctLink").href = "../content/?k=" + CID; $("toBot").href = "../bot/?k=" + CID;
+$("saveBtn").onclick = save;
 
 let tm;
 function save() {
   const ok = TFT_saveBrand(CID, B);
-  $("saved").textContent = ok ? "✓ gespeichert" : "Speicher voll: Schrift zu groß für die Demo";
-  $("saved").classList.add("on"); clearTimeout(tm); tm = setTimeout(() => $("saved").classList.remove("on"), 1500);
+  let check = null; try { check = JSON.parse(localStorage.getItem("tft-brand-" + CID) || "null"); } catch (e) {}
+  const really = ok && check && (check.fonts || []).length === (B.fonts || []).length;
+  const t = new Date().toLocaleTimeString("de-AT", { hour: "2-digit", minute: "2-digit" });
+  const fn = (B.fonts || []).map(f => f.family).join(", ");
+  $("saved").className = really ? "ok" : "err";
+  $("saved").textContent = really ? `✓ Gespeichert um ${t}${fn ? " · Schriften: " + fn : ""}` : "Nicht gespeichert: Browser-Speicher voll oder gesperrt (privates Fenster?)";
 }
 
 // ---------- Logo ----------
@@ -274,6 +289,7 @@ $("reset").onclick = () => { TFT_resetBrand(CID); B = TFT_getBrand(CID); ["tone"
 document.addEventListener("tft-fonts", () => { renderFonts(); renderPreview(); });
 window.addEventListener("resize", () => { clearTimeout(window.__r); window.__r = setTimeout(renderPreview, 200); });
 renderAll();
+try { if (localStorage.getItem("tft-brand-" + CID)) { const fn = (B.fonts || []).map(f => f.family).join(", "); $("saved").className = "ok"; $("saved").textContent = "✓ Gespeichert in diesem Browser" + (fn ? " · Schriften: " + fn : " · noch keine eigenen Schriften"); } } catch (e) {}
 })();
 </script>
 </body>

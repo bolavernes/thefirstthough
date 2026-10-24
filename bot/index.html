@@ -69,6 +69,7 @@
         <li><b>Alles dokumentiert:</b> Jede Nachricht steht im Dashboard, auch die automatisch erledigten.</li>
       </ol>
       <p class="note">Kunde: <select id="client" aria-label="Kunde wählen" style="font:600 13px var(--sans);background:var(--ink-2);color:var(--paper);border:1px solid var(--line);border-radius:999px;padding:6px 10px"></select></p>
+      <p class="note" id="fontNote"></p>
       <p class="note">Mediathek „<span id="mtName"></span>“:</p>
       <div class="media" id="media"></div>
       <p class="note" style="margin-top:18px">Probier's: Tipp einen Vorschlag an oder schreib selbst, z. B. „Neu: Kürbiscremesuppe 6,50“ oder „Heute erst ab 17 Uhr offen“.</p>
@@ -97,6 +98,13 @@ Object.values(TFT_CLIENTS).forEach(c => document.getElementById("client").add(ne
 document.getElementById("client").value = CID; document.getElementById("client").onchange = e => TFT_setClient(e.target.value);
 document.getElementById("phName").textContent = brand.name + " × the first thought";
 document.getElementById("mtName").textContent = brand.name;
+(() => {
+  const up = n => (brand.fonts || []).some(f => f.family === n) || TFT_FONTS.includes(n);
+  const miss = [brand.head, brand.body].filter(n => !up(n));
+  document.getElementById("fontNote").innerHTML = miss.length
+    ? `⚠️ Schrift ${miss.join(" und ")} fehlt in diesem Browser, der Bot nimmt Ersatzschriften. <a href="../brandkit/?k=${CID}" style="color:var(--pink)">Im Brand-Kit hochladen →</a>`
+    : `✓ Schriften ${brand.head} und ${brand.body} aus dem Brand-Kit aktiv.`;
+})();
 document.getElementById("media").innerHTML = CL.media.map(m => m.url ? `<span style="display:inline-flex;align-items:center;gap:6px"><img src="${m.url}" alt="" style="width:22px;height:22px;object-fit:cover;border-radius:4px">${m.tags[0]}</span>` : `<span>📷 ${m.name}</span>`).join("");
 
 const chat = document.getElementById("chat");
