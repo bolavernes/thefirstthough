@@ -90,7 +90,8 @@
 (() => {
 "use strict";
 const CID = TFT_currentClient(), CL = TFT_CLIENTS[CID];
-const brand = TFT_getBrand(CID);
+let brand = TFT_getBrand(CID);
+window.addEventListener("storage", e => { if (e.key === "tft-brand-" + CID) location.reload(); });
 TFT_loadFonts(brand);
 document.addEventListener("tft-fonts", () => document.querySelectorAll("[data-post]").forEach(el => TFT_mount(el, JSON.parse(el.dataset.post), brand)));
 const SHORT = brand.name.split(" ").slice(-1)[0];

@@ -17,6 +17,7 @@
   .crumbs{font-size:13px;color:var(--muted);font-weight:600}
   .crumbs b{color:var(--paper)}
   .hdr-r{display:flex;gap:8px;align-items:center}
+  .hdr-r .btn{white-space:nowrap}
   .csel{font:600 14px var(--sans);background:var(--ink-2);color:var(--paper);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;max-width:190px}
   h1{font-weight:900;font-size:clamp(30px,4vw,46px);margin:26px 0 6px;line-height:1.05}
   .lead{color:var(--mist);margin:0 0 24px;max-width:760px}
@@ -38,7 +39,7 @@
   .col label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
   .col .pick{display:flex;gap:6px;align-items:center}
   .col input[type=color]{width:44px;height:44px;border:1.5px solid var(--line);border-radius:10px;background:var(--ink);padding:2px;flex:none}
-  .col input[type=text]{width:100%;min-width:0;font:14px ui-monospace,Menlo,monospace;background:var(--ink);color:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px 8px}
+  .col input[type=text]{width:100%;min-width:0;font:12px ui-monospace,Menlo,monospace;background:var(--ink);color:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:10px 8px}
   .chk{margin-top:12px;font-size:13px;color:var(--mist)}
   .chk b.ok{color:#3ccf7a}.chk b.bad{color:var(--pink)}
   .font{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px}
@@ -83,7 +84,7 @@
 </style>
 </head>
 <body>
-<div class="banner">Prototyp · Uploads bleiben nur in diesem Browser. Schriften werden nicht auf den Server geladen (Lizenz).</div>
+<div class="banner">Prototyp · Gespeichert wird nur in diesem Browser. Schriften werden nicht auf den Server geladen (Lizenz).</div>
 <header class="top"><div class="wrap">
   <a href="../" aria-label="Zur Übersicht"><img class="logo" src="../assets/img/logo-white.svg" alt="the first thought" style="width:34px"></a>
   <span class="crumbs">Cockpit / <span id="crumbName">Kunde</span> / <b>Brand-Kit</b></span>
@@ -167,6 +168,8 @@
 </div></div>
 <script src="../assets/js/templates.js"></script>
 <script src="../assets/js/clients.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/assist.js"></script>
 <script>
 (() => {
 "use strict";
@@ -177,13 +180,16 @@ let B = TFT_getBrand(CID);
 let variant = "dark";
 
 Object.values(TFT_CLIENTS).forEach(c => $("client").add(new Option(c.name + (c.real ? "" : " (Demo)"), c.id)));
-$("client").value = CID; $("client").onchange = e => TFT_setClient(e.target.value);
-$("crumbName").textContent = CL.name; $("title").textContent = "Brand-Kit " + CL.name;
+$("client").value = CID; $("client").onchange = e => { const id = e.target.value; e.target.value = CID; TFT_go("?k=" + id); };
+$("title").textContent = "Brand-Kit " + CL.name;
+TFT_nav({ crumbs: [{ label: "Dashboard", href: "../anfragen/" }, { label: CL.name, href: "../content/?k=" + CID }, { label: "Brand-Kit" }], back: "../content/?k=" + CID, dirty: () => dirty, save: () => persist() });
 $("ctLink").href = "../content/?k=" + CID; $("toBot").href = "../bot/?k=" + CID;
-$("saveBtn").onclick = save;
+$("saveBtn").onclick = persist;
+document.addEventListener("keydown", e => { if ((e.metaKey || e.ctrlKey) && e.key === "s") { e.preventDefault(); persist(); } });
 
-let tm;
-function save() {
+let dirty = false;
+function save() { dirty = true; $("saved").className = "err"; $("saved").textContent = "● Nicht gespeichert"; }
+function persist() {
   const ok = TFT_saveBrand(CID, B);
   let check = null; try { check = JSON.parse(localStorage.getItem("tft-brand-" + CID) || "null"); } catch (e) {}
   const really = ok && check && (check.fonts || []).length === (B.fonts || []).length;
@@ -191,6 +197,7 @@ function save() {
   const fn = (B.fonts || []).map(f => f.family).join(", ");
   $("saved").className = really ? "ok" : "err";
   $("saved").textContent = really ? `✓ Gespeichert um ${t}${fn ? " · Schriften: " + fn : ""}` : "Nicht gespeichert: Browser-Speicher voll oder gesperrt (privates Fenster?)";
+  if (really) dirty = false;
 }
 
 // ---------- Logo ----------
@@ -285,9 +292,42 @@ function renderPreview() {
 }
 
 function renderAll() { TFT_loadFonts(B); renderLogos(); renderColors(); renderFonts(); renderPreview(); }
-$("reset").onclick = () => { TFT_resetBrand(CID); B = TFT_getBrand(CID); ["tone", "dos", "donts", "handle"].forEach(k => $(k).value = B[k] || ""); renderAll(); };
+$("reset").onclick = () => { TFT_resetBrand(CID); B = TFT_getBrand(CID); dirty = false; $("saved").className = "ok"; $("saved").textContent = "✓ Auf Standard zurückgesetzt"; ["tone", "dos", "donts", "handle"].forEach(k => $(k).value = B[k] || ""); renderAll(); };
 document.addEventListener("tft-fonts", () => { renderFonts(); renderPreview(); });
 window.addEventListener("resize", () => { clearTimeout(window.__r); window.__r = setTimeout(renderPreview, 200); });
+
+// ---------- Bearbeitungs-Chat ----------
+const SLOTNAME = { dark: "Dunkel", light: "Hell", accent: "Akzent" };
+TFT_assist({
+  title: "Brand-Kit " + CL.name,
+  hello: `Ich kann das Brand-Kit von ${CL.name} per Text ändern. Mehrere Befehle mit „;“ trennen.`,
+  examples: ["Akzentfarbe Gold", "Headline-Schrift Playfair Display", "Vorschau hell", "Ton: locker, mit Augenzwinkern", "Speichern"],
+  fallback: "Farbpalette aus dem Logo ableiten, Ton aus alten Posts lernen, Do's & Don'ts vorschlagen",
+  handle: t => {
+    const low = t.toLowerCase();
+    const col = TFT_parseColor(t);
+    const slot = /akzent/.test(low) ? "accent" : /dunkel|haupt/.test(low) ? "dark" : /hell|hintergrund/.test(low) ? "light" : null;
+    if (col && slot) { B.colors[slot] = col; save(); renderAll(); return { say: `${SLOTNAME[slot]}-Farbe ist jetzt ${col.toUpperCase()}.`, what: "Brand-Kit geändert, noch nicht gespeichert", tool: `set_color("${slot}", "${col}")` }; }
+    const fm = t.match(/(headline|überschrift|titel|text|fließtext|body)[-\s]*schrift\s*(?:auf|:|=)?\s*(.+)$/i);
+    if (fm) {
+      const name = fm[2].trim(), all = [...(B.fonts || []).map(f => f.family), ...TFT_FONTS];
+      const hit = all.find(f => f.toLowerCase() === name.toLowerCase()) || all.find(f => f.toLowerCase().includes(name.toLowerCase()));
+      if (!hit) return { say: `„${name}“ habe ich nicht. Verfügbar: ${all.join(", ")}. Eigene Schriften lädst du links hoch.`, what: "nichts geändert" };
+      const isHead = /headline|überschrift|titel/i.test(fm[1]);
+      if (isHead) B.head = hit; else B.body = hit;
+      save(); renderAll(); return { say: `${isHead ? "Headline" : "Text"}-Schrift ist jetzt ${hit}.`, what: "Brand-Kit geändert, noch nicht gespeichert", tool: `set_font("${isHead ? "head" : "body"}", "${hit}")` };
+    }
+    const vm = low.match(/vorschau\s*(?:auf\s*)?(hell|dunkel|akzent)/);
+    if (vm) { variant = { hell: "light", dunkel: "dark", akzent: "accent" }[vm[1]]; renderPreview(); return { say: `Vorschau zeigt jetzt die Variante „${vm[1]}“.`, what: "Ansicht geändert" }; }
+    const tn = t.match(/^(ton|tonalität)\s*[:=]?\s*(.+)$/i);
+    if (tn) { B.tone = tn[2]; $("tone").value = B.tone; save(); return { say: "Tonalität übernommen.", what: "Brand-Kit geändert, noch nicht gespeichert", tool: `set_tone(…)` }; }
+    const dn = t.match(/^(immer|nie)\s*[:=]?\s*(.+)$/i);
+    if (dn) { const k = /immer/i.test(dn[1]) ? "dos" : "donts"; B[k] = (B[k] ? B[k] + " · " : "") + dn[2]; $(k).value = B[k]; save(); return { say: `Bei „${dn[1]}“ ergänzt: ${dn[2]}`, what: "Brand-Kit geändert, noch nicht gespeichert", tool: `add_rule("${k}", …)` }; }
+    if (/^speicher/.test(low)) { persist(); return { say: "Gespeichert.", what: $("saved").textContent.replace(/^✓\s*/, "") }; }
+    if (/zurücksetzen|reset/.test(low)) { $("reset").click(); return { say: "Brand-Kit auf Standard zurückgesetzt.", what: "zurückgesetzt" }; }
+    return null;
+  }
+});
 renderAll();
 try { if (localStorage.getItem("tft-brand-" + CID)) { const fn = (B.fonts || []).map(f => f.family).join(", "); $("saved").className = "ok"; $("saved").textContent = "✓ Gespeichert in diesem Browser" + (fn ? " · Schriften: " + fn : " · noch keine eigenen Schriften"); } } catch (e) {}
 })();

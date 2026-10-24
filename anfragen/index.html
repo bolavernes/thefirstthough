@@ -102,6 +102,8 @@
 <script src="../assets/js/anlaesse.js"></script>
 <script src="../assets/js/templates.js"></script>
 <script src="../assets/js/clients.js"></script>
+<script src="../assets/js/nav.js"></script>
+<script src="../assets/js/assist.js"></script>
 <script>
 (() => {
 "use strict";
@@ -113,7 +115,7 @@ let seen = new Set();
 let first = true;
 function render() {
   const all = TFT_inbox.all();
-  const clients = ["Alle", ...new Set(all.map(t => t.client))];
+  const clients = ["Alle", ...new Set([...all.map(t => t.client), ...(filter !== "Alle" ? [filter] : [])])];
   const f = document.getElementById("filters"); f.innerHTML = "";
   clients.forEach(c => { const b = document.createElement("button"); b.type = "button"; b.textContent = c + (c === "Alle" ? "" : ` (${all.filter(t => t.client === c && t.status === "neu").length})`); b.setAttribute("aria-pressed", String(c === filter)); b.onclick = () => { filter = c; render(); }; f.appendChild(b); });
   const list = all.filter(t => filter === "Alle" || t.client === filter);
@@ -180,6 +182,21 @@ window.addEventListener("storage", e => { if (e.key === TFT_inbox.KEY) render();
 setInterval(render, 30000);
 document.getElementById("reset").onclick = () => { TFT_inbox.reset(); seen = new Set(); first = true; render(); };
 render();
+TFT_nav({ crumbs: [{ label: "Übersicht", href: "../" }, { label: "Dashboard" }], back: "../" });
+TFT_assist({
+  title: "Dashboard",
+  hello: "Ich filtere und sortiere Anfragen. Probier „Zeig Adriano“ oder „Alle“.",
+  examples: ["Zeig Adriano", "Zeig Pizzeria Beispiel", "Alle"],
+  fallback: "Anfragen zusammenfassen, Antworten an Kunden vorformulieren, Aufgaben im Team verteilen",
+  handle: t => {
+    const low = t.toLowerCase();
+    if (/^alle/.test(low)) { filter = "Alle"; render(); return { say: "Alle Kunden.", what: "Filter zurückgesetzt" }; }
+    const m = t.match(/^(?:zeig|filter|nur)\s+(.+)$/i);
+    if (m) { const c = [...new Set(TFT_inbox.all().map(x => x.client)), ...TFT_CLIENT_LIST.map(x => x.name)].find(n => n.toLowerCase().includes(m[1].toLowerCase())); if (c) { filter = c; render(); document.getElementById("board").scrollIntoView({ behavior: "smooth" }); return { say: `Zeige ${c}.`, what: "Filter gesetzt" }; } }
+    return null;
+  }
+});
+
 })();
 </script>
 </body>

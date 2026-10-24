@@ -95,7 +95,21 @@ window.TFT_TEMPLATES = {
     // Hochgeladene Schriften (bleiben im Browser)
     (brand.fonts || []).forEach(f => {
       if (!f || !f.family || !f.data || loaded.has(f.family + f.data.length)) return;
-      try { const ff = new FontFace(f.family, `url(${f.data})`); ff.load().then(x => { document.fonts.add(x); document.dispatchEvent(new Event("tft-fonts")); }).catch(() => {}); loaded.add(f.family + f.data.length); } catch (e) {}
+      loaded.add(f.family + f.data.length);
+      // Variante 1: FontFace mit den Rohdaten (robust in Safari, Chrome, Firefox)
+      try {
+        const b64 = f.data.slice(f.data.indexOf(",") + 1), bin = atob(b64), buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        const ff = new FontFace(f.family, buf.buffer);
+        document.fonts.add(ff);
+        ff.load().then(() => document.dispatchEvent(new Event("tft-fonts"))).catch(() => {});
+      } catch (e) {}
+      // Variante 2: zusätzlich als @font-face, falls FontFace nicht greift
+      try {
+        const st = document.createElement("style");
+        st.textContent = `@font-face{font-family:"${f.family.replace(/"/g, "")}";src:url(${f.data});font-display:block}`;
+        document.head.appendChild(st);
+      } catch (e) {}
     });
     const fams = [brand.head, brand.body, brand.headFallback, brand.bodyFallback].filter(f => f && GOOGLE.includes(f));
     if (!fams.length) return;
